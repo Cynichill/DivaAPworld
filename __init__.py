@@ -54,6 +54,8 @@ class MegaMixWorld(World):
 
     # Necessary Data
     mm_collection = MegaMixCollections()
+    filler_item_names = list(mm_collection.filler_item_weights.keys())
+    filler_item_weights = list(mm_collection.filler_item_weights.values())
 
     item_name_to_id = {name: code for name, code in mm_collection.item_names_to_id.items()}
     location_name_to_id = {name: code for name, code in mm_collection.location_names_to_id.items()}
@@ -196,11 +198,7 @@ class MegaMixWorld(World):
                     item = self.create_item(key)
                     item.classification = ItemClassification.useful
                 else:
-                    # The lists should be moved out of the loop
-                    item = self.create_item(self.random.choices(
-                        list(self.mm_collection.filler_item_names.keys()),
-                        list(self.mm_collection.filler_item_weights.values())
-                    )[0])
+                    item = self.create_item(self.random.choices(self.filler_item_names, self.filler_item_weights)[0])
 
                 self.multiworld.itempool.append(item)
 
