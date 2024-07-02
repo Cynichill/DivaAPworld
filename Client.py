@@ -186,6 +186,9 @@ class MegaMixContext(CommonContext):
                     if item_name == "Leek":
                         self.leeks_obtained += 1
                         self.check_goal()
+                    elif item_name == "SAFE":
+                        # Maybe move static items out of MegaMixCollection instead of hard coding?
+                        pass
                     else:
                         if self.is_item_in_modded_data(item_name):
                             song_unlock(self.path, item_name, self.modData, False, True, logger)
