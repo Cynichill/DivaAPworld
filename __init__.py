@@ -188,18 +188,23 @@ class MegaMixWorld(World):
         if items_left <= 0:
             return
 
+        # Unlike MD this is all or nothing. A configurable percentage could be added.
+        if not self.options.duplicate_songs:
+            filler_count = items_left
+            items_left -= filler_count
+
+            for _ in range(0, filler_count):
+                filler_item = self.create_item(self.random.choices(self.filler_item_names, self.filler_item_weights)[0])
+                self.multiworld.itempool.append(filler_item)
+
         # All remaining spots are filled with duplicate songs. Duplicates are set to useful instead of progression
         # to cut down on the number of progression items that Mega mix puts into the pool.
 
         # This is for the extraordinary case of needing to fill a lot of items.
         while items_left > len(song_keys_in_pool):
             for key in song_keys_in_pool:
-                if self.options.duplicate_songs:
-                    item = self.create_item(key)
-                    item.classification = ItemClassification.useful
-                else:
-                    item = self.create_item(self.random.choices(self.filler_item_names, self.filler_item_weights)[0])
-
+                item = self.create_item(key)
+                item.classification = ItemClassification.useful
                 self.multiworld.itempool.append(item)
 
             items_left -= len(song_keys_in_pool)
