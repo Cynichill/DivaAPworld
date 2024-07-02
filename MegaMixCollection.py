@@ -22,9 +22,16 @@ class MegaMixCollections:
 
     song_items: Dict[str, SongData] = {}
     song_locations: Dict[str, int] = {}
+    
+    filler_item_names: Dict[str, int] = {
+        "SAFE": STARTING_CODE + 1,
+    }
+    filler_item_weights: Dict[str, int] = {
+        "SAFE": 1,
+    }
 
     def __init__(self) -> None:
-        self.item_names_to_id = ChainMap({self.LEEK_NAME: self.LEEK_CODE}, self.song_items)
+        self.item_names_to_id = ChainMap({self.LEEK_NAME: self.LEEK_CODE}, self.filler_item_names, self.song_items)
         self.location_names_to_id = ChainMap(self.song_locations)
 
         item_id_index = self.STARTING_CODE + 50

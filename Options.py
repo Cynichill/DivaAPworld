@@ -31,6 +31,15 @@ class UsingModdedSongs(Toggle):
     display_name = "Using Modded Songs"
 
 
+class DuplicateSongs(Toggle):
+    """
+    Whether duplicate songs should appear instead of regular filler.
+    Duplicate songs are considered Useful and thus out of logic.
+    """
+    default = True
+    display_name = "Duplicate Songs as Filler"
+
+
 class DifficultyMode(Choice):
     """Ensures that at all songs have this difficulty available.
     - Any: Song can be beaten on any difficulty
@@ -207,6 +216,7 @@ class ExcludeSongs(ItemSet):
 class MegaMixOptions(PerGameCommonOptions):
     allow_megamix_dlc_songs: AllowMegaMixDLCSongs
     using_modded_songs: UsingModdedSongs
+    duplicate_songs: DuplicateSongs
     starting_song_count: StartingSongs
     additional_song_count: AdditionalSongs
     song_difficulty_mode: DifficultyMode

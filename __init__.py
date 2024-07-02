@@ -160,6 +160,9 @@ class MegaMixWorld(World):
         if name == self.mm_collection.LEEK_NAME:
             return MegaMixFixedItem(name, ItemClassification.progression_skip_balancing, self.mm_collection.LEEK_CODE, self.player)
 
+        if name in self.mm_collection.filler_item_names:
+            return MegaMixFixedItem(name, ItemClassification.filler, self.mm_collection.filler_item_names.get(name), self.player)
+
         song = self.mm_collection.song_items.get(name)
         return MegaMixSongItem(name, self.player, song)
 
@@ -189,8 +192,16 @@ class MegaMixWorld(World):
         # This is for the extraordinary case of needing to fill a lot of items.
         while items_left > len(song_keys_in_pool):
             for key in song_keys_in_pool:
-                item = self.create_item(key)
-                item.classification = ItemClassification.useful
+                if self.options.duplicate_songs:
+                    item = self.create_item(key)
+                    item.classification = ItemClassification.useful
+                else:
+                    # The lists should be moved out of the loop
+                    item = self.create_item(self.random.choices(
+                        list(self.mm_collection.filler_item_names.keys()),
+                        list(self.mm_collection.filler_item_weights.values())
+                    )[0])
+
                 self.multiworld.itempool.append(item)
 
             items_left -= len(song_keys_in_pool)
