@@ -20,6 +20,10 @@ def select_json_file():
 
 def load_all_modded_json_files(directory: str) -> List[Dict[str, Any]]:
     """Loads all JSON files from the given directory and returns their content along with filenames"""
+    if not os.path.isdir(directory):
+        print(f"Warning: {directory} is not a directory or doesn't exist, could not load modded json from it")
+        return []
+
     modded_data = []
     for filename in os.listdir(directory):
         if filename.endswith(".json"):
