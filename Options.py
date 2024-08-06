@@ -31,6 +31,17 @@ class UsingModdedSongs(Toggle):
     display_name = "Using Modded Songs"
 
 
+class DuplicateSongPercentage(Range):
+    """
+    Percentage of duplicate songs to place in remaining filler slots.
+    Duplicate songs are considered Useful and thus out of logic.
+    """
+    range_start = 0
+    range_end = 100
+    default = 100
+    display_name = "Duplicate Song Percentage"
+
+
 class DifficultyMode(Choice):
     """Ensures that at all songs have this difficulty available.
     - Any: Song can be beaten on any difficulty
@@ -211,6 +222,7 @@ class ExcludeSinger(OptionSet):
 class MegaMixOptions(PerGameCommonOptions):
     allow_megamix_dlc_songs: AllowMegaMixDLCSongs
     using_modded_songs: UsingModdedSongs
+    duplicate_song_percentage: DuplicateSongPercentage
     starting_song_count: StartingSongs
     additional_song_count: AdditionalSongs
     song_difficulty_mode: DifficultyMode
