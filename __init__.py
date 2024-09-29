@@ -56,6 +56,8 @@ class MegaMixWorld(World):
 
     # Necessary Data
     mm_collection = MegaMixCollections()
+    filler_item_names = list(mm_collection.filler_item_weights.keys())
+    filler_item_weights = list(mm_collection.filler_item_weights.values())
 
     item_name_to_id = {name: code for name, code in mm_collection.item_names_to_id.items()}
     location_name_to_id = {name: code for name, code in mm_collection.location_names_to_id.items()}
@@ -175,6 +177,9 @@ class MegaMixWorld(World):
         if name == self.mm_collection.LEEK_NAME:
             return MegaMixFixedItem(name, ItemClassification.progression_skip_balancing, self.mm_collection.LEEK_CODE, self.player)
 
+        if name in self.mm_collection.filler_item_names:
+            return MegaMixFixedItem(name, ItemClassification.filler, self.mm_collection.filler_item_names.get(name), self.player)
+
         song = self.mm_collection.song_items.get(name)
         return MegaMixSongItem(name, self.player, song)
 
@@ -198,25 +203,32 @@ class MegaMixWorld(World):
         if items_left <= 0:
             return
 
-        # All remaining spots are filled with duplicate songs. Duplicates are set to useful instead of progression
-        # to cut down on the number of progression items that Mega mix puts into the pool.
+        # Fill given percentage of remaining slots as Useful/non-progression dupes.
+        dupe_count = floor(items_left * (self.options.duplicate_song_percentage / 100))
+        items_left -= dupe_count
 
         # This is for the extraordinary case of needing to fill a lot of items.
-        while items_left > len(song_keys_in_pool):
+        while dupe_count > len(song_keys_in_pool):
             for key in song_keys_in_pool:
                 item = self.create_item(key)
                 item.classification = ItemClassification.useful
                 self.multiworld.itempool.append(item)
 
-            items_left -= len(song_keys_in_pool)
+            dupe_count -= len(song_keys_in_pool)
             continue
 
-        # Otherwise add a random assortment of songs
         self.random.shuffle(song_keys_in_pool)
-        for i in range(0, items_left):
+        for i in range(0, dupe_count):
             item = self.create_item(song_keys_in_pool[i])
             item.classification = ItemClassification.useful
             self.multiworld.itempool.append(item)
+
+        filler_count = items_left
+        items_left -= filler_count
+
+        for _ in range(0, filler_count):
+            filler_item = self.create_item(self.random.choices(self.filler_item_names, self.filler_item_weights)[0])
+            self.multiworld.itempool.append(filler_item)
 
     def create_regions(self) -> None:
         menu_region = Region("Menu", self.player, self.multiworld)

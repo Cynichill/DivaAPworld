@@ -32,6 +32,17 @@ class AdditionalSongs(Range):
     display_name = "Additional Song Count"
 
 
+class DuplicateSongPercentage(Range):
+    """
+    Percentage of duplicate songs to place in remaining filler slots.
+    Duplicate songs are considered Useful and thus out of logic.
+    """
+    range_start = 0
+    range_end = 100
+    default = 100
+    display_name = "Duplicate Song Percentage"
+
+
 class DifficultyMode(Choice):
     """Difficulty Select, All songs will be of the selected difficulty (Manual allows a range, Any gives a random difficulty for each song)
     - Any: Each song will be of a randomly chosen difficulty
@@ -212,6 +223,7 @@ class ExcludeSinger(OptionSet):
 class MegaMixOptions(PerGameCommonOptions):
     allow_megamix_dlc_songs: AllowMegaMixDLCSongs
     auto_remove_songs: AutoRemoveCleared
+    duplicate_song_percentage: DuplicateSongPercentage
     starting_song_count: StartingSongs
     additional_song_count: AdditionalSongs
     song_difficulty_mode: DifficultyMode

@@ -199,6 +199,9 @@ class MegaMixContext(CommonContext):
                     if network_item.item == 1:
                         self.leeks_obtained += 1
                         self.check_goal()
+                    elif network_item.item == 2:
+                        # Maybe move static items out of MegaMixCollection instead of hard coding?
+                        pass
                     else:
                         if self.modded:
                             found, song_pack = self.is_item_in_modded_data(network_item.item)
