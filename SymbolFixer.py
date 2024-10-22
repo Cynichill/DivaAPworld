@@ -4,7 +4,8 @@ from .Translator import transliterate
 
 def unicode_to_plain_text(text):
     mapping = {
-        '＋': 'plus',
+        '＋': '+',
+        '～': '~',
         '♂': 'maleSign',
         '♀': 'femaleSign',
         '♠': 'spade',
@@ -18,16 +19,18 @@ def unicode_to_plain_text(text):
         '☂': 'umbrella',
         '☃': 'snowman',
         '☄': 'comet',
-        '★': 'star',
-        '☆': 'star',
+        '＊': '*',
+        '★': '*',
+        '☆': '*',
         '☎': 'telephone',
         '☏': 'telephone',
         '☑': 'checkBox',
-        '☒': 'checkBox',
-        '☞': 'pointingRight',
-        '☜': 'pointingLeft',
-        '☝': 'pointingUp',
-        '☟': 'pointingDown'
+        '☒': '[x]',
+        '×': 'x',
+        '☞': '>',
+        '☜': '<',
+        '☝': '^',
+        '☟': 'v'
         # Add more mappings for special characters here
     }
 
@@ -42,7 +45,7 @@ def unicode_to_plain_text(text):
                 plain_text.append(word_buffer)
                 word_buffer = ''
             plain_text.append(mapping[char])
-        elif char.isalnum():
+        elif char.isalnum() or ord(char) < 128 and ord(char) >= 33:
             word_buffer += char
         elif char.isspace():
             if word_buffer:
@@ -78,8 +81,6 @@ def replace_symbols(song_name):
     song_name = song_name.replace("×", "x")
     # Replace 　 with regular space
     song_name = song_name.replace("　", " ")
-    # Replace ～ with "~"
-    song_name = song_name.replace("～", "~")
     # Replace ∞ with "∞" (you can change this to any character or space as required)
     song_name = song_name.replace("∞", " ")
     # Replace symbols between two words (no spaces) with space
@@ -136,8 +137,8 @@ offending_songs = [
 
 # Function to fix song names if they are in the offending songs list
 def fix_song_name(song_name):
-    if song_name in offending_songs:
-        return replace_symbols(song_name)
+    #if song_name in offending_songs:
+    #    return replace_symbols(song_name)
 
     # Clean up for modded songs
     cleaned_song_name = unicode_to_plain_text(song_name)  # Try to convert unicode to plain text
