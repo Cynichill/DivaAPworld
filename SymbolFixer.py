@@ -135,13 +135,9 @@ offending_songs = [
 ]
 
 
-# Function to fix song names if they are in the offending songs list
 def fix_song_name(song_name):
-    #if song_name in offending_songs:
-    #    return replace_symbols(song_name)
-
-    # Clean up for modded songs
-    cleaned_song_name = unicode_to_plain_text(song_name)  # Try to convert unicode to plain text
+    cleaned_song_name = replace_symbols(song_name)  # Previously exclusive to offending (base+DLC) songs
+    cleaned_song_name = unicode_to_plain_text(cleaned_song_name)  # Try to convert unicode to plain text
     cleaned_song_name = transliterate(cleaned_song_name)
     cleaned_song_name = replace_non_ascii_with_space(cleaned_song_name)  # After conversion, replace any remainders with blanks
     cleaned_song_name = special_char_removal(cleaned_song_name)
