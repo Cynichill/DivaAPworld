@@ -25,9 +25,10 @@ class AdditionalSongs(Range):
     """The total number of songs that will be placed in the randomization pool.
     - This does not count any starting songs or the goal song.
     - The final song count may be lower due to other settings.
+    - Without mods, the base game (179) and DLC (72) will max out at 251 songs.
     """
     range_start = 15
-    range_end = 242  # Note will probably not reach this high if any other settings are done.
+    range_end = 3900
     default = 40
     display_name = "Additional Song Count"
 
