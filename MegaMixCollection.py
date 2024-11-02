@@ -4,7 +4,6 @@ from .SymbolFixer import fix_song_name
 
 # Python
 import random
-import Utils
 from typing import Dict, List, Tuple
 from collections import ChainMap
 
@@ -52,7 +51,7 @@ class MegaMixCollections:
         difficulty_order = ['E', 'N', 'H', 'EX', 'EXEX']
 
         json_data = load_zipped_json_file("songData.json")
-        mod_data = extract_mod_data_to_json(Utils.user_path(Utils.get_settings()["generator"]["player_files_path"]))
+        mod_data = extract_mod_data_to_json()
         base_game_ids = set()
 
         for song in json_data:

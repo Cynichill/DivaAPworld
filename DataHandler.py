@@ -3,6 +3,8 @@ import pkgutil
 import re
 import os
 import shutil
+import sys
+import Utils
 from .SymbolFixer import fix_song_name
 from collections import defaultdict
 import ast
@@ -361,10 +363,14 @@ def find_linked_numbers(number_list):
     return list(lower_numbers)
 
 
-def extract_mod_data_to_json(folder_path: str) -> list[Any]:
+def extract_mod_data_to_json() -> list[Any]:
     """
     Extracts mod data from YAML files and converts it to a list of dictionaries.
     """
+
+    folder_path = sys.argv(sys.argv.index("--player_files_path")+1) if "--player_files_path" in sys.argv else Utils.user_path(Utils.get_settings()["generator"]["player_files_path"])
+
+    print(f"Checking YAMLs for megamix_mod_data at {folder_path}")
     if not os.path.isdir(folder_path):
         raise ValueError(f"The path {folder_path} is not a valid directory.")
 
