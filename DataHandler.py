@@ -368,7 +368,8 @@ def extract_mod_data_to_json() -> list[Any]:
     Extracts mod data from YAML files and converts it to a list of dictionaries.
     """
 
-    folder_path = sys.argv(sys.argv.index("--player_files_path")+1) if "--player_files_path" in sys.argv else Utils.user_path(Utils.get_settings()["generator"]["player_files_path"])
+    user_path = Utils.user_path(Utils.get_settings()["generator"]["player_files_path"])
+    folder_path = sys.argv(sys.argv.index("--player_files_path")+1) if "--player_files_path" in sys.argv else user_path
 
     print(f"Checking YAMLs for megamix_mod_data at {folder_path}")
     if not os.path.isdir(folder_path):
