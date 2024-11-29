@@ -167,8 +167,8 @@ def erase_song_list(file_paths):
 
         # Perform replacements
         for i, line in enumerate(file_data):
-            if line.startswith("pv_144") or line.startswith("pv_700") or line.startswith(
-                    "pv_701"):  # Skip lines starting with "pv_144", and skip tutorial
+            # Skip mod song and tutorial IDs
+            if re.match(r'^pv_(144|700|701)\.', line):
                 continue
             for search_text, replace_text in difficulty_replacements.items():
                 file_data[i] = file_data[i].replace(search_text, replace_text)
