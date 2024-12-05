@@ -76,20 +76,21 @@ class MegaMixCollections:
                         cover_song = False
                         if song_id in base_game_ids:
                             cover_song = True
-                        difficulties = {}
+                        difficulties = []
                         singers = {}
-                        # Extract difficulties
-                        for diff in song[2:]:
-                            difficulties.update(diff)
 
-                        # Create a formatted difficulty dictionary with mapped names
-                        formatted_difficulties = {}
-                        for key in difficulty_order:
-                            # Only add difficulties that exist
-                            if key in difficulties:
-                                formatted_difficulties[difficulty_mapping_modded[key]] = difficulties[key]
+                        while len(difficulties) < 5:
+                            diff = song[2] & 15
+                            half = bool(song[2] >> 4 & 1)
+                            # there might be a perf difference over time between this VS reversing after it's full, deque, etc
+                            difficulties.insert(0, diff + (.5 if half else 0))
+                            song[2] >>= 5
 
-                        for diff, rating in formatted_difficulties.items():
+                        for i, rating in enumerate(difficulties):
+                            if rating == 0:
+                                continue
+
+                            diff = difficulty_mapping_modded.get(difficulty_order[i])
                             song_name = song[0]
                             song_name = fix_song_name(song_name)
                             song_name = song_name + " " + diff
