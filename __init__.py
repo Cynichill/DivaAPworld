@@ -14,7 +14,6 @@ from .DataHandler import get_player_specific_ids
 
 #Python
 import re
-import random
 import typing
 from typing import List
 from math import floor
@@ -87,7 +86,7 @@ class MegaMixWorld(World):
             available_song_keys, song_ids = self.mm_collection.get_songs_with_settings(self.options.allow_megamix_dlc_songs, get_player_specific_ids(self.options.megamix_mod_data.value), allowed_difficulties, disallowed_singers, lower_diff_threshold, higher_diff_threshold, self.options.always_pick_hardest)
 
             # Choose victory song from current available keys, so we can access the song id
-            chosen_song_index = random.randrange(0, len(available_song_keys))
+            chosen_song_index = self.random.randrange(0, len(available_song_keys))
             self.victory_song_name = available_song_keys[chosen_song_index]
 
             difficulty_mapping = {
