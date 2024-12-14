@@ -1,4 +1,6 @@
 import json
+from io import TextIOWrapper
+
 import yaml
 import pkgutil
 import re
@@ -8,7 +10,7 @@ import sys
 import Utils
 from .SymbolFixer import fix_song_name
 from collections import defaultdict
-from typing import Any
+from typing import Any, TextIO
 
 
 # File Handling
@@ -114,7 +116,6 @@ def process_json_data(json_data):
 
 
 def generate_modded_paths(processed_data, base_path):
-
     # Extract unique pack names from processed_data
     unique_pack_names = {pack_name.replace('/', "'") for pack_name, songs in processed_data.items()}
 
@@ -221,101 +222,110 @@ def another_song_replacement(file_paths):
             file.writelines(updated_file_data)
 
 
-# Text Replacement
-def replace_line_with_text(file_path, search_text, new_line):
+def open_file_handle(file_path: str) -> TextIO:
     try:
-        # Read the file content with specified encoding
-        with open(file_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
-    except UnicodeDecodeError:
-        print(f"Error: Unable to decode file '{file_path}' with UTF-8 encoding.")
-        return
+        handle = open(file_path, 'r+', encoding='utf-8')
+        return handle
+    except Exception as e:
+        print(f"Error: {e}")
 
+
+# Text Replacement
+def replace_line_with_text(pv_db: list, search_text, new_line):
     # Find and replace the line containing the search text
-    for i, line in enumerate(lines):
+    for i, line in enumerate(pv_db):
         if search_text in line:
-            lines[i] = new_line + '\n'
+            pv_db[i] = new_line + '\n'
             break
     else:
         # If the search text was not found, print an error and return
         print(f"Error: '{search_text}' not found in the file.")
-        return
 
-    # Write the modified content back to the file
-    with open(file_path, 'w', encoding='utf-8') as file:
-        file.writelines(lines)
+    return pv_db
 
 
-def song_unlock(file_path, item_id, lock_status, modded, song_pack, enable_all):
+def song_unlock(file_path, item_id, lock_status, song_pack, enable_all):
     """Unlock a song based on its id"""
 
-    song_id = int(item_id) // 10
-    difficulty = convert_difficulty(int(item_id) % 10)
+    song_ids = [x // 10 for x in item_id]
+    difficulty = [convert_difficulty(x % 10) for x in item_id]
+    songs = list(zip(song_ids, difficulty))
 
     # Select the appropriate action based on lock status
     action = modify_mod_pv if not lock_status else remove_song
-    if modded:
+    if song_pack is not None:
         file_path = f"{file_path}/{song_pack}/rom/mod_pv_db.txt"
 
-    action(file_path, int(song_id), difficulty, enable_all)
+    pv_db_handle = open_file_handle(file_path)
+    modified_pv_db = action(pv_db_handle.readlines(), songs, enable_all)
+    pv_db_handle.seek(0)
+    pv_db_handle.writelines(modified_pv_db)
+    #pv_db_handle.truncate()
+    pv_db_handle.close()
 
     return
 
 
-def modify_mod_pv(file_path, song_id, difficulty, all_ver):
-
-    # Replace text to disable song, all ver disables all versions
-    difficulties = []
-    if all_ver:
-        difficulties = ['easy', 'normal', 'hard', 'extreme']
-    else:
-        difficulties.append(difficulty)
-
-    for difficulty in difficulties:
-        search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=0"
-        replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length="
-
-        if difficulty == 'exExtreme':
-            search_text = search_text.replace("exExtreme", "extreme")
-            replace_text = replace_text.replace("exExtreme", "extreme")
-            replace_text += "2"
-        elif difficulty == 'extreme' and all_ver:
-            replace_text += "2"
+def modify_mod_pv(pv_db: list, songs, all_ver) -> list:
+    for song_id, song_diff in songs:
+        # Replace text to disable song, all ver disables all versions
+        difficulties = []
+        if all_ver:
+            difficulties = ['easy', 'normal', 'hard', 'extreme']
         else:
-            replace_text += "1"
+            difficulties.append(song_diff)
 
-        replace_line_with_text(file_path, search_text, replace_text)
+        for difficulty in difficulties:
+            search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=0"
+            replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length="
 
-        if difficulty == 'exExtreme' and not all_ver:
-            # Disable regular extreme
-            search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + "extreme" + ".0.script_file_name=" + "rom/script/" + "pv_" + '{:03d}'.format(song_id) + "_extreme.dsc"
-            replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + "extreme" + ".0.script_file_name="
-            replace_line_with_text(file_path, search_text, replace_text)
-        elif difficulty == 'extreme':
-            # Restore extreme
-            search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + "extreme" + ".0.script_file_name="
-            replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + "extreme" + ".0.script_file_name=" + "rom/script/" + "pv_" + '{:03d}'.format(song_id) + "_extreme.dsc"
-            replace_line_with_text(file_path, search_text, replace_text)
+            if difficulty == 'exExtreme':
+                search_text = search_text.replace("exExtreme", "extreme")
+                replace_text = replace_text.replace("exExtreme", "extreme")
+                replace_text += "2"
+            elif difficulty == 'extreme' and all_ver:
+                replace_text += "2"
+            else:
+                replace_text += "1"
+
+            pv_db = replace_line_with_text(pv_db, search_text, replace_text)
+
+            if difficulty == 'exExtreme' and not all_ver:
+                # Disable regular extreme
+                search_text = "pv_" + '{:03d}'.format(
+                    song_id) + ".difficulty." + "extreme" + ".0.script_file_name=" + "rom/script/" + "pv_" + '{:03d}'.format(
+                    song_id) + "_extreme.dsc"
+                replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + "extreme" + ".0.script_file_name="
+                pv_db = replace_line_with_text(pv_db, search_text, replace_text)
+            elif difficulty == 'extreme':
+                # Restore extreme
+                search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + "extreme" + ".0.script_file_name="
+                replace_text = "pv_" + '{:03d}'.format(
+                    song_id) + ".difficulty." + "extreme" + ".0.script_file_name=" + "rom/script/" + "pv_" + '{:03d}'.format(
+                    song_id) + "_extreme.dsc"
+                pv_db = replace_line_with_text(pv_db, search_text, replace_text)
+    return pv_db
 
 
-def remove_song(file_path, song_id, difficulty, all_ver):
-
-    # Replace text to disable song, all ver disables all versions
-    difficulties = []
-    if all_ver:
-        difficulties = ['easy', 'normal', 'hard', 'extreme', 'exExtreme']
-    else:
-        difficulties.append(difficulty)
-
-    for difficulty in difficulties:
-        if difficulty == 'exExtreme':
-            search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty.extreme.length=2"
-            replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty.extreme.length=0"
+def remove_song(pv_db: list, songs, all_ver):
+    for song_id, song_diff in songs:
+        # Replace text to disable song, all ver disables all versions
+        difficulties = []
+        if all_ver:
+            difficulties = ['easy', 'normal', 'hard', 'extreme', 'exExtreme']
         else:
-            search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=1"
-            replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=0"
+            difficulties.append(song_diff)
 
-        replace_line_with_text(file_path, search_text, replace_text)
+        for difficulty in difficulties:
+            if difficulty == 'exExtreme':
+                search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty.extreme.length=2"
+                replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty.extreme.length=0"
+            else:
+                search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=1"
+                replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=0"
+
+            pv_db = replace_line_with_text(pv_db, search_text, replace_text)
+    return pv_db
 
 
 def convert_difficulty(difficulty):
@@ -373,7 +383,8 @@ def extract_mod_data_to_json() -> list[Any]:
     """
 
     user_path = Utils.user_path(Utils.get_settings()["generator"]["player_files_path"])
-    folder_path = sys.argv[sys.argv.index("--player_files_path") + 1] if "--player_files_path" in sys.argv else user_path
+    folder_path = sys.argv[
+        sys.argv.index("--player_files_path") + 1] if "--player_files_path" in sys.argv else user_path
 
     print(f"Checking YAMLs for megamix_mod_data at {folder_path}")
 
@@ -404,7 +415,8 @@ def extract_mod_data_to_json() -> list[Any]:
                     # Process each mod_data block
                     for mod_data_content in matches:
                         mod_data_match = yaml.safe_load(file_content)
-                        mod_data_content = mod_data_match.get("Hatsune Miku Project Diva Mega Mix+", {}).get("megamix_mod_data", '""')
+                        mod_data_content = mod_data_match.get("Hatsune Miku Project Diva Mega Mix+", {}).get(
+                            "megamix_mod_data", '""')
 
                         if isinstance(mod_data_content, dict) or not mod_data_content:
                             continue
@@ -416,7 +428,7 @@ def extract_mod_data_to_json() -> list[Any]:
 
     return all_mod_data
 
-  
+
 def get_player_specific_ids(mod_data):
     song_ids = []  # Initialize an empty list to store song IDs
 
