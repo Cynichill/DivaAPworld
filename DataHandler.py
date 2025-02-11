@@ -7,7 +7,7 @@ import shutil
 import sys
 import Utils
 from .SymbolFixer import fix_song_name
-from typing import Any
+from typing import Any, TextIO
 
 
 # File Handling
@@ -113,7 +113,6 @@ def process_json_data(json_data):
 
 
 def generate_modded_paths(processed_data, base_path):
-
     # Extract unique pack names from processed_data
     unique_pack_names = {pack_name.replace('/', "'") for pack_name, songs in processed_data.items()}
 
@@ -220,88 +219,88 @@ def another_song_replacement(file_paths):
             file.writelines(updated_file_data)
 
 
-# Text Replacement
-def replace_line_with_text(file_path, search_text, new_line):
+def open_file_handle(file_path: str) -> TextIO:
     try:
-        # Read the file content with specified encoding
-        with open(file_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
-    except UnicodeDecodeError:
-        print(f"Error: Unable to decode file '{file_path}' with UTF-8 encoding.")
-        return
+        handle = open(file_path, 'r+', encoding='utf-8')
+        return handle
+    except Exception as e:
+        print(f"Error: {e}")
 
+
+# Text Replacement
+def replace_line_with_text(pv_db: list, search_text, new_line):
     # Find and replace the line containing the search text
-
-    j = 0
-    for i, line in enumerate(lines):
+    for i, line in enumerate(pv_db):
         if search_text in line:
-            lines[i] = new_line + '\n'
+            pv_db[i] = new_line + '\n'
             break
     else:
         # If the search text was not found, print an error and return
-        j += 1
-        # So many prints are slow, commented out for now
-        # print(f"Error: '{search_text}' not found in the file.")
-        return
+        print(f"Error: '{search_text}' not found in the file.")
 
-    print(f"Unable to find {j} Search texts in file")
-    # Write the modified content back to the file
-    with open(file_path, 'w', encoding='utf-8') as file:
-        file.writelines(lines)
+    return pv_db
 
 
-def song_unlock(file_path, item_id, lock_status, modded, song_pack):
+def song_unlock(file_path, item_id, lock_status, song_pack):
     """Unlock a song based on its id"""
 
-    song_id = int(item_id) // 10
+    song_ids = [x // 10 for x in item_id]
+    songs = list(song_ids)
 
     # Select the appropriate action based on lock status
     action = modify_mod_pv if not lock_status else remove_song
-    if modded:
+    if song_pack is not None:
         file_path = f"{file_path}/{song_pack}/rom/mod_pv_db.txt"
 
-    action(file_path, int(song_id))
+    pv_db_handle = open_file_handle(file_path)
+    modified_pv_db = action(pv_db_handle.readlines(), songs)
+    pv_db_handle.seek(0)
+    pv_db_handle.writelines(modified_pv_db)
+    #pv_db_handle.truncate()
+    pv_db_handle.close()
 
     return
 
 
-def modify_mod_pv(file_path, song_id):
-
-    # Replace text to disable song
+def modify_mod_pv(pv_db: list, songs) -> list:
     difficulties = ['easy', 'normal', 'hard', 'extreme']
 
-    for difficulty in difficulties:
-        search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=0"
-        replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length="
+    for song_id in songs:
+        for difficulty in difficulties:
+            search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=0"
+            replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length="
 
-        if difficulty == 'extreme':
-            replace_text += "2"
-        else:
-            replace_text += "1"
+            if difficulty == 'extreme':
+                replace_text += "2"
+            else:
+                replace_text += "1"
 
-        replace_line_with_text(file_path, search_text, replace_text)
+            pv_db = replace_line_with_text(pv_db, search_text, replace_text)
 
-        if difficulty == 'extreme':
-            # Restore extreme
-            search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + "extreme" + ".0.script_file_name="
-            replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + "extreme" + ".0.script_file_name=" + "rom/script/" + "pv_" + '{:03d}'.format(song_id) + "_extreme.dsc"
-            replace_line_with_text(file_path, search_text, replace_text)
+            if difficulty == 'extreme':
+                # Restore extreme
+                search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + "extreme" + ".0.script_file_name="
+                replace_text = "pv_" + '{:03d}'.format(
+                    song_id) + ".difficulty." + "extreme" + ".0.script_file_name=" + "rom/script/" + "pv_" + '{:03d}'.format(
+                    song_id) + "_extreme.dsc"
+                pv_db = replace_line_with_text(pv_db, search_text, replace_text)
+    return pv_db
 
 
-def remove_song(file_path, song_id):
-
-    # Replace text to disable song
+def remove_song(pv_db: list, songs):
     difficulties = ['easy', 'normal', 'hard', 'extreme', 'exExtreme']
 
-    for difficulty in difficulties:
-        if difficulty == 'exExtreme':
-            search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty.extreme.length=2"
-            replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty.extreme.length=0"
-        else:
-            search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=1"
-            replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=0"
+    for song_id in songs:
+        for difficulty in difficulties:
+            if difficulty == 'exExtreme':
+                search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty.extreme.length=2"
+                replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty.extreme.length=0"
+            else:
+                search_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=1"
+                replace_text = "pv_" + '{:03d}'.format(song_id) + ".difficulty." + difficulty + ".length=0"
 
-        replace_line_with_text(file_path, search_text, replace_text)
+            pv_db = replace_line_with_text(pv_db, search_text, replace_text)
+    return pv_db
 
 
 def extract_mod_data_to_json() -> list[Any]:
@@ -310,7 +309,8 @@ def extract_mod_data_to_json() -> list[Any]:
     """
 
     user_path = Utils.user_path(Utils.get_settings()["generator"]["player_files_path"])
-    folder_path = sys.argv[sys.argv.index("--player_files_path") + 1] if "--player_files_path" in sys.argv else user_path
+    folder_path = sys.argv[
+        sys.argv.index("--player_files_path") + 1] if "--player_files_path" in sys.argv else user_path
 
     print(f"Checking YAMLs for megamix_mod_data at {folder_path}")
 
@@ -353,7 +353,7 @@ def extract_mod_data_to_json() -> list[Any]:
 
     return all_mod_data
 
-  
+
 def get_player_specific_ids(mod_data):
     song_ids = []  # Initialize an empty list to store song IDs
 
