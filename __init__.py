@@ -76,26 +76,18 @@ class MegaMixWorld(World):
 
     def generate_early(self):
 
-        (lower_diff_threshold, higher_diff_threshold) = self.get_difficulty_range()
-        allowed_difficulties = self.get_available_difficulties()
+        # Initial search criteria
+        lower_rating_threshold, higher_rating_threshold = self.get_difficulty_range()
+        lower_diff_threshold, higher_diff_threshold = self.get_available_difficulties(self.options.song_difficulty_min.value, self.options.song_difficulty_max.value)
         disallowed_singers = self.options.exclude_singers.value
 
         while True:
             # In most cases this should only need to run once
-            available_song_keys = self.mm_collection.get_songs_with_settings(self.options.allow_megamix_dlc_songs, get_player_specific_ids(self.options.megamix_mod_data.value), allowed_difficulties, disallowed_singers, lower_diff_threshold, higher_diff_threshold)
-
-            # Choose victory song from current available keys, so we can access the song id
-            if available_song_keys:
-                chosen_song_index = self.random.randrange(0, len(available_song_keys))
-                self.victory_song_name = available_song_keys[chosen_song_index].songName
-            else:
-                raise ValueError(f"Not enough songs available. Need at least {self.options.starting_song_count + self.options.additional_song_count + 1}")
-
-            # Handle goal ID
-            self.victory_song_id = available_song_keys[chosen_song_index].songID
-            del available_song_keys[chosen_song_index]
+            allowed_difficulties = list(range(lower_diff_threshold, higher_diff_threshold + 1))
+            available_song_keys = self.mm_collection.get_songs_with_settings(self.options.allow_megamix_dlc_songs, get_player_specific_ids(self.options.megamix_mod_data.value), allowed_difficulties, disallowed_singers, lower_rating_threshold, higher_rating_threshold)
 
             available_song_keys = self.handle_plando(available_song_keys)
+            print(f"{lower_rating_threshold}~{higher_rating_threshold}* {allowed_difficulties}", len(available_song_keys))
 
             # The minimum amount of songs to make an ok rando would be Starting Songs + 10 interim songs + Goal song.
             # - Interim songs being equal to max starting song count.
@@ -106,12 +98,27 @@ class MegaMixWorld(World):
 
             # If the above fails, we want to adjust the difficulty thresholds.
             # Easier first, then harder
-            if lower_diff_threshold <= 1 and higher_diff_threshold >= 10:
+            if lower_rating_threshold <= 1 and higher_rating_threshold >= 10 and len(allowed_difficulties) >= 5:
                 raise Exception("Failed to find enough songs, even with maximum difficulty thresholds.")
-            elif lower_diff_threshold <= 1:
-                higher_diff_threshold += 1
+            elif lower_rating_threshold <= 1:
+                if higher_rating_threshold > 10:
+                    # Reset ratings, adjust diff. Maybe buff/nerf initial ratings when lowering/raising diff.
+                    lower_rating_threshold, higher_rating_threshold = self.get_difficulty_range()
+
+                    if lower_diff_threshold <= 0 and higher_diff_threshold < 4: higher_diff_threshold += 1
+                    if lower_diff_threshold > 0: lower_diff_threshold -= 1
+
+                    lower_diff_threshold, higher_diff_threshold = self.get_available_difficulties(lower_diff_threshold, higher_diff_threshold)
+                else:
+                    higher_rating_threshold += 0.5
             else:
-                lower_diff_threshold -= 1
+                lower_rating_threshold -= 0.5
+
+        # Choose victory song from current available keys, so we can access the song id
+        chosen_song_index = self.random.randrange(0, len(final_song_list))
+        self.victory_song_name = final_song_list[chosen_song_index].songName
+        self.victory_song_id = final_song_list[chosen_song_index].songID
+        del final_song_list[chosen_song_index]
 
         self.create_song_pool(final_song_list)
 
@@ -133,7 +140,7 @@ class MegaMixWorld(World):
 
     def create_song_pool(self, available_song_keys):
         starting_song_count = self.options.starting_song_count.value
-        additional_song_count = self.options.additional_song_count.value
+        additional_song_count = min(len(available_song_keys), self.options.additional_song_count.value)
         self.random.shuffle(available_song_keys)
         self.matched_songs = [self.mm_collection.song_items.get(song_name) for song_name in self.included_songs]
 
@@ -156,7 +163,7 @@ class MegaMixWorld(World):
 
         # Then attempt to fufill any remaining songs for interim songs
         if len(self.matched_songs) < additional_song_count:
-            for _ in range(len(self.matched_songs), self.options.additional_song_count):
+            for _ in range(len(self.matched_songs), self.options.additional_song_count.value):
                 if len(available_song_keys) <= 0:
                     break
                 self.matched_songs.append(available_song_keys.pop())
@@ -277,14 +284,12 @@ class MegaMixWorld(World):
 
         return difficulty_bounds
 
-    def get_available_difficulties(self) -> List[int]:
-        available_difficulties = []
+    @staticmethod
+    def get_available_difficulties(song_difficulty_min: int, song_difficulty_max: int) -> List[int]:
+        min_diff = min(song_difficulty_min, song_difficulty_max)
+        max_diff = max(song_difficulty_min, song_difficulty_max)
 
-        min_diff = min(self.options.song_difficulty_min.value, self.options.song_difficulty_max.value)
-        max_diff = max(self.options.song_difficulty_min.value, self.options.song_difficulty_max.value)
-        available_difficulties.extend(range(min_diff, max_diff + 1))
-
-        return available_difficulties
+        return [min_diff, max_diff]
 
     def fill_slot_data(self):
         return {
