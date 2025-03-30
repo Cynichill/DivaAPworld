@@ -166,6 +166,13 @@ class ExcludeSongs(ItemSet):
     display_name = "Exclude Songs"
 
 
+class GoalSongPool(ItemSet):
+    """Songs listed here will randomly chosen to be the final song.
+    If empty, the goal song will be chosen randomly from all included songs."""
+    verify_item_name = True
+    display_name = "Goal Song Pool"
+
+
 class ExcludeSinger(OptionSet):
     """Songs including singers listed here will not be included. Does not affect any modded songs regardless.
     Available Singers: Hatsune Miku, Kagamine Rin, Kagamine Len, Megurine Luka, KAITO, MEIKO"""
@@ -196,5 +203,6 @@ class MegaMixOptions(PerGameCommonOptions):
     leek_win_count_percentage: LeeksRequiredPercentage
     include_songs: IncludeSongs
     exclude_songs: ExcludeSongs
+    goal_song_pool: GoalSongPool
     exclude_singers: ExcludeSinger
     megamix_mod_data: ModData
