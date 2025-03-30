@@ -79,15 +79,32 @@ class MegaMixWorld(World):
         (lower_diff_threshold, higher_diff_threshold) = self.get_difficulty_range()
         allowed_difficulties = self.get_available_difficulties()
         disallowed_singers = self.options.exclude_singers.value
+        goal_song_pool = self.options.goal_song_pool.value
 
         while True:
             # In most cases this should only need to run once
             available_song_keys = self.mm_collection.get_songs_with_settings(self.options.allow_megamix_dlc_songs, get_player_specific_ids(self.options.megamix_mod_data.value), allowed_difficulties, disallowed_singers, lower_diff_threshold, higher_diff_threshold)
+            
+            # Find the proposed goal songs and add them to a new list
+            victory_song_keys = []
+            for goal_song_canidate in goal_song_pool:
+                for index, available_song in enumerate(available_song_keys):
+                    if goal_song_canidate == available_song.songName:
+                        # Include the canidates correlating index to the full list for later use
+                        victory_song_keys.append([index, available_song])
 
             # Choose victory song from current available keys, so we can access the song id
             if available_song_keys:
-                chosen_song_index = self.random.randrange(0, len(available_song_keys))
-                self.victory_song_name = available_song_keys[chosen_song_index].songName
+                # If there are songs in the goal song pool, select from those. 
+                # Otherwise select a song from the entire list
+                if victory_song_keys:
+                    chosen_song_index = self.random.randrange(0, len(victory_song_keys))
+                    self.victory_song_name = victory_song_keys[chosen_song_index][1].songName
+                    # Replace the chosen goal song's index with the index from the full list we saved earlier.
+                    chosen_song_index = victory_song_keys[chosen_song_index][0]
+                else:
+                    chosen_song_index = self.random.randrange(0, len(available_song_keys))
+                    self.victory_song_name = available_song_keys[chosen_song_index].songName
             else:
                 raise ValueError(f"Not enough songs available. Need at least {self.options.starting_song_count + self.options.additional_song_count + 1}")
 
