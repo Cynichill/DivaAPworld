@@ -180,6 +180,14 @@ class ModData(FreeText):
     visibility = Visibility.template | Visibility.spoiler
 
 
+class TheDisappearanceOfHatsuneMiku(DeathLink):
+    """
+    Send out a Death Link when you DROPxOUT, MISSxTAKE, or fail to reach Grade Needed.
+    Received Death Links subtract a percentage of the total HP pool. Configure how much in the mod's config.toml
+    """
+    display_name = "Death Link"
+
+
 @dataclass
 class MegaMixOptions(PerGameCommonOptions):
     allow_megamix_dlc_songs: AllowMegaMixDLCSongs
@@ -198,3 +206,4 @@ class MegaMixOptions(PerGameCommonOptions):
     exclude_songs: ExcludeSongs
     exclude_singers: ExcludeSinger
     megamix_mod_data: ModData
+    deathlink: TheDisappearanceOfHatsuneMiku

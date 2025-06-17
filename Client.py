@@ -65,6 +65,8 @@ class MegaMixContext(CommonContext):
         self.path = settings.get_settings()["megamix_options"]["mod_path"]
         self.mod_pv = self.path + "/ArchipelagoMod/rom/mod_pv_db.txt"
         self.songResultsLocation = self.path + "/ArchipelagoMod/results.json"
+        self.deathLinkInLocation = self.path + "/ArchipelagoMod/death_link_in"
+        self.deathLinkOutLocation = self.path + "/ArchipelagoMod/death_link_out"
         self.modData = None
         self.modded = False
         self.freeplay = False
@@ -92,10 +94,15 @@ class MegaMixContext(CommonContext):
         self.leeks_needed = None
         self.leeks_obtained = 0
         self.grade_needed = None
+        self.death_link = False
 
         self.watch_task = None
         if not self.watch_task:
             self.watch_task = asyncio.create_task(self.watch_json_file(self.songResultsLocation))
+
+        self.watch_death_link_task = None
+        if not self.watch_death_link_task:
+            self.watch_death_link_task = asyncio.create_task(self.watch_death_link_out(self.deathLinkOutLocation))
 
         self.obtained_items_queue = asyncio.Queue()
         self.critical_section_lock = asyncio.Lock()
@@ -128,6 +135,10 @@ class MegaMixContext(CommonContext):
             self.mod_pv_list.append(self.mod_pv)
             create_copies(self.mod_pv_list)
             asyncio.create_task(self.send_msgs([{"cmd": "GetDataPackage", "games": ["Hatsune Miku Project Diva Mega Mix+"]}]))
+
+            self.death_link = self.options.get("deathLink", True)
+            asyncio.create_task(self.update_death_link(self.death_link))
+
             self.check_goal()
 
             # if we don't have the seed name from the RoomInfo packet, wait until we do.
@@ -225,6 +236,27 @@ class MegaMixContext(CommonContext):
                         print(f"Error loading JSON file: {e}")
         except asyncio.CancelledError:
             print(f"Watch task for {file_name} was canceled.")
+
+
+    async def watch_death_link_out(self, file_name: str):
+        file_path = os.path.join(os.path.dirname(__file__), file_name)
+        last_modified = os.path.getmtime(file_path)
+
+        while True:
+            await asyncio.sleep(1)
+            if os.path.isfile(file_path):
+                modified = os.path.getmtime(file_path)
+                if modified != last_modified:
+                    # Move this to a shared function to call when Grade Needed not met
+                    last_modified = modified
+                    await self.send_death("The Disappearance of ...")
+
+
+    def on_deathlink(self, data: dict[str, any]):
+        super().on_deathlink(data)
+        from pathlib import Path
+        Path(self.deathLinkInLocation).touch()
+
 
     def receive_location_check(self, song_data):
 
