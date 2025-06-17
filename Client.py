@@ -95,6 +95,8 @@ class MegaMixContext(CommonContext):
         self.leeks_obtained = 0
         self.grade_needed = None
         self.death_link = False
+        self.death_link_amnesty = 0
+        self.death_link_amnesty_count = 0
 
         self.watch_task = None
         if not self.watch_task:
@@ -136,7 +138,9 @@ class MegaMixContext(CommonContext):
             create_copies(self.mod_pv_list)
             asyncio.create_task(self.send_msgs([{"cmd": "GetDataPackage", "games": ["Hatsune Miku Project Diva Mega Mix+"]}]))
 
-            self.death_link = self.options.get("deathLink", True)
+            self.death_link = self.options["deathLink"]
+            self.death_link_amnesty = self.options["deathLink_Amnesty"]
+            self.death_link_amnesty_count = 0
             asyncio.create_task(self.update_death_link(self.death_link))
 
             self.check_goal()
@@ -247,9 +251,11 @@ class MegaMixContext(CommonContext):
             if os.path.isfile(file_path):
                 modified = os.path.getmtime(file_path)
                 if modified != last_modified:
-                    # Move this to a shared function to call when Grade Needed not met
+                    self.death_link_amnesty_count += 1
                     last_modified = modified
-                    await self.send_death("The Disappearance of ...")
+                    if self.death_link_amnesty_count > self.death_link_amnesty:
+                        self.death_link_amnesty_count = 0
+                        await self.send_death("The Disappearance of ...")
 
 
     def on_deathlink(self, data: dict[str, any]):

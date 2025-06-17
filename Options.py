@@ -180,12 +180,23 @@ class ModData(FreeText):
     visibility = Visibility.template | Visibility.spoiler
 
 
-class TheDisappearanceOfHatsuneMiku(DeathLink):
+class DivaDeathLink(DeathLink):
     """
     Send out a Death Link when you DROPxOUT, MISSxTAKE, or fail to reach Grade Needed.
     Received Death Links subtract a percentage of the total HP pool. Configure how much in the mod's config.toml
     """
     display_name = "Death Link"
+
+
+class DeathLinkAmnesty(Range):
+    """
+    Amount of own deaths needed before sending one Death Link.
+    0 would be every death, 1 every other, etc.
+    """
+    display_name = "Death Link Amnesty"
+    range_start = 0
+    range_end = 5 # 30s safety + retry delay = over 5 minutes!
+    default = 0
 
 
 @dataclass
@@ -206,4 +217,5 @@ class MegaMixOptions(PerGameCommonOptions):
     exclude_songs: ExcludeSongs
     exclude_singers: ExcludeSinger
     megamix_mod_data: ModData
-    deathlink: TheDisappearanceOfHatsuneMiku
+    death_link: DivaDeathLink
+    death_link_amnesty: DeathLinkAmnesty
