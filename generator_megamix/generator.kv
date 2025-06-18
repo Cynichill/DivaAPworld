@@ -1,0 +1,102 @@
+<MDButton>:
+    width: self.parent.width
+
+<MDSnackbar>:
+    size_hint_x: 0.5
+    pos_hint: {"center_x": 0.5}
+    y: dp(24)
+<MDSnackbarText>:
+    halign: "center"
+    size_hint_x: 1
+
+<MDBoxLayoutHover>:
+    on_enter: self.md_bg_color = [1,1,1,0.1]
+    on_leave: self.md_bg_color = [1,1,1,0]
+    size_hint_y: None
+    height: dp(36)
+<Checkbox>:
+    size_hint: (None, None)
+    width: 50
+    height: dp(36)
+
+MDBoxLayout:
+    MDGridLayout:
+        cols: 2
+        spacing: "5dp"
+        padding: "10dp"
+
+        MDGridLayout:
+            cols: 1
+            size_hint_x: 1/3
+
+            MDButton:
+                on_release: app.open_mods_folder()
+                MDButtonIcon:
+                    icon: "folder"
+                MDButtonText:
+                    text: "Open mods folder"
+
+            MDButton:
+                on_release: app.create_pack_list()
+                MDButtonIcon:
+                    icon: "folder-refresh"
+                MDButtonText:
+                    text: "Refresh mod list"
+
+            MDButton:
+                on_release: app.toggle_checkbox(True, import_dml=True)
+                MDButtonIcon:
+                    icon: "import"
+                MDButtonText:
+                    text: "Import from DML"
+
+            MDButton:
+                on_release: app.process_restore_originals()
+                MDButtonIcon:
+                    icon: "refresh"
+                MDButtonText:
+                    text: "Restore song packs"
+
+            MDButton:
+                on_release: app.process_to_clipboard()
+                MDButtonIcon:
+                    icon: "code-json"
+                MDButtonText:
+                    text: "Generate mod string"
+
+            MDNavigationDrawerDivider:
+                spacing: "5dp"
+                padding: ["10dp", "15dp"]
+
+            MDButton:
+                on_release: app.toggle_checkbox(True)
+                MDButtonIcon:
+                    icon: "checkbox-multiple-marked-outline"
+                MDButtonText:
+                    text: "Check all viewable"
+
+            MDButton:
+                on_release: app.toggle_checkbox(False)
+                MDButtonIcon:
+                    icon: "checkbox-multiple-blank-outline"
+                MDButtonText:
+                    text: "Uncheck all viewable"
+
+        MDGridLayout:
+            rows: 2
+            spacing: "10dp"
+
+            MDTextField:
+                id: filter_input
+                set_text: app.filter_pack_list
+                on_text_validate: app.toggle_checkbox_from_input(True) # "Check all viewable"
+                write_tab: False
+                focus: True
+
+                MDTextFieldLeadingIcon:
+                    icon: "magnify"
+                MDTextFieldHintText:
+                    text: "Filter by name (/regex/)"
+
+            ScrollBox:
+                id: pack_list_scroll

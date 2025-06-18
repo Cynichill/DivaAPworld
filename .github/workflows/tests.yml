@@ -1,0 +1,57 @@
+name: tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      fuzzer_run:
+        description: 'Skip Fuzzer'
+        type: boolean
+        required: true
+        default: false
+      fuzzer_iters:
+        description: 'Fuzzer Iterations'
+        type: number
+        required: true
+        default: '100'
+      unittests_skip:
+        description: 'Skip Unittests'
+        type: boolean
+        required: true
+        default: false
+  schedule:
+    - cron: "0 0 * * 0"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ArchipelagoMW/Archipelago
+      - uses: actions/checkout@v4
+        with:
+          path: worlds/megamix
+    
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+          cache: 'pip'
+
+      - name: Archipelago | Setup
+        run: |
+          find ./worlds -mindepth 1 -maxdepth 1 -type d -regextype posix-extended ! -regex '.*/(megamix|generic|alttp)' -exec rm -rf {} \;
+          python -m pip install --upgrade pip
+          pip install pytest pytest-subtests pytest-xdist
+          python ModuleUpdate.py --yes --force --append "WebHostLib/requirements.txt"
+          python Launcher.py --update_settings  # make sure host.yaml exists for tests
+
+      - name: World | Fuzzer
+        if: "${{ inputs.fuzzer_skip != 'true' }}"
+        run: |
+          curl "https://raw.githubusercontent.com/Eijebong/Archipelago-fuzzer/refs/heads/main/fuzz.py" > fuzz.py
+          python fuzz.py -g megamix -j 2 -r 100
+
+      - name: World | General tests
+        if: "${{ inputs.unittests_skip != 'true' }}"
+        run: pytest test/general worlds/megamix

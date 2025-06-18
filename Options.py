@@ -68,7 +68,7 @@ class DifficultyModeMax(Choice):
 class DifficultyRatingMin(Choice):
     """Ensures that at least one of the song's available difficulties have this star rating or higher
     x5 = .5, Used since _5 causes issues"""
-    display_name = "Manual Difficulty Min"
+    display_name = "Manual Rating Min"
     option_one = 0
     option_1x5 = 1
     option_two = 2
@@ -94,7 +94,7 @@ class DifficultyRatingMin(Choice):
 class DifficultyRatingMax(Choice):
     """Ensures that at least one of the song's available difficulties have this star rating or lower
     x5 = .5, Used since _5 causes issues"""
-    display_name = "Manual Difficulty Max"
+    display_name = "Manual Rating Max"
     option_one = 0
     option_1x5 = 1
     option_two = 2
