@@ -149,7 +149,6 @@ class MegaMixWorld(World):
         starting_song_count = self.options.starting_song_count.value
         additional_song_count = min(len(available_song_keys), self.options.additional_song_count.value)
         goal_song_pool = self.options.goal_song_pool.value
-        include_goal_song_canidates = self.options.include_goal_song_pool_canidates.value
 
         # Manage victory song
         if goal_song_pool:
@@ -165,11 +164,6 @@ class MegaMixWorld(World):
             # Then remove the chosen song from further selection
             del victory_song_keys[0]
             available_song_keys.remove(self.victory_song_name)
-
-            # Remove all the other canidiates that were listed
-            if not include_goal_song_canidates:
-                for song in victory_song_keys:
-                    available_song_keys.remove(song)
         else:
             # If theres nothing listed, just shuffle all the songs once and pick the first one.
             self.random.shuffle(available_song_keys)

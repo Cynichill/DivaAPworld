@@ -173,11 +173,6 @@ class GoalSongPool(ItemSet):
     display_name = "Goal Song Pool"
 
 
-class IncludeGoalSongPoolCanidates(Toggle):
-    """If enabled, songs that were listed in the goal song pool can be included in the multiworld."""
-    display_name = "Include Goal Song Pool Canidates"
-
-
 class ExcludeSinger(OptionSet):
     """Songs including singers listed here will not be included. Does not affect any modded songs regardless.
     Available Singers: Hatsune Miku, Kagamine Rin, Kagamine Len, Megurine Luka, KAITO, MEIKO"""
@@ -209,6 +204,5 @@ class MegaMixOptions(PerGameCommonOptions):
     include_songs: IncludeSongs
     exclude_songs: ExcludeSongs
     goal_song_pool: GoalSongPool
-    include_goal_song_pool_canidates: IncludeGoalSongPoolCanidates
     exclude_singers: ExcludeSinger
     megamix_mod_data: ModData
