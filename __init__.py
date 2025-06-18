@@ -148,28 +148,44 @@ class MegaMixWorld(World):
     def create_song_pool(self, available_song_keys: List[str]):
         starting_song_count = self.options.starting_song_count.value
         additional_song_count = min(len(available_song_keys), self.options.additional_song_count.value)
-        self.random.shuffle(available_song_keys)
         goal_song_pool = self.options.goal_song_pool.value
+        include_goal_song_canidates = self.options.include_goal_song_pool_canidates.value
+
+        # Manage victory song
+        if goal_song_pool:
+            # Get a list of canidates based on what the user provides
+            victory_song_keys = []
+            for canidate in goal_song_pool:
+                if canidate in available_song_keys:
+                    victory_song_keys.append(canidate)
+
+            # Shuffle all the canidates and pick the first one
+            self.random.shuffle(victory_song_keys)
+            self.victory_song_name = victory_song_keys[0]
+            # Then remove the chosen song from further selection
+            del victory_song_keys[0]
+            available_song_keys.remove(self.victory_song_name)
+
+            # Remove all the other canidiates that were listed
+            if not include_goal_song_canidates:
+                for song in victory_song_keys:
+                    available_song_keys.remove(song)
+        else:
+            # If theres nothing listed, just shuffle all the songs once and pick the first one.
+            self.random.shuffle(available_song_keys)
+            self.victory_song_name = available_song_keys.pop()
+
+        self.random.shuffle(available_song_keys)
 
         # First, we must double-check if the player has included too many guaranteed songs
         included_song_count = len(self.included_songs)
         if included_song_count > additional_song_count:
             # If so, we want to thin the list, thus let's get starter songs while we are at it.
             self.random.shuffle(self.included_songs)
-            self.victory_song_name = self.included_songs.pop()
             while len(self.included_songs) > additional_song_count:
                 next_song = self.included_songs.pop()
                 if len(self.starting_songs) < starting_song_count:
                     self.starting_songs.append(next_song)
-        else:
-            # If not, choose a random victory song from the available songs
-            chosen_song = self.random.randrange(0, len(available_song_keys) + included_song_count)
-            if chosen_song < included_song_count:
-                self.victory_song_name = self.included_songs[chosen_song]
-                del self.included_songs[chosen_song]
-            else:
-                self.victory_song_name = available_song_keys[chosen_song - included_song_count]
-                del available_song_keys[chosen_song - included_song_count]
 
         # Next, make sure the starting songs are fulfilled
         if len(self.starting_songs) < starting_song_count:

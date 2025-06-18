@@ -217,6 +217,11 @@ Hatsune Miku Project Diva Mega Mix+:
     # If empty, the goal song will be chosen randomly from all included songs.
     []
 
+  include_goal_song_pool_canidates:
+    # If enabled, songs that were listed in the goal song pool can be included in the multiworld.
+    'false': 50
+    'true': 0
+
   exclude_singers:
     # Songs including singers listed here will not be included. Does not affect any modded songs regardless.
     # Available Singers: Hatsune Miku, Kagamine Rin, Kagamine Len, Megurine Luka, KAITO, MEIKO

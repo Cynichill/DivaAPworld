@@ -153,7 +153,7 @@ class LeeksRequiredPercentage(Range):
 class IncludeSongs(ItemSet):
     """Any song listed here will be guaranteed to be included as part of the seed.
     - Difficulty options will be skipped for these songs.
-    - If there being too many included songs, songs will be randomly chosen without regard for difficulty.
+    - If there are too many included songs, songs will be randomly chosen without regard for difficulty.
     - If you want these songs immediately, use start_inventory instead.
     """
     verify_item_name = True
@@ -171,6 +171,11 @@ class GoalSongPool(ItemSet):
     If empty, the goal song will be chosen randomly from all included songs."""
     verify_item_name = True
     display_name = "Goal Song Pool"
+
+
+class IncludeGoalSongPoolCanidates(Toggle):
+    """If enabled, songs that were listed in the goal song pool can be included in the multiworld."""
+    display_name = "Include Goal Song Pool Canidates"
 
 
 class ExcludeSinger(OptionSet):
@@ -204,5 +209,6 @@ class MegaMixOptions(PerGameCommonOptions):
     include_songs: IncludeSongs
     exclude_songs: ExcludeSongs
     goal_song_pool: GoalSongPool
+    include_goal_song_pool_canidates: IncludeGoalSongPoolCanidates
     exclude_singers: ExcludeSinger
     megamix_mod_data: ModData
