@@ -183,15 +183,16 @@ class ModData(FreeText):
 class DivaDeathLink(DeathLink):
     """
     Send out a Death Link when you DROPxOUT, MISSxTAKE, or fail to reach Grade Needed.
-    Received Death Links subtract a percentage of the total HP pool. Configure how much in the mod's config.toml
+    Received Death Links subtract a percentage of the total HP pool. Configure how much in the mod's config.toml.
+    This can be toggled later in the Client with "/deathlink"
     """
     display_name = "Death Link"
 
 
 class DeathLinkAmnesty(Range):
     """
-    Amount of own deaths needed before sending one Death Link.
-    0 would be every death, 1 every other, etc.
+    Amount of own deaths needed before sending one Death Link. 0 would be every death, 1 every other, etc.
+    This can be adjusted later in the Client with "/deathlink #"
     """
     display_name = "Death Link Amnesty"
     range_start = 0

@@ -421,6 +421,11 @@ class MegaMixContext(CommonContext):
             logger.info(f"Death Link is now {['off','on'][self.death_link]}")
             await self.update_death_link(self.death_link)
 
+        # This is for when DL is disabled in the YAML and opted into with the Client.
+        # TODO: The copy of this in on_package should be reworked.
+        if self.death_link and not self.watch_death_link_task:
+            self.watch_death_link_task = asyncio.create_task(self.watch_death_link_out(self.deathLinkOutLocation))
+
 
 def launch():
     """
