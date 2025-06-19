@@ -255,7 +255,7 @@ class MegaMixContext(CommonContext):
                     last_modified = modified
                     if self.death_link_amnesty_count > self.death_link_amnesty:
                         self.death_link_amnesty_count = 0
-                        await self.send_death("The Disappearance of ...")
+                        await self.send_death(f"THE END OF {self.player_names[self.slot].upper()} -DEAD END-")
 
 
     def on_deathlink(self, data: dict[str, any]):
