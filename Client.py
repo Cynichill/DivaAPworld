@@ -52,6 +52,10 @@ class DivaClientCommandProcessor(ClientCommandProcessor):
         asyncio.create_task(self.ctx.restore_songs())
         logger.info("Base Game + Mod Packs Restored")
 
+    def _cmd_deathlink(self, amnesty = ""):
+        """Toggle Death Link on and off or provide a number >= 0 to change Amnesty."""
+        asyncio.create_task(self.ctx.toggle_deathlink(amnesty))
+
 
 class MegaMixContext(CommonContext):
     """MegaMix Game Context"""
@@ -103,8 +107,6 @@ class MegaMixContext(CommonContext):
             self.watch_task = asyncio.create_task(self.watch_json_file(self.songResultsLocation))
 
         self.watch_death_link_task = None
-        if not self.watch_death_link_task:
-            self.watch_death_link_task = asyncio.create_task(self.watch_death_link_out(self.deathLinkOutLocation))
 
         self.obtained_items_queue = asyncio.Queue()
         self.critical_section_lock = asyncio.Lock()
@@ -142,6 +144,9 @@ class MegaMixContext(CommonContext):
             self.death_link_amnesty = self.options["deathLink_Amnesty"]
             self.death_link_amnesty_count = 0
             asyncio.create_task(self.update_death_link(self.death_link))
+
+            if self.death_link and not self.watch_death_link_task:
+                self.watch_death_link_task = asyncio.create_task(self.watch_death_link_out(self.deathLinkOutLocation))
 
             self.check_goal()
 
@@ -226,12 +231,12 @@ class MegaMixContext(CommonContext):
     async def watch_json_file(self, file_name: str):
         """Watch a JSON file for changes and call the callback function."""
         file_path = os.path.join(os.path.dirname(__file__), file_name)
-        last_modified = os.path.getmtime(file_path)
+        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else 0.0
         try:
             while True:
                 await asyncio.sleep(1)  # Wait for a short duration
                 modified = os.path.getmtime(file_path)
-                if modified != last_modified:
+                if modified > last_modified:
                     last_modified = modified
                     try:
                         json_data = load_json_file(file_name)
@@ -244,13 +249,15 @@ class MegaMixContext(CommonContext):
 
     async def watch_death_link_out(self, file_name: str):
         file_path = os.path.join(os.path.dirname(__file__), file_name)
-        last_modified = os.path.getmtime(file_path)
+        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else 0.0
+
+        logger.debug(f"Watching {self.deathLinkOutLocation} ({last_modified})")
 
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.25)
             if os.path.isfile(file_path):
                 modified = os.path.getmtime(file_path)
-                if modified != last_modified:
+                if modified > last_modified:
                     self.death_link_amnesty_count += 1
                     last_modified = modified
                     if self.death_link_amnesty_count > self.death_link_amnesty:
@@ -401,6 +408,18 @@ class MegaMixContext(CommonContext):
 
     async def restore_songs(self):
         restore_originals(self.mod_pv_list)
+
+    async def toggle_deathlink(self, amnesty: str = ""):
+        if amnesty:
+            if int(amnesty) > -1:
+                self.death_link_amnesty = int(amnesty)
+                logger.info(f"Death Link Amnesty is now {self.death_link_amnesty}")
+            else:
+                logger.info("Death Link Amnesty must be 0 or greater.")
+        else:
+            self.death_link = not self.death_link
+            logger.info(f"Death Link is now {['off','on'][self.death_link]}")
+            await self.update_death_link(self.death_link)
 
 
 def launch():
