@@ -227,14 +227,15 @@ class MegaMixContext(CommonContext):
             print(f"Watch task for {file_name} was canceled.")
 
     def receive_location_check(self, song_data):
-
         logger.debug(song_data)
+
         # If song is not dummy song
         if song_data.get('pvId') != 144:
             location_id = int(song_data.get('pvId') * 10)
+            location_checks = set(range(location_id, location_id + self.checks_per_song))
 
             if not location_id == self.goal_id:
-                if location_id in self.prev_found:
+                if location_checks.issubset(set(self.prev_found)):
                     logger.info("No checks to send: Song checks previously sent or collected")
                     return
 
