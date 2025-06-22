@@ -200,7 +200,7 @@ class DeathLinkAmnesty(Range):
     """
     display_name = "Death Link Amnesty"
     range_start = 0
-    range_end = 5 # 30s safety + retry delay = over 5 minutes!
+    range_end = 5
     default = 0
 
 
