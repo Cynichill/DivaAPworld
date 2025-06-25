@@ -240,7 +240,7 @@ class MegaMixContext(CommonContext):
                     last_modified = modified
                     try:
                         json_data = load_json_file(file_name)
-                        self.receive_location_check(json_data)
+                        await self.receive_location_check(json_data)
                     except (FileNotFoundError, json.JSONDecodeError) as e:
                         print(f"Error loading JSON file: {e}")
         except asyncio.CancelledError:
@@ -271,7 +271,7 @@ class MegaMixContext(CommonContext):
         Path(self.deathLinkInLocation).touch()
 
 
-    def receive_location_check(self, song_data):
+    async def receive_location_check(self, song_data):
 
         logger.debug(song_data)
         # If song is not dummy song
@@ -300,6 +300,9 @@ class MegaMixContext(CommonContext):
                 asyncio.create_task(self.send_checks())
             else:
                 logger.info(f"Song {song_data.get('pvName')} was not beaten with a high enough grade")
+
+                if not song_data.get('deathLinked', False):
+                    await self.send_death(f"The Disappearance of {self.player_names[self.slot]}")
         else:
             logger.info("No checks to send at BK but seeing this means your Client is OK!")
 
