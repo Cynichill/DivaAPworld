@@ -140,8 +140,8 @@ class MegaMixContext(CommonContext):
             create_copies(self.mod_pv_list)
             asyncio.create_task(self.send_msgs([{"cmd": "GetDataPackage", "games": ["Hatsune Miku Project Diva Mega Mix+"]}]))
 
-            self.death_link = self.options["deathLink"]
-            self.death_link_amnesty = self.options["deathLink_Amnesty"]
+            self.death_link = self.options.get("deathLink", False)
+            self.death_link_amnesty = self.options.get("deathLink_Amnesty", 0)
             self.death_link_amnesty_count = 0
             asyncio.create_task(self.update_death_link(self.death_link))
 
