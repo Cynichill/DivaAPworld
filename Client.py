@@ -262,7 +262,8 @@ class MegaMixContext(CommonContext):
                     last_modified = modified
                     if self.death_link_amnesty_count > self.death_link_amnesty:
                         self.death_link_amnesty_count = 0
-                        await self.send_death(f"The Disappearance of {self.player_names[self.slot]}")
+                        if self.death_link:
+                            await self.send_death(f"The Disappearance of {self.player_names[self.slot]}")
 
 
     def on_deathlink(self, data: dict[str, any]):
@@ -301,7 +302,7 @@ class MegaMixContext(CommonContext):
             else:
                 logger.info(f"Song {song_data.get('pvName')} was not beaten with a high enough grade")
 
-                if not song_data.get('deathLinked', False):
+                if self.death_link and not song_data.get('deathLinked', False):
                     await self.send_death(f"The Disappearance of {self.player_names[self.slot]}")
         else:
             logger.info("No checks to send at BK but seeing this means your Client is OK!")
