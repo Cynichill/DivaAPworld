@@ -181,14 +181,6 @@ class MegaMixContext(CommonContext):
             # If receiving data package, resync previous items
             asyncio.create_task(self.receive_item())
 
-        elif cmd == "LocationInfo":
-            if len(args["locations"]) > 1:
-                # initial request on first connect.
-                self.patch_if_recieved_all_data()
-            else:
-                # request after an item is obtained
-                asyncio.create_task(self.obtained_items_queue.put(args["locations"][0]))
-
     def song_id_to_pack(self, item_id):
         target_song_id = int(item_id) // 10
 
