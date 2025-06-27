@@ -319,5 +319,7 @@ class MegaMixWorld(World):
             "leekWinCount": self.get_leek_win_count(),
             "scoreGradeNeeded": self.options.grade_needed.value,
             "autoRemove": bool(self.options.auto_remove_songs),
+            "deathLink": self.options.death_link.value,
+            "deathLink_Amnesty": self.options.death_link_amnesty.value,
             "modData": {pack: [song[1] for song in songs] for pack, songs in self.player_specific_mod_data.items()},
         }

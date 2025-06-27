@@ -180,6 +180,30 @@ class ModData(FreeText):
     visibility = Visibility.template | Visibility.spoiler
 
 
+class DivaDeathLink(DeathLink):
+    """
+    Send out a Death Link when you DROPxOUT/MISSxTAKE or fail to reach Grade Needed.
+    Received Death Links subtract a percentage of the total HP pool. Configure how much in the mod's config.toml.
+
+    WARNING: Non-lethal Death Link makes it harder to get Life Bonuses and may affect result by up to 2%.
+
+    This can be toggled later in the Client with "/deathlink".
+    """
+    display_name = "Death Link"
+
+
+class DeathLinkAmnesty(Range):
+    """
+    Amount of own deaths needed before sending one Death Link. 0 would be every death, 1 every other, etc.
+
+    This can be adjusted later in the Client with "/deathlink #" and has no limit.
+    """
+    display_name = "Death Link Amnesty"
+    range_start = 0
+    range_end = 5
+    default = 0
+
+
 @dataclass
 class MegaMixOptions(PerGameCommonOptions):
     allow_megamix_dlc_songs: AllowMegaMixDLCSongs
@@ -198,3 +222,5 @@ class MegaMixOptions(PerGameCommonOptions):
     exclude_songs: ExcludeSongs
     exclude_singers: ExcludeSinger
     megamix_mod_data: ModData
+    death_link: DivaDeathLink
+    death_link_amnesty: DeathLinkAmnesty

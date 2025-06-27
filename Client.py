@@ -52,6 +52,10 @@ class DivaClientCommandProcessor(ClientCommandProcessor):
         asyncio.create_task(self.ctx.restore_songs())
         logger.info("Base Game + Mod Packs Restored")
 
+    def _cmd_deathlink(self, amnesty = ""):
+        """Toggle Death Link on and off or provide a number >= 0 to change Amnesty."""
+        asyncio.create_task(self.ctx.toggle_deathlink(amnesty))
+
 
 class MegaMixContext(CommonContext):
     """MegaMix Game Context"""
@@ -65,6 +69,8 @@ class MegaMixContext(CommonContext):
         self.path = settings.get_settings()["megamix_options"]["mod_path"]
         self.mod_pv = self.path + "/ArchipelagoMod/rom/mod_pv_db.txt"
         self.songResultsLocation = self.path + "/ArchipelagoMod/results.json"
+        self.deathLinkInLocation = self.path + "/ArchipelagoMod/death_link_in"
+        self.deathLinkOutLocation = self.path + "/ArchipelagoMod/death_link_out"
         self.modData = None
         self.modded = False
         self.freeplay = False
@@ -92,10 +98,15 @@ class MegaMixContext(CommonContext):
         self.leeks_needed = None
         self.leeks_obtained = 0
         self.grade_needed = None
+        self.death_link = False
+        self.death_link_amnesty = 0
+        self.death_link_amnesty_count = 0
 
         self.watch_task = None
         if not self.watch_task:
             self.watch_task = asyncio.create_task(self.watch_json_file(self.songResultsLocation))
+
+        self.watch_death_link_task = None
 
         self.obtained_items_queue = asyncio.Queue()
         self.critical_section_lock = asyncio.Lock()
@@ -128,6 +139,15 @@ class MegaMixContext(CommonContext):
             self.mod_pv_list.append(self.mod_pv)
             create_copies(self.mod_pv_list)
             asyncio.create_task(self.send_msgs([{"cmd": "GetDataPackage", "games": ["Hatsune Miku Project Diva Mega Mix+"]}]))
+
+            self.death_link = self.options.get("deathLink", False)
+            self.death_link_amnesty = self.options.get("deathLink_Amnesty", 0)
+            self.death_link_amnesty_count = 0
+            asyncio.create_task(self.update_death_link(self.death_link))
+
+            if self.death_link and not self.watch_death_link_task:
+                self.watch_death_link_task = asyncio.create_task(self.watch_death_link_out(self.deathLinkOutLocation))
+
             self.check_goal()
 
             # if we don't have the seed name from the RoomInfo packet, wait until we do.
@@ -160,14 +180,6 @@ class MegaMixContext(CommonContext):
             erase_song_list(self.mod_pv_list)
             # If receiving data package, resync previous items
             asyncio.create_task(self.receive_item())
-
-        elif cmd == "LocationInfo":
-            if len(args["locations"]) > 1:
-                # initial request on first connect.
-                self.patch_if_recieved_all_data()
-            else:
-                # request after an item is obtained
-                asyncio.create_task(self.obtained_items_queue.put(args["locations"][0]))
 
     def song_id_to_pack(self, item_id):
         target_song_id = int(item_id) // 10
@@ -211,22 +223,48 @@ class MegaMixContext(CommonContext):
     async def watch_json_file(self, file_name: str):
         """Watch a JSON file for changes and call the callback function."""
         file_path = os.path.join(os.path.dirname(__file__), file_name)
-        last_modified = os.path.getmtime(file_path)
+        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else 0.0
         try:
             while True:
                 await asyncio.sleep(1)  # Wait for a short duration
                 modified = os.path.getmtime(file_path)
-                if modified != last_modified:
+                if modified > last_modified:
                     last_modified = modified
                     try:
                         json_data = load_json_file(file_name)
-                        self.receive_location_check(json_data)
+                        await self.receive_location_check(json_data)
                     except (FileNotFoundError, json.JSONDecodeError) as e:
                         print(f"Error loading JSON file: {e}")
         except asyncio.CancelledError:
             print(f"Watch task for {file_name} was canceled.")
 
-    def receive_location_check(self, song_data):
+
+    async def watch_death_link_out(self, file_name: str):
+        file_path = os.path.join(os.path.dirname(__file__), file_name)
+        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else 0.0
+
+        logger.debug(f"Watching {self.deathLinkOutLocation} ({last_modified})")
+
+        while True:
+            await asyncio.sleep(0.25)
+            if os.path.isfile(file_path):
+                modified = os.path.getmtime(file_path)
+                if modified > last_modified:
+                    self.death_link_amnesty_count += 1
+                    last_modified = modified
+                    if self.death_link_amnesty_count > self.death_link_amnesty:
+                        self.death_link_amnesty_count = 0
+                        if self.death_link:
+                            await self.send_death(f"The Disappearance of {self.player_names[self.slot]}")
+
+
+    def on_deathlink(self, data: dict[str, any]):
+        super().on_deathlink(data)
+        from pathlib import Path
+        Path(self.deathLinkInLocation).touch()
+
+
+    async def receive_location_check(self, song_data):
 
         logger.debug(song_data)
         # If song is not dummy song
@@ -255,6 +293,9 @@ class MegaMixContext(CommonContext):
                 asyncio.create_task(self.send_checks())
             else:
                 logger.info(f"Song {song_data.get('pvName')} was not beaten with a high enough grade")
+
+                if self.death_link and not song_data.get('deathLinked', False):
+                    await self.send_death(f"The Disappearance of {self.player_names[self.slot]}")
         else:
             logger.info("No checks to send at BK but seeing this means your Client is OK!")
 
@@ -363,6 +404,23 @@ class MegaMixContext(CommonContext):
 
     async def restore_songs(self):
         restore_originals(self.mod_pv_list)
+
+    async def toggle_deathlink(self, amnesty: str = ""):
+        if amnesty:
+            if int(amnesty) > -1:
+                self.death_link_amnesty = int(amnesty)
+                logger.info(f"Death Link Amnesty is now {self.death_link_amnesty}")
+            else:
+                logger.info("Death Link Amnesty must be 0 or greater.")
+        else:
+            self.death_link = not self.death_link
+            logger.info(f"Death Link is now {['off','on'][self.death_link]}")
+            await self.update_death_link(self.death_link)
+
+        # This is for when DL is disabled in the YAML and opted into with the Client.
+        # TODO: The copy of this in on_package should be reworked.
+        if self.death_link and not self.watch_death_link_task:
+            self.watch_death_link_task = asyncio.create_task(self.watch_death_link_out(self.deathLinkOutLocation))
 
 
 def launch():
