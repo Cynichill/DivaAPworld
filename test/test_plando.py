@@ -4,6 +4,9 @@ from ..Options import IncludeSongs, ExcludeSongs
 class TestPlando(MegaMixTestBase):
     """Test the handle_plando function directly.
     See also: test_options"""
+    options = {
+        "allow_megamix_dlc_songs": True,
+    }
 
     def _test_plando(self, exclude: bool = False):
         """Shuffle song_items, pick out 60, allocate 30 to include/exclude, verify they're not returned."""
