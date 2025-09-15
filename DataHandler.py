@@ -150,7 +150,7 @@ def song_unlock(file_path, item_id, lock_status, song_pack):
             file.truncate()
     else:
         logger.warning(f"song_unlock: {song_pack} not a file/doesn't exist at {file_path}")
-        raise PackError(song_pack)
+        #raise PackError(song_pack)
 
 
 def modify_mod_pv(pv_db: str, songs: str) -> str:
