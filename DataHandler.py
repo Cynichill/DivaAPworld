@@ -8,11 +8,15 @@ import settings
 import Utils
 import logging
 import filecmp
+import pathlib
 from typing import Any
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+class PackError(Exception):
+    pass
 
 # File Handling
 def load_json_file(file_name: str) -> dict:
@@ -28,6 +32,8 @@ def load_json_file(file_name: str) -> dict:
 
 
 def create_copies(file_paths):
+    problems = set()
+
     for file_path in file_paths:
         # Get the directory and filename from the file path
         directory, filename = os.path.split(file_path)
@@ -40,12 +46,18 @@ def create_copies(file_paths):
         new_file_path = os.path.join(directory, new_filename)
 
         # Check if the file already exists
-        if not os.path.exists(new_file_path):
+        if not os.path.isfile(file_path):
+            problems.add(pathlib.Path(file_path).parent.parent.name)
+            logger.warning(f"create_copies: File {file_path} does not exist. Skipping...")
+        elif not os.path.exists(new_file_path):
             # Copy the file to the new path
             shutil.copyfile(file_path, new_file_path)
             logger.debug(f"Copied {file_path} to {new_file_path}")
         else:
             logger.debug(f"File {new_file_path} already exists. Skipping...")
+
+    if problems:
+        raise PackError(problems)
 
 
 def restore_originals(original_file_paths):
@@ -62,7 +74,7 @@ def restore_originals(original_file_paths):
             else:
                 logger.debug(f"Skipping restore on {original_file_path} (matches copy)")
         else:
-            logger.debug(f"The copy file {copy_file_path} does not exist.")
+            logger.warning(f"restore_originals: The copy file {copy_file_path} does not exist.")
 
 
 # Data processing
@@ -79,29 +91,46 @@ def generate_modded_paths(processed_data, base_path):
 def freeplay_song_list(file_paths, skip_ids: list[int], freeplay: bool):
     processed_ids = "|".join([str(x // 10).zfill(3) for x in skip_ids])
 
+    problems = set()
+
     for file_path in file_paths:
-        with open(file_path, 'r+', encoding='utf-8') as file:
-            file_data = file.read()
-            if freeplay:
-                file_data = modify_mod_pv(file_data, rf"(?!({processed_ids})\.)\d+")
-                file_data = remove_song(file_data, processed_ids)
-            else:
-                file_data = modify_mod_pv(file_data, processed_ids)
-                file_data = remove_song(file_data, rf"(?!({processed_ids})\.)\d+")
-            file.seek(0)
-            file.write(file_data)
-            file.truncate()
+        if os.path.isfile(file_path):
+            with open(file_path, 'r+', encoding='utf-8') as file:
+                file_data = file.read()
+                if freeplay:
+                    file_data = modify_mod_pv(file_data, rf"(?!({processed_ids})\.)\d+")
+                    file_data = remove_song(file_data, processed_ids)
+                else:
+                    file_data = modify_mod_pv(file_data, processed_ids)
+                    file_data = remove_song(file_data, rf"(?!({processed_ids})\.)\d+")
+                file.seek(0)
+                file.write(file_data)
+                file.truncate()
+        else:
+            problems.add(pathlib.Path(file_path).parent.parent.name)
+
+    if problems:
+        raise PackError(problems)
 
 
 def erase_song_list(file_paths):
     search = re.compile(r"^(pv_(?!(144|700)\.)\d+\.difficulty\.(?:easy|normal|hard|extreme)\.length=\d)$", re.MULTILINE)
 
+    problems = set()
+
     for file_path in file_paths:
-        with open(file_path, 'r+', encoding='utf-8') as file:
-            file_data = re.sub(search, r"#ARCH#\g<1>", file.read())
-            file.seek(0)
-            file.write(file_data)
-            file.truncate()
+        if os.path.isfile(file_path):
+            with open(file_path, 'r+', encoding='utf-8') as file:
+                file_data = re.sub(search, r"#ARCH#\g<1>", file.read())
+                file.seek(0)
+                file.write(file_data)
+                file.truncate()
+        else:
+            problems.add(pathlib.Path(file_path).parent.parent.name)
+            logger.warning(f"erase_song_list: {file_path} not a file/does not exist.")
+
+    if problems:
+        raise PackError(problems)
 
 
 def song_unlock(file_path, item_id, lock_status, song_pack):
@@ -113,11 +142,15 @@ def song_unlock(file_path, item_id, lock_status, song_pack):
     if song_pack is not None:
         file_path = f"{file_path}/{song_pack}/rom/mod_pv_db.txt"
 
-    with open(file_path, 'r+', encoding='utf-8') as file:
-        pv_db = action(file.read(), song_ids)
-        file.seek(0)
-        file.write(pv_db)
-        file.truncate()
+    if os.path.isfile(file_path):
+        with open(file_path, 'r+', encoding='utf-8') as file:
+            pv_db = action(file.read(), song_ids)
+            file.seek(0)
+            file.write(pv_db)
+            file.truncate()
+    else:
+        logger.warning(f"song_unlock: {song_pack} not a file/doesn't exist at {file_path}")
+        raise PackError(song_pack)
 
 
 def modify_mod_pv(pv_db: str, songs: str) -> str:

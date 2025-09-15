@@ -13,6 +13,7 @@ from .DataHandler import (
     create_copies,
     restore_originals,
     freeplay_song_list,
+    PackError,
 )
 from CommonClient import (
     CommonContext,
@@ -147,7 +148,12 @@ class MegaMixContext(SuperContext):
                 self.modded = True
                 self.mod_pv_list = generate_modded_paths(self.modData, self.path)
             self.mod_pv_list.append(self.mod_pv)
-            create_copies(self.mod_pv_list)
+
+            try:
+                create_copies(self.mod_pv_list)
+            except PackError as e:
+                logger.info(f"create_copies PackError: {e}")
+
             asyncio.create_task(self.send_msgs([{"cmd": "GetDataPackage", "games": ["Hatsune Miku Project Diva Mega Mix+"]}]))
 
             self.death_link = self.options.get("deathLink", False)
@@ -187,7 +193,11 @@ class MegaMixContext(SuperContext):
             self.item_name_to_ap_id = args["data"]["games"]["Hatsune Miku Project Diva Mega Mix+"]["item_name_to_id"]
             self.item_ap_id_to_name = {v: k for k, v in self.item_name_to_ap_id.items()}
 
-            erase_song_list(self.mod_pv_list)
+            try:
+                erase_song_list(self.mod_pv_list)
+            except PackError as e:
+                logger.info(f"erase_song_list PackError: {e}")
+
             # If receiving data package, resync previous items
             asyncio.create_task(self.receive_item())
 
@@ -216,8 +226,15 @@ class MegaMixContext(SuperContext):
                     else:
                         ids_to_packs.setdefault(self.song_id_to_pack(network_item.item), []).append(network_item.item)
 
+            problems = set()
             for song_pack in ids_to_packs:
-                song_unlock(self.path, ids_to_packs.get(song_pack), False, song_pack)
+                try:
+                    song_unlock(self.path, ids_to_packs.get(song_pack), False, song_pack)
+                except PackError as e:
+                    problems.add(str(e))
+
+            if problems:
+                logger.warning(f"song_unlock PackErrors: {problems}")
 
 
     def check_goal(self):
@@ -413,7 +430,11 @@ class MegaMixContext(SuperContext):
         elif self.leeks_obtained < self.leeks_needed:
             song_ids.append(self.goal_id)
 
-        freeplay_song_list(self.mod_pv_list, song_ids, self.freeplay)
+
+        try:
+            freeplay_song_list(self.mod_pv_list, song_ids, self.freeplay)
+        except PackError as e:
+            logger.warning(f"freeplay_song_list PackError: {e}")
 
         if self.freeplay:
             logger.info("Restored non-AP songs!")
