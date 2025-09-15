@@ -144,14 +144,14 @@ def song_unlock(file_path, item_id, lock_status, song_pack):
     if song_pack is not None:
         file_path = f"{file_path}/{song_pack}/rom/mod_pv_db.txt"
 
-    if os.path.isfile(file_path):
+    try:
         with open(file_path, 'r+', encoding='utf-8') as file:
             pv_db = action(file.read(), song_ids)
             file.seek(0)
             file.write(pv_db)
             file.truncate()
-    else:
-        logger.warning(f"song_unlock: {song_pack} not a file/doesn't exist at {file_path}")
+    except Exception as e:
+        logger.warning(f"song_unlock: {song_pack} / {file_path} {e}")
         #raise PackError(song_pack)
 
 
