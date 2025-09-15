@@ -55,7 +55,7 @@ def create_copies(file_paths):
                 logger.debug(f"File {new_file_path} already exists. Skipping...")
         except Exception as e:
             problems.add(pathlib.Path(file_path).parent.parent.name)
-            logger.warning(f"create_copies: {file_path} {e}")
+            logger.warning(f"create_copies: {e}")
 
     if problems:
         raise PackError(problems)
@@ -129,7 +129,7 @@ def erase_song_list(file_paths):
                 file.truncate()
         except Exception as e:
             problems.add(pathlib.Path(file_path).parent.parent.name)
-            logger.warning(f"erase_song_list: {file_path} {e}")
+            logger.warning(f"erase_song_list: {e}")
 
     if problems:
         raise PackError(problems)
@@ -151,7 +151,7 @@ def song_unlock(file_path, item_id, lock_status, song_pack):
             file.write(pv_db)
             file.truncate()
     except Exception as e:
-        logger.warning(f"song_unlock: {song_pack} / {file_path} {e}")
+        logger.warning(f"song_unlock: {song_pack} {e}")
         #raise PackError(song_pack)
 
 
