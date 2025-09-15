@@ -412,7 +412,11 @@ class MegaMixContext(SuperContext):
             ids_to_packs.setdefault(self.song_id_to_pack(item), []).append(item)
 
         for song_pack in ids_to_packs:
-            song_unlock(self.path, ids_to_packs.get(song_pack), True, song_pack)
+            try:
+                song_unlock(self.path, ids_to_packs.get(song_pack), True, song_pack)
+            except PackError:
+                # Not worth informing. It was cleared somehow.
+                pass
 
         logger.info("Removed songs!")
 
