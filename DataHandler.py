@@ -45,16 +45,17 @@ def create_copies(file_paths):
         # Create the full path for the new file
         new_file_path = os.path.join(directory, new_filename)
 
-        # Check if the file already exists
-        if not os.path.isfile(file_path):
+        try:
+            # Check if the file already exists
+            if not os.path.exists(new_file_path):
+                # Copy the file to the new path
+                shutil.copyfile(file_path, new_file_path)
+                logger.debug(f"Copied {file_path} to {new_file_path}")
+            else:
+                logger.debug(f"File {new_file_path} already exists. Skipping...")
+        except Exception as e:
             problems.add(pathlib.Path(file_path).parent.parent.name)
-            logger.warning(f"create_copies: File {file_path} does not exist. Skipping...")
-        elif not os.path.exists(new_file_path):
-            # Copy the file to the new path
-            shutil.copyfile(file_path, new_file_path)
-            logger.debug(f"Copied {file_path} to {new_file_path}")
-        else:
-            logger.debug(f"File {new_file_path} already exists. Skipping...")
+            logger.warning(f"create_copies: {file_path} {e}")
 
     if problems:
         raise PackError(problems)
@@ -94,7 +95,7 @@ def freeplay_song_list(file_paths, skip_ids: list[int], freeplay: bool):
     problems = set()
 
     for file_path in file_paths:
-        if os.path.isfile(file_path):
+        try:
             with open(file_path, 'r+', encoding='utf-8') as file:
                 file_data = file.read()
                 if freeplay:
@@ -106,8 +107,9 @@ def freeplay_song_list(file_paths, skip_ids: list[int], freeplay: bool):
                 file.seek(0)
                 file.write(file_data)
                 file.truncate()
-        else:
+        except Exception as e:
             problems.add(pathlib.Path(file_path).parent.parent.name)
+            logger.debug(f"freeplay_song_list: {e}")
 
     if problems:
         raise PackError(problems)
@@ -119,15 +121,15 @@ def erase_song_list(file_paths):
     problems = set()
 
     for file_path in file_paths:
-        if os.path.isfile(file_path):
+        try:
             with open(file_path, 'r+', encoding='utf-8') as file:
                 file_data = re.sub(search, r"#ARCH#\g<1>", file.read())
                 file.seek(0)
                 file.write(file_data)
                 file.truncate()
-        else:
+        except Exception as e:
             problems.add(pathlib.Path(file_path).parent.parent.name)
-            logger.warning(f"erase_song_list: {file_path} not a file/does not exist.")
+            logger.warning(f"erase_song_list: {file_path} {e}")
 
     if problems:
         raise PackError(problems)
