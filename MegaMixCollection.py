@@ -1,7 +1,7 @@
 # Local
 from .Items import SongData
 from .SymbolFixer import fix_song_name
-from .MegaMixSongData import SONG_DATA
+from .MegaMixSongData import SONG_DATA, dlc_ids
 from .DataHandler import extract_mod_data_to_json
 
 # Python
@@ -62,7 +62,7 @@ class MegaMixCollections:
                             diff_info.insert(0, diff + (.5 if half else 0.0))
                             song[2] >>= 5
 
-                        self.song_items[song_name] = SongData(item_id, song_id, [], False, True, diff_info)
+                        self.song_items[song_name] = SongData(item_id, song_id, set(), song_id in dlc_ids, True, diff_info)
 
         self.item_names_to_id.update({name: data.code for name, data in self.song_items.items()})
 
