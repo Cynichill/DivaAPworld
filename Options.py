@@ -118,7 +118,7 @@ class DifficultyRatingMax(Choice):
     option_nine = 16
     option_9x5 = 17
     option_ten = 18
-    default = 18
+    default = 14
 
 
 class ScoreGradeNeeded(Choice):

@@ -125,3 +125,7 @@ def fix_song_name(song_name):
     cleaned_song_name = replace_non_ascii_with_space(cleaned_song_name)  # After conversion, replace any remainders with blanks
     cleaned_song_name = special_char_removal(cleaned_song_name)
     return cleaned_song_name
+
+
+def format_song_name(name: str, song_id: int):
+    return f"{fix_song_name(name)} [{song_id}]"
