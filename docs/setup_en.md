@@ -14,7 +14,8 @@ This is a minimal setup to get started. Mod managers exist that may make certain
    - See below for locating `DivaMegaMix.exe`
 2. Install the Archipelago Mod listed under [Requirements.](#requirements)
 3. Start the **Mega Mix Client** from the Archipelago Launcher
-4. You may be prompted to select `DivaMegaMix.exe`: (if not prompted, skip this)
+4. You may be prompted to select `DivaMegaMix.exe`:
+   - If you are not prompted, skip these steps
    - Right-click the game entry in Steam, **Manage > Browse local files**
    - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
    - You may be able to ***Ctrl+C*** the game EXE and paste its path into the original prompt's text input
@@ -23,7 +24,7 @@ This is a minimal setup to get started. Mod managers exist that may make certain
 ### Resulting basic file structure
 ```
 Hatsune Miku Project DIVA Mega Mix Plus\
-├ DivaMegaMix.exe <─ game, select when prompted by Client/JSON generator
+├ DivaMegaMix.exe <─ game, select if prompted by Client/JSON generator
 ├ dinput8.dll <─ mod loader
 ├ config.toml <─ mod loader config (no need to edit)
 └ mods\
