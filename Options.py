@@ -221,7 +221,8 @@ class DeathLinkAmnesty(Range):
 
 
 class TrapsEnabled(OptionSet):
-    """Control which Traps can be placed in the item pool."""
+    """Control which Traps can be placed in the item pool.
+    It is highly recommended to add these traps to non_local_items."""
     display_name = "Traps Enabled"
     valid_keys = {trap for trap in MegaMixCollections.trap_items.keys()}
     default = valid_keys
