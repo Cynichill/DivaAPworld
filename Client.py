@@ -394,12 +394,11 @@ class MegaMixContext(SuperContext):
     async def freeplay_toggle(self):
         self.freeplay = not self.freeplay
 
-                    if location_id not in [i.item for i in self.previous_received]}
         received = {recv.item // 10 for recv in self.items_received if recv.item >= 10}
         song_ids = {loc for loc in self.location_ids if loc // 10 not in received}
 
         if not self.freeplay:
-
+            song_ids = received
             if self.leeks_obtained >= self.leeks_needed:
                 song_ids.add(self.goal_id)
         elif self.leeks_obtained < self.leeks_needed:
