@@ -144,8 +144,6 @@ class DivaJSONGenerator(ThemedApp):
         try:
             count, mod_pv_db_json = process_mods(self.mods_folder, mod_pv_db_paths_list)
         except ConflictException as e:
-            #if Utils.is_windows:
-            #    Clipboard.copy(str(e))
             print(str(e))
 
             MDDialog(
