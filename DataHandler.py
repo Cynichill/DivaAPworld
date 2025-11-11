@@ -31,7 +31,7 @@ def game_paths() -> dict[str, str]:
     dml_config = os.path.join(game_path, "config.toml")
     if os.path.isfile(dml_config):
         with open(dml_config, "r") as f:
-            mod_line = re.search(r"""^mods\s*=\s*['"](.*?)['"]""", f.read())
+            mod_line = re.search(r"""^mods\s*=\s*['"](.*?)['"]""", f.read(), re.MULTILINE)
             if mod_line:
                 mods_path = os.path.join(game_path, mod_line.group(1))
 
