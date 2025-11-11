@@ -168,8 +168,7 @@ class MegaMixContext(SuperContext):
                 time.sleep(1)
 
         if cmd == "ReceivedItems":
-            # If receiving an item, only append that item
-            asyncio.create_task(self.receive_item())
+            asyncio.create_task(self.receive_item(args.get("index", 0)))
 
         if cmd == "RoomInfo":
             self.seed_name = args['seed_name']
@@ -208,6 +207,9 @@ class MegaMixContext(SuperContext):
         return "ArchipelagoMod"
 
     async def receive_item(self, index: int = 0):
+        if index == 0:
+            self.leeks_obtained = 0
+
         async with self.critical_section_lock:
             ids_to_packs = {}
 
