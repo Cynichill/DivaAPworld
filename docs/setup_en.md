@@ -24,12 +24,12 @@ This is a minimal setup to get started. Mod managers exist that may make certain
 ### Resulting basic file structure
 ```
 Hatsune Miku Project DIVA Mega Mix Plus\
-├ DivaMegaMix.exe <─ game, select if prompted by Client/JSON generator
-├ dinput8.dll <─ mod loader
-├ config.toml <─ mod loader config (no need to edit)
+├ DivaMegaMix.exe   <─ game, select if prompted by Client/JSON generator
+├ dinput8.dll       <─ mod loader
+├ config.toml       <─ mod loader config (no need to edit)
 └ mods\
   └ ArchipelagoMod\ <─ AP mod, currently required to be this name
-    └ config.toml <─ AP mod config
+    └ config.toml   <─ AP mod config
 ```
 
 ## Optional Quality of Life Mods 
