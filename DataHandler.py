@@ -12,6 +12,7 @@ import filecmp
 from typing import Any
 
 from .MegaMixSongData import dlc_ids
+from .SymbolFixer import format_song_name
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
@@ -219,17 +220,19 @@ def extract_mod_data_to_json() -> list[Any]:
     return all_mod_data
 
 
-def get_player_specific_ids(mod_data):
-    song_ids = []  # Initialize an empty list to store song IDs
-
+def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, list, dict):
     if mod_data == "":
-        return {}, song_ids
+        return {}, [], {}
 
     data_dict = json.loads(mod_data)
 
-    for pack_name, songs in data_dict.items():
-        for song in songs:
-            song_id = song[1]
-            song_ids.append(song_id)
+    flat_songs = {song[1]: song[0] for pack, songs in data_dict.items() for song in songs}
+    conflicts = remap.keys() & flat_songs.keys()
 
-    return data_dict, song_ids  # Return the list of song IDs
+    player_remapped = {}
+    for song_id in conflicts:
+        name = format_song_name(flat_songs[song_id], song_id)
+        if name in remap[song_id]:
+            player_remapped.update({song_id: remap[song_id][name][0]})
+
+    return data_dict, list(flat_songs.keys()), player_remapped  # Return the list of song IDs
