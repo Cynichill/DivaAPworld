@@ -203,7 +203,7 @@ def extract_mod_data_to_json() -> list[Any]:
                             matches = re.findall(mod_data_pattern, file_content)
 
                             # Process each mod_data block
-                            for _ in matches:
+                            if matches:
                                 for single_yaml in yaml.safe_load_all(file_content):
                                     mod_data_content = single_yaml.get("Hatsune Miku Project Diva Mega Mix+", {}).get("megamix_mod_data", None)
 
