@@ -451,6 +451,11 @@ class MegaMixContext(SuperContext):
         await self.restore_songs()
         await super().shutdown()
 
+    def make_gui(self):
+        ui = super().make_gui()
+        ui.base_title = "Mega Mix Client"
+        return ui
+
     async def toggle_deathlink(self, amnesty: str = ""):
         if amnesty:
             if int(amnesty) > -1:
