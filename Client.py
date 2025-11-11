@@ -89,7 +89,6 @@ class MegaMixContext(SuperContext):
         self.modded = False
         self.freeplay = False
         self.mod_pv_list = []
-        self.previous_received = []
         self.sent_unlock_message = False
 
         self.items_handling = 0b001 | 0b010 | 0b100  #Receive items from other worlds, starting inv, and own items
@@ -178,7 +177,6 @@ class MegaMixContext(SuperContext):
                 # Connected package not recieved yet, wait for datapackage request after connected package
                 return
             self.leeks_obtained = 0
-            self.previous_received = []
 
             self.location_name_to_ap_id = args["data"]["games"]["Hatsune Miku Project Diva Mega Mix+"]["location_name_to_id"]
             self.location_name_to_ap_id = {
@@ -381,7 +379,8 @@ class MegaMixContext(SuperContext):
             logger.info("Auto Remove Set to Off")
 
     async def remove_songs(self):
-        finished_songs = self.prev_found[::self.checks_per_song]
+        missing = {songID // 10 for songID in self.missing_locations}
+        finished_songs = {songID for songID in self.checked_locations - self.missing_locations if songID // 10 not in missing}
 
         ids_to_packs = {}
         for item in finished_songs:
