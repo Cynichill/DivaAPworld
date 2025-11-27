@@ -116,7 +116,11 @@ class MegaMixWorld(World):
             from .SymbolFixer import format_song_name
             from .Items import SongData
             for pack, items in slot_data.get("modData", {}).items():
-                for name, song_id in items:
+                for item in items: # for name, song_id in items
+                    # Temporary back-compat for testing on older world gens
+                    name = item[0] if len(item) == 2 else "Modded Song"
+                    song_id = item[-1]
+
                     formatted_name = format_song_name(name, song_id)
 
                     remap = slot_data.get("modRemap", {})
