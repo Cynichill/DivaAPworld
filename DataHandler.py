@@ -94,9 +94,6 @@ def extract_mod_data_to_json() -> list[Any]:
     # Search text for the specific game
     search_text = "Hatsune Miku Project Diva Mega Mix+"
 
-    # Regex pattern to capture the outermost curly braces content
-    mod_data_pattern = r"megamix_mod_data:\s*(?:#.*\n)?\s*('.*')"
-
     # Initialize an empty list to collect all inputs
     all_mod_data = []
 
@@ -113,8 +110,7 @@ def extract_mod_data_to_json() -> list[Any]:
 
                         # Check if the search text (game title) is found in the file
                         if search_text in file_content:
-                            # Search for all occurrences of 'megamix_mod_data:' and the block within {}
-                            matches = re.findall(mod_data_pattern, file_content)
+                            matches = re.findall("megamix_mod_data", file_content)
 
                             # Process each mod_data block
                             if matches:
