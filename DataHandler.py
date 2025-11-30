@@ -195,7 +195,6 @@ def extract_mod_data_to_json() -> list[Any]:
 
                         # Check if the search text (game title) is found in the file
                         if search_text in file_content:
-                            # Search for all occurrences of 'megamix_mod_data:' and the block within {}
                             matches = re.findall("megamix_mod_data", file_content)
 
                             # Process each mod_data block
