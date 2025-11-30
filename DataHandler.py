@@ -176,11 +176,11 @@ def extract_mod_data_to_json() -> list[Any]:
 
     logger.debug(f"Checking YAMLs for megamix_mod_data at {folder_path}")
 
-    # Search text for the specific game
-    search_text = "Hatsune Miku Project Diva Mega Mix+"
-
     # Initialize an empty list to collect all inputs
     all_mod_data = []
+
+    game_key = "Hatsune Miku Project Diva Mega Mix+"
+    mod_data_key = "megamix_mod_data"
 
     if not os.path.isdir(folder_path):
         logger.debug(f"The path {folder_path} is not a valid directory. Modded songs are unavailable for this path.")
@@ -193,19 +193,17 @@ def extract_mod_data_to_json() -> list[Any]:
                     with open(item_path, 'r', encoding='utf-8') as file:  # Open the file in read mode
                         file_content = file.read()
 
-                        # Check if the search text (game title) is found in the file
-                        if search_text in file_content:
-                            matches = re.findall("megamix_mod_data", file_content)
+                        if (game_key not in file_content
+                            or mod_data_key not in file_content):
+                            continue
 
-                            # Process each mod_data block
-                            for _ in matches:
-                                for single_yaml in yaml.safe_load_all(file_content):
-                                    mod_data_content = single_yaml.get("Hatsune Miku Project Diva Mega Mix+", {}).get("megamix_mod_data", None)
+                        for single_yaml in yaml.safe_load_all(file_content):
+                            mod_data_content = single_yaml.get(game_key, {}).get(mod_data_key, None)
 
-                                    if isinstance(mod_data_content, dict) or not mod_data_content:
-                                        continue
+                            if isinstance(mod_data_content, dict) or not mod_data_content:
+                                continue
 
-                                    all_mod_data.append(json.loads(mod_data_content))
+                            all_mod_data.append(json.loads(mod_data_content))
                 except Exception as e:
                     logger.warning(f"Failed to extract mod data from {item}\n{e}")
 
