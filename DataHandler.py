@@ -166,7 +166,7 @@ def remove_song(pv_db: str, songs: str) -> str:
     return re.sub(rf"^(pv_(?!(144|700)\.)({songs})\.difficulty\.(?:easy|normal|hard|extreme).length=\d)$", r"#ARCH#\g<1>", pv_db, flags=re.MULTILINE)
 
 
-def extract_mod_data_to_json() -> list[Any]:
+def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     """
     Extracts mod data from YAML files and converts it to a list of dictionaries.
     """
@@ -176,35 +176,35 @@ def extract_mod_data_to_json() -> list[Any]:
 
     logger.debug(f"Checking YAMLs for megamix_mod_data at {folder_path}")
 
-    # Initialize an empty list to collect all inputs
-    all_mod_data = []
+    if not os.path.isdir(folder_path):
+        logger.debug(f"The path {folder_path} is not a valid directory. Modded songs are unavailable for this path.")
+        return []
 
     game_key = "Hatsune Miku Project Diva Mega Mix+"
     mod_data_key = "megamix_mod_data"
 
-    if not os.path.isdir(folder_path):
-        logger.debug(f"The path {folder_path} is not a valid directory. Modded songs are unavailable for this path.")
-    else:
-        for item in os.listdir(folder_path):
-            item_path = os.path.join(folder_path, item)
+    all_mod_data = []
 
-            if os.path.isfile(item_path):
-                try:
-                    with open(item_path, 'r', encoding='utf-8') as file:  # Open the file in read mode
-                        file_content = file.read()
+    for item in os.scandir(folder_path):
+        if not item.is_file():
+            continue
 
-                        if game_key not in file_content or mod_data_key not in file_content:
-                            continue
+        try:
+            with open(item.path, 'r', encoding='utf-8') as file:
+                file_content = file.read()
 
-                        for single_yaml in yaml.safe_load_all(file_content):
-                            mod_data_content = single_yaml.get(game_key, {}).get(mod_data_key, None)
+                if game_key not in file_content or mod_data_key not in file_content:
+                    continue
 
-                            if isinstance(mod_data_content, dict) or not mod_data_content:
-                                continue
+                for single_yaml in yaml.safe_load_all(file_content):
+                    mod_data_content = single_yaml.get(game_key, {}).get(mod_data_key, None)
 
-                            all_mod_data.append(json.loads(mod_data_content))
-                except Exception as e:
-                    logger.warning(f"Failed to extract mod data from {item}\n{e}")
+                    if isinstance(mod_data_content, dict) or not mod_data_content:
+                        continue
+
+                    all_mod_data.append(json.loads(mod_data_content))
+        except Exception as e:
+            logger.warning(f"Failed to extract mod data from {item.name}\n{e}")
 
     total = sum(len(pack) for packList in all_mod_data for pack in packList.values())
     logger.debug(f"Found {total} songs")
