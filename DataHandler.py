@@ -193,7 +193,7 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
             with open(item.path, 'r', encoding='utf-8') as file:
                 file_content = file.read()
 
-                if game_key not in file_content or mod_data_key not in file_content:
+                if mod_data_key not in file_content:
                     continue
 
                 for single_yaml in yaml.safe_load_all(file_content):
