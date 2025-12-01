@@ -199,7 +199,7 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
                 for single_yaml in yaml.safe_load_all(file_content):
                     mod_data_content = single_yaml.get(game_key, {}).get(mod_data_key, None)
 
-                    if isinstance(mod_data_content, dict) or not mod_data_content:
+                    if not mod_data_content or isinstance(mod_data_content, dict):
                         continue
 
                     all_mod_data.append(json.loads(mod_data_content))
