@@ -212,22 +212,19 @@ class MegaMixContext(SuperContext):
             ids_to_packs = {}
 
             for network_item in self.items_received[index:]:
-                if network_item.item == 1:
+                if network_item.item >= 10:
+                    ids_to_packs.setdefault(self.song_id_to_pack(network_item.item), set()).add(network_item.item)
+                elif network_item.item == 1:
                     self.leeks_obtained += 1
                     self.check_goal()
                 elif network_item.item == 2:
                     pass # Filler
                 elif network_item.item == 4:
-                    if not os.path.isfile(self.trapHiddenLocation):
-                        Path(self.trapHiddenLocation).touch()
+                    Path(self.trapHiddenLocation).touch()
                 elif network_item.item == 5:
-                    if not os.path.isfile(self.trapSuddenLocation):
-                        Path(self.trapSuddenLocation).touch()
+                    Path(self.trapSuddenLocation).touch()
                 elif network_item.item == 9:
-                    if not os.path.isfile(self.trapIconLocation):
-                        Path(self.trapIconLocation).touch()
-                elif network_item.item >= 10:
-                    ids_to_packs.setdefault(self.song_id_to_pack(network_item.item), set()).add(network_item.item)
+                    Path(self.trapIconLocation).touch()
 
             for song_pack in ids_to_packs:
                 song_unlock(self.path, ids_to_packs.get(song_pack), False, song_pack)
