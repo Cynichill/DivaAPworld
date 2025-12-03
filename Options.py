@@ -14,7 +14,7 @@ class StartingSongs(Range):
 
 
 class AdditionalSongs(Range):
-    """The total number of songs that will be placed in the randomization pool.
+    """The total number of songs that will be placed in the randomisation pool.
     - This does not count any Starting Songs or the Goal Song.
     - The final song count may be lower due to other settings.
     """
