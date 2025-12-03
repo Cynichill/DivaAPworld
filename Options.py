@@ -231,7 +231,7 @@ class TrapsEnabled(OptionSet):
 class TrapPercentage(Range):
     """
     After placing required items and duplicate songs, the percentage of remaining filler slots to become traps.
-    If duplicate songs percentage is at 100, this option has no effect.
+    If Duplicate Song Percentage is at 100, this option has no effect.
     """
     display_name = "Trap Percentage"
     range_start = 0
@@ -240,6 +240,13 @@ class TrapPercentage(Range):
 
 
 megamix_option_groups = [
+    OptionGroup("Game Length", [
+        StartingSongs,
+        AdditionalSongs,
+        DuplicateSongPercentage,
+        TotalLeeksAvailable,
+        LeeksRequiredPercentage,
+    ]),
     OptionGroup("Song Choice", [
         AllowMegaMixDLCSongs,
         GoalSongs,
@@ -248,18 +255,18 @@ megamix_option_groups = [
         ExcludeSongs,
         ModData, # hidden by visibility property
     ]),
-    OptionGroup("Difficulty", [
+    OptionGroup("Song Difficulty", [
         ScoreGradeNeeded,
         DifficultyModeMin,
         DifficultyModeMax,
         DifficultyRatingMin,
         DifficultyRatingMax,
     ]),
-    OptionGroup("", [
+    OptionGroup("Game Modifiers", [
         DivaDeathLink,
         DeathLinkAmnesty,
-        TrapsEnabled,
         TrapPercentage,
+        TrapsEnabled,
     ]),
 ]
 
