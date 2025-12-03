@@ -48,7 +48,7 @@ class AutoRemoveCleared(Toggle):
 
 
 class DifficultyModeMin(Choice):
-    """Minimum difficulty that a song can be selected from"""
+    """Minimum difficulty that a song can be selected from."""
     display_name = "Manual Difficulty Min"
     option_Easy = 0
     option_Normal = 1
@@ -59,7 +59,7 @@ class DifficultyModeMin(Choice):
 
 
 class DifficultyModeMax(Choice):
-    """Maximum difficulty that a song can be selected from"""
+    """Maximum difficulty that a song can be selected from."""
     display_name = "Manual Difficulty Max"
     option_Easy = 0
     option_Normal = 1
@@ -148,7 +148,7 @@ class TotalLeeksAvailable(Range):
 
 
 class LeeksRequiredPercentage(Range):
-    """The percentage of Leeks in the item pool that are needed to unlock the winning song."""
+    """The percentage of Leeks in the item pool that are needed to unlock the Goal Song."""
     range_start = 50
     range_end = 100
     default = 80
@@ -192,7 +192,7 @@ class ExcludeSongs(ItemSet):
 
 
 class ModData(FreeText):
-    """If you are using modded songs, delete the option below entirely and paste the string from the DivaJSON Tool here"""
+    """To play with mod songs, set the output of the Mega Mix JSON Generator here."""
     display_name = "MegaMixModData"
     default = ''
     visibility = Visibility.template | Visibility.spoiler
