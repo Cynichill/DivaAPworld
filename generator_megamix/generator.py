@@ -126,7 +126,7 @@ class DivaJSONGenerator(ThemedApp):
         try:
             count, mod_pv_db_json = process_mods(self.mods_folder, mod_pv_db_paths_list)
         except ConflictException as e:
-            copy(str(e))
+            self.copy(str(e))
 
             dialog_conflict = Factory.DialogGeneric()
             dialog_conflict.title = "Conflicting IDs prevent generating"
