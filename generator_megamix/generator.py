@@ -165,7 +165,7 @@ class DivaJSONGenerator(ThemedApp):
 
     @staticmethod
     def save(content: str, suggest: str = "*.txt"):
-        path = Utils.save_filename("test", [("Text files", ["*.txt"])], suggest)
+        path = Utils.save_filename("Save generator output as...", [("Text files", ["*.txt"])], suggest)
 
         with open(path, "w", encoding='utf-8') as file:
             file.write(content + "\n")
