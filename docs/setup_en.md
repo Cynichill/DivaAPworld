@@ -82,10 +82,13 @@ Given `Song I Want To Beat [5678]`:
 Save the file while the **Mega Mix Client** is open and connected.
 
 ### Newly received songs are not appearing in game
-While on the song list press ***F7*** or the defined `reload` key in the [mod's config](#resulting-basic-file-structure) to reload the game. 
+While on the song list press ***F7*** or the defined `reload` key in the [mod's config](#resulting-basic-file-structure) to reload the game.
+
+Switch to the **All** filter in the song list and check each difficulty. Not every song is available on every difficulty.
 
 ### Modded songs are not appearing in game
-Install [ExPatch](#optional-quality-of-life-mods). Extreme/Extra Extreme only modded songs are common.
+
+Install [ExPatch](#optional-quality-of-life-mods). Modded songs are commonly Extreme/Extra Extreme only.
 
 Similar to the [mod's config](#resulting-basic-file-structure), ensure `enabled = true` in a pack's `config.toml`.
 
