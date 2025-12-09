@@ -35,13 +35,14 @@ Hatsune Miku Project DIVA Mega Mix Plus\
 ## Optional Quality of Life Mods 
 Please read descriptions before installing. These may not be relevant to you or may require additional files.
 
-| Mod               | Source                                                                                  |
-|-------------------|-----------------------------------------------------------------------------------------|
-| ExPatch           | [[GB]](https://gamebanana.com/mods/388083)                                              |
-| High Frame Rate   | [[GB]](https://gamebanana.com/mods/380955)                                              |
-| IntroPatch        | [[GB]](https://gamebanana.com/mods/449088) [[DMA]](https://divamodarchive.com/post/193) |
-| KeepFocus         | [[GB]](https://gamebanana.com/mods/427425)                                              |
-| ThumbnailSplitter | [[GB]](https://gamebanana.com/mods/625557)                                              |
+| Mod                  | Sources                                                                                              |
+|----------------------|------------------------------------------------------------------------------------------------------|
+| ExPatch              | [[GB]](https://gamebanana.com/mods/388083) [[GH]](https://github.com/nastys/ExPatch/releases/latest) |
+| High Frame Rate      | [[GB]](https://gamebanana.com/mods/380955)                                                           |
+| IntroPatch           | [[GB]](https://gamebanana.com/mods/449088) [[DMA]](https://divamodarchive.com/post/193)              |
+| KeepFocus            | [[GB]](https://gamebanana.com/mods/427425)                                                           |
+| Reach LV39 Instantly | [[GB]](https://gamebanana.com/mods/397158)                                                           |                                            
+| ThumbnailSplitter    | [[GB]](https://gamebanana.com/mods/625557)                                                           |
 
 ## Mod Songs
 **Note: Currently, using mod songs requires the seed to be [generated locally](/tutorial/Archipelago/setup_en#generating-a-multiplayer-game), not on the website. Hosting on the website afterwards is fine.**
