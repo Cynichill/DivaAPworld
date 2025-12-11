@@ -204,7 +204,7 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
 
                     all_mod_data.append(json.loads(mod_data_content))
         except Exception as e:
-            logger.warning(f"Failed to extract mod data from {item.name}\n{e}")
+            logger.warning(f"Failed to extract mod data from {item.name}: {e}")
 
     total = sum(len(pack) for packList in all_mod_data for pack in packList.values())
     logger.debug(f"Found {total} songs")
