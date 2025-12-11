@@ -51,8 +51,12 @@ class MegaMixCollections:
             seen_mod_item_ids = set()
 
             for data_dict in mod_data:
-                for _, songs in data_dict.items():
+                for pack, songs in data_dict.items():
                     for song in songs:
+                        if not isinstance(song, list) or not list(map(type, song)) == [str, int, int]:
+                            print("Skipping", pack, song)
+                            continue
+
                         song_id = song[1]
 
                         if song_id in base_game_ids:
