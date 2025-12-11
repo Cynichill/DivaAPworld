@@ -54,7 +54,7 @@ class MegaMixCollections:
                 for pack, songs in data_dict.items():
                     for song in songs:
                         if not isinstance(song, list) or not list(map(type, song)) == [str, int, int]:
-                            print("Skipping", pack, song)
+                            logger.warning("Skipping", pack, song)
                             continue
 
                         song_id = song[1]
