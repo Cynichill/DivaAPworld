@@ -41,7 +41,7 @@ Please read descriptions before installing. These may not be relevant to you or 
 | High Frame Rate      | [[GB]](https://gamebanana.com/mods/380955)                                                           |
 | IntroPatch           | [[GB]](https://gamebanana.com/mods/449088) [[DMA]](https://divamodarchive.com/post/193)              |
 | KeepFocus            | [[GB]](https://gamebanana.com/mods/427425)                                                           |
-| Reach LV39 Instantly | [[GB]](https://gamebanana.com/mods/397158)                                                           |                                            
+| Reach LV39 Instantly | [[GB]](https://gamebanana.com/mods/397158)                                                           |
 | ThumbnailSplitter    | [[GB]](https://gamebanana.com/mods/625557)                                                           |
 
 ## Mod Songs
