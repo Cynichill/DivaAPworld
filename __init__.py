@@ -181,9 +181,9 @@ class MegaMixWorld(World):
         pool = set(available_song_keys) - start_items - include_songs - exclude_songs
         player_size = self.options.starting_song_count.value + self.options.additional_song_count.value
         pool_size = 1 + min(len(pool | start_items | include_songs), player_size)
-        include_size = pool_size * self.options.include_songs_percentage.value // 100
 
-        # Add non-Incl+Excl back to pool.
+        # Sample Incl%, add non-Incl+Excl back to pool.
+        include_size = pool_size * self.options.include_songs_percentage.value // 100
         self.included_songs = self.random.sample(sorted(include_songs), k=min(len(include_songs), include_size))
         pool |= include_songs - set(self.included_songs) - exclude_songs
 
