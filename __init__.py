@@ -166,8 +166,8 @@ class MegaMixWorld(World):
         song_items = {s for s, v in self.mm_collection.song_items.items() if
                       dlc or not v.DLC and not v.modded or v.songID in self.player_specific_ids}
 
-        goal_songs = song_items & self.options.goal_song.value
         start_items = song_items & self.options.start_inventory.value.keys()
+        goal_songs = song_items & self.options.goal_song.value - start_items
         include_songs = song_items & self.options.include_songs.value - start_items
         exclude_songs = self.options.exclude_songs.value
 
