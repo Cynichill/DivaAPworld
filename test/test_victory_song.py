@@ -92,4 +92,5 @@ class TestGoalFromStarting(MegaMixTestBase):
     }
 
     def test_goal_not_starting(self):
+        self.assertTrue(self.options["goal_song"] in self.world.starting_songs)
         self.assertFalse(self.world.victory_song_name in self.options["start_inventory"].keys())
