@@ -199,8 +199,8 @@ class MegaMixContext(SuperContext):
         target_song_id = int(item_id) // 10
 
         if self.modded:
-            for pack, ids in self.modData.items():
-                if target_song_id in ids:
+            for pack, songs in self.modData.items():
+                if target_song_id in {song_id for _, song_id in songs}:
                     return pack
         return "ArchipelagoMod"
 
