@@ -328,8 +328,6 @@ class MegaMixContext(SuperContext):
                 asyncio.create_task(self.end_goal())
                 return
 
-            logger.info("Cleared song with appropriate grade!")
-
             for i in range(2):
                 self.found_checks.append(location_id + i)
 
