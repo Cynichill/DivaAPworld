@@ -84,6 +84,7 @@ class MegaMixWorld(World):
 
     topology_present = False
     web = MegaMixWebWorld()
+    ut_can_gen_without_yaml = True
 
     # Necessary Data
     mm_collection = MegaMixCollections()
@@ -95,8 +96,9 @@ class MegaMixWorld(World):
     item_name_groups = mm_collection.get_item_name_groups()
 
     # Working Data
-    player_specific_mod_data = {}
-    player_specific_ids = {}
+    player_mod_data = {}
+    player_mod_ids = {}
+    player_mod_remap = {}
     victory_song_name: str = ""
     victory_song_id: int
     starting_songs: List[str] = []
@@ -110,6 +112,25 @@ class MegaMixWorld(World):
         if re_gen_passthrough and self.game in re_gen_passthrough:
             slot_data: dict[str, any] = re_gen_passthrough[self.game]
 
+            # Inject mod data, remap as needed
+            from .SymbolFixer import format_song_name
+            from .Items import SongData
+            for pack, items in slot_data.get("modData", {}).items():
+                for item in items: # for name, song_id in items
+                    # Temporary back-compat for testing on older world gens
+                    name = item[0] if len(item) == 2 else "Modded Song"
+                    song_id = item[-1]
+
+                    formatted_name = format_song_name(name, song_id)
+
+                    remap = slot_data.get("modRemap", {})
+                    item_id = remap.get(str(song_id), song_id * 10)
+
+                    self.mm_collection.song_items[formatted_name] = SongData(item_id, song_id, set(), False, True, [])
+                    for i in range(2):
+                        self.mm_collection.song_locations[f"{formatted_name}-{i}"] = (item_id + i)
+            self.item_id_to_name.update({data.code: name for name, data in self.mm_collection.song_items.items()})
+
             if "finalSongIDs" in slot_data:
                 final = slot_data.get("finalSongIDs", [])
                 self.included_songs = [key for key, song in self.mm_collection.song_items.items() if song.songID in final]
@@ -119,13 +140,13 @@ class MegaMixWorld(World):
         # Initial search criteria
         lower_rating_threshold, higher_rating_threshold = self.get_difficulty_range()
         lower_diff_threshold, higher_diff_threshold = self.get_available_difficulties(self.options.song_difficulty_min.value, self.options.song_difficulty_max.value)
-        self.player_specific_mod_data, self.player_specific_ids = get_player_specific_ids(self.options.megamix_mod_data.value)
+        self.player_mod_data, self.player_mod_ids, self.player_mod_remap = get_player_specific_ids(self.options.megamix_mod_data.value, self.mm_collection.mod_remaps)
 
         while True:
             # In most cases this should only need to run once
 
             allowed_difficulties = list(range(lower_diff_threshold, higher_diff_threshold + 1))
-            available_song_keys = self.mm_collection.get_songs_with_settings(self.options.allow_megamix_dlc_songs, self.player_specific_ids, allowed_difficulties, lower_rating_threshold, higher_rating_threshold)
+            available_song_keys = self.mm_collection.get_songs_with_settings(bool(self.options.allow_megamix_dlc_songs.value), self.player_mod_ids, allowed_difficulties, lower_rating_threshold, higher_rating_threshold)
 
             available_song_keys = self.handle_plando(available_song_keys)
             #print(f"{lower_rating_threshold}~{higher_rating_threshold}* {allowed_difficulties}", len(available_song_keys))
@@ -170,9 +191,9 @@ class MegaMixWorld(World):
 
         # The ModdedSongs group is shared across all players. Limit to own songs.
         self.starting_songs = [s for s in start_items if s in song_items and
-                               not song_items.get(s).modded or song_items.get(s).songID in self.player_specific_ids]
+                               not song_items.get(s).modded or song_items.get(s).songID in self.player_mod_ids]
         included_songs = [s for s in include_songs if s in song_items and s not in self.starting_songs and
-                               not song_items.get(s).modded or song_items.get(s).songID in self.player_specific_ids]
+                               not song_items.get(s).modded or song_items.get(s).songID in self.player_mod_ids]
 
         # Handle goal before inc%
         if goal_songs:
@@ -238,7 +259,7 @@ class MegaMixWorld(World):
                 self.included_songs.append(available_song_keys.pop())
 
         victory_song = self.mm_collection.song_items.get(self.victory_song_name)
-        self.victory_song_id = victory_song.code
+        self.victory_song_id = (victory_song.code // 10) * 10
         self.final_song_ids.add(victory_song.songID)
         self.location_count = 2 * (len(self.starting_songs) + len(self.included_songs))
 
@@ -348,8 +369,8 @@ class MegaMixWorld(World):
         # Generate the number_to_option_value dictionary using the formula
         number_to_option_value = {i: 1 + i * 0.5 if i % 2 != 0 else int(1 + i * 0.5) for i in range(19)}
 
-        minimum_difficulty = number_to_option_value.get(self.options.song_difficulty_rating_min, None)
-        maximum_difficulty = number_to_option_value.get(self.options.song_difficulty_rating_max, None)
+        minimum_difficulty = number_to_option_value.get(self.options.song_difficulty_rating_min.value, None)
+        maximum_difficulty = number_to_option_value.get(self.options.song_difficulty_rating_max.value, None)
         difficulty_bounds = [min(minimum_difficulty, maximum_difficulty), max(minimum_difficulty, maximum_difficulty)]
 
         return difficulty_bounds
@@ -378,6 +399,7 @@ class MegaMixWorld(World):
             "autoRemove": bool(self.options.auto_remove_songs),
             "deathLink": self.options.death_link.value,
             "deathLink_Amnesty": self.options.death_link_amnesty.value,
-            "modData": {pack: [song[1] for song in songs if song[1] in self.final_song_ids]
-                        for pack, songs in self.player_specific_mod_data.items()},
+            "modData": {pack: [[song[0], song[1]] for song in songs if song[1] in self.final_song_ids]
+                        for pack, songs in self.player_mod_data.items()},
+            "modRemap": self.player_mod_remap,
         }
