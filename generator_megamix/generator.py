@@ -166,6 +166,10 @@ class DivaJSONGenerator(ThemedApp):
         Utils.open_file(self.mods_folder)
 
     @staticmethod
+    def open_help():
+        Utils.open_file("https://github.com/Cynichill/DivaAPworld/blob/main/docs/setup_en.md#mod-songs")
+
+    @staticmethod
     def show_snackbar(message: str = "ooeeoo"):
         MDSnackbar(MDSnackbarText(text=message)).open()
 
