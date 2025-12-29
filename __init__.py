@@ -182,38 +182,33 @@ class MegaMixWorld(World):
             self.multiworld.push_precollected(self.create_item(song))
 
     def handle_plando(self, available_song_keys: List[str]) -> List[str]:
-        song_items = self.mm_collection.song_items
+        # The ModdedSongs group is shared across all players. Limit to own songs (base, DLC, modded).
+        dlc = self.options.allow_megamix_dlc_songs.value
+        song_items = {s for s, v in self.mm_collection.song_items.items() if
+                      dlc or not v.DLC and not v.modded or v.songID in self.player_specific_ids}
 
-        start_items = self.options.start_inventory.value.keys()
-        include_songs = sorted(self.options.include_songs.value)
+        start_items = song_items & self.options.start_inventory.value.keys()
+        goal_songs = song_items & self.options.goal_song.value - start_items
+        include_songs = song_items & self.options.include_songs.value - start_items
         exclude_songs = self.options.exclude_songs.value
-        goal_songs = sorted(self.options.goal_song.value.intersection(set(available_song_keys)))
 
-        # The ModdedSongs group is shared across all players. Limit to own songs.
-        self.starting_songs = [s for s in start_items if s in song_items and
-                               not song_items.get(s).modded or song_items.get(s).songID in self.player_mod_ids]
-        included_songs = [s for s in include_songs if s in song_items and s not in self.starting_songs and
-                               not song_items.get(s).modded or song_items.get(s).songID in self.player_mod_ids]
-
-        # Handle goal before inc%
         if goal_songs:
-            self.victory_song_name = self.random.choice(goal_songs)
-            if self.victory_song_name in self.starting_songs:
-                self.starting_songs.remove(self.victory_song_name)
-            if self.victory_song_name in included_songs:
-                included_songs.remove(self.victory_song_name)
+            self.victory_song_name = self.random.choice(sorted(goal_songs))
+            start_items.discard(self.victory_song_name)
+            include_songs.discard(self.victory_song_name)
+        self.starting_songs = sorted(start_items)
 
-        # Open to suggestions to make includes% make sense without touching create_song_pool.
-        pool = [s for s in available_song_keys if s not in start_items
-                and s not in included_songs and s not in exclude_songs]
-        pool_size = 1 + min(len(pool + self.starting_songs + included_songs),
-                            self.options.starting_song_count.value + self.options.additional_song_count.value)
+        # Incl songs, Incl%, and Excl. Minimal logic of create_song_pool.
+        pool = set(available_song_keys) - start_items - include_songs - exclude_songs
+        player_size = self.options.starting_song_count.value + self.options.additional_song_count.value
+        pool_size = 1 + min(len(pool | start_items | include_songs), player_size)
+
+        # Sample Incl%, add non-Incl+Excl back to pool.
         include_size = pool_size * self.options.include_songs_percentage.value // 100
+        self.included_songs = self.random.sample(sorted(include_songs), k=min(len(include_songs), include_size))
+        pool |= include_songs - set(self.included_songs) - exclude_songs
 
-        self.included_songs = self.random.sample(included_songs, k=min(len(included_songs), include_size))
-        pool += [s for s in included_songs if s not in self.included_songs and s not in exclude_songs]
-
-        return pool
+        return sorted(pool)
 
     def create_song_pool(self, available_song_keys: List[str]):
         starting_song_count = self.options.starting_song_count.value
