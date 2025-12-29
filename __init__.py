@@ -185,7 +185,7 @@ class MegaMixWorld(World):
         # The ModdedSongs group is shared across all players. Limit to own songs (base, DLC, modded).
         dlc = self.options.allow_megamix_dlc_songs.value
         song_items = {s for s, v in self.mm_collection.song_items.items() if
-                      dlc or not v.DLC and not v.modded or v.songID in self.player_specific_ids}
+                      dlc or not v.DLC and not v.modded or v.songID in self.player_mod_ids}
 
         start_items = song_items & self.options.start_inventory.value.keys()
         goal_songs = song_items & self.options.goal_song.value - start_items
