@@ -12,6 +12,7 @@ import filecmp
 from typing import Any
 
 from .MegaMixSongData import dlc_ids
+from .SymbolFixer import format_song_name
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
@@ -30,7 +31,7 @@ def game_paths() -> dict[str, str]:
     dml_config = os.path.join(game_path, "config.toml")
     if os.path.isfile(dml_config):
         with open(dml_config, "r") as f:
-            mod_line = re.search(r"""^mods\s*=\s*['"](.*?)['"]""", f.read())
+            mod_line = re.search(r"""^mods\s*=\s*['"](.*?)['"]""", f.read(), re.MULTILINE)
             if mod_line:
                 mods_path = os.path.join(game_path, mod_line.group(1))
 
@@ -166,7 +167,7 @@ def remove_song(pv_db: str, songs: str) -> str:
     return re.sub(rf"^(pv_(?!(144|700)\.)({songs})\.difficulty\.(?:easy|normal|hard|extreme).length=\d)$", r"#ARCH#\g<1>", pv_db, flags=re.MULTILINE)
 
 
-def extract_mod_data_to_json() -> list[Any]:
+def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     """
     Extracts mod data from YAML files and converts it to a list of dictionaries.
     """
@@ -176,42 +177,35 @@ def extract_mod_data_to_json() -> list[Any]:
 
     logger.debug(f"Checking YAMLs for megamix_mod_data at {folder_path}")
 
-    # Search text for the specific game
-    search_text = "Hatsune Miku Project Diva Mega Mix+"
-
-    # Regex pattern to capture the outermost curly braces content
-    mod_data_pattern = r"megamix_mod_data:\s*(?:#.*\n)?\s*('.*')"
-
-    # Initialize an empty list to collect all inputs
-    all_mod_data = []
-
     if not os.path.isdir(folder_path):
         logger.debug(f"The path {folder_path} is not a valid directory. Modded songs are unavailable for this path.")
-    else:
-        for item in os.listdir(folder_path):
-            item_path = os.path.join(folder_path, item)
+        return []
 
-            if os.path.isfile(item_path):
-                try:
-                    with open(item_path, 'r', encoding='utf-8') as file:  # Open the file in read mode
-                        file_content = file.read()
+    game_key = "Hatsune Miku Project Diva Mega Mix+"
+    mod_data_key = "megamix_mod_data"
 
-                        # Check if the search text (game title) is found in the file
-                        if search_text in file_content:
-                            # Search for all occurrences of 'megamix_mod_data:' and the block within {}
-                            matches = re.findall(mod_data_pattern, file_content)
+    all_mod_data = []
 
-                            # Process each mod_data block
-                            for _ in matches:
-                                for single_yaml in yaml.safe_load_all(file_content):
-                                    mod_data_content = single_yaml.get("Hatsune Miku Project Diva Mega Mix+", {}).get("megamix_mod_data", None)
+    for item in os.scandir(folder_path):
+        if not item.is_file():
+            continue
 
-                                    if isinstance(mod_data_content, dict) or not mod_data_content:
-                                        continue
+        try:
+            with open(item.path, 'r', encoding='utf-8') as file:
+                file_content = file.read()
 
-                                    all_mod_data.append(json.loads(mod_data_content))
-                except Exception as e:
-                    logger.warning(f"Failed to extract mod data from {item}\n{e}")
+                if mod_data_key not in file_content:
+                    continue
+
+                for single_yaml in yaml.safe_load_all(file_content):
+                    mod_data_content = single_yaml.get(game_key, {}).get(mod_data_key, None)
+
+                    if not mod_data_content or isinstance(mod_data_content, dict):
+                        continue
+
+                    all_mod_data.append(json.loads(mod_data_content))
+        except Exception as e:
+            logger.warning(f"Failed to extract mod data from {item.name}: {e}")
 
     total = sum(len(pack) for packList in all_mod_data for pack in packList.values())
     logger.debug(f"Found {total} songs")
@@ -219,17 +213,20 @@ def extract_mod_data_to_json() -> list[Any]:
     return all_mod_data
 
 
-def get_player_specific_ids(mod_data):
-    song_ids = []  # Initialize an empty list to store song IDs
+def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, list, dict):
+    try:
+        data_dict = json.loads(mod_data)
+    except Exception as e:
+        logger.warning(f"Failed to extract player specific IDs: {e}")
+        return {}, [], {}
 
-    if mod_data == "":
-        return {}, song_ids
+    flat_songs = {song[1]: song[0] for pack, songs in data_dict.items() for song in songs}
+    conflicts = remap.keys() & flat_songs.keys()
 
-    data_dict = json.loads(mod_data)
+    player_remapped = {}
+    for song_id in conflicts:
+        name = format_song_name(flat_songs[song_id], song_id)
+        if name in remap[song_id]:
+            player_remapped.update({song_id: remap[song_id][name][0]})
 
-    for pack_name, songs in data_dict.items():
-        for song in songs:
-            song_id = song[1]
-            song_ids.append(song_id)
-
-    return data_dict, song_ids  # Return the list of song IDs
+    return data_dict, list(flat_songs.keys()), player_remapped  # Return the list of song IDs
