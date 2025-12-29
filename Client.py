@@ -297,7 +297,6 @@ class MegaMixContext(SuperContext):
         super().on_deathlink(data)
         Path(self.deathLinkInLocation).touch()
 
-
     async def receive_location_check(self, song_data):
         logger.debug(song_data)
 
@@ -324,10 +323,7 @@ class MegaMixContext(SuperContext):
                 asyncio.create_task(self.end_goal())
                 return
 
-            for i in range(2):
-                self.found_checks.append(location_id + i)
-
-            asyncio.create_task(self.send_checks())
+            asyncio.create_task(self.send_checks(location_checks))
         else:
             logger.info(f"Song {song_data.get('pvName')} was not beaten with a high enough grade")
 
