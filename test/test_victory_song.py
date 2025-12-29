@@ -81,3 +81,16 @@ class TestGoalNoDLC(MegaMixTestBase):
 
         self.assertFalse(self.world.mm_collection.song_items.get(self.world.victory_song_name).DLC,
                          f"DLC is disabled, but the goal song is DLC: {self.world.victory_song_name}")
+
+
+class TestGoalFromStarting(MegaMixTestBase):
+    """Verify that the Goal Song is not from the starting inventory."""
+
+    options = {
+        "goal_song": "Love is War [1]",
+        "start_inventory": {"Love is War [1]": 1}
+    }
+
+    def test_goal_not_starting(self):
+        self.assertTrue(self.options["goal_song"] in self.world.starting_songs)
+        self.assertFalse(self.world.victory_song_name in self.options["start_inventory"].keys())

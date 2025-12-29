@@ -14,8 +14,8 @@ class StartingSongs(Range):
 
 
 class AdditionalSongs(Range):
-    """The total number of songs that will be placed in the randomization pool.
-    - This does not count any starting songs or the goal song.
+    """The total number of songs that will be placed in the randomisation pool.
+    - This does not count any Starting Songs or the Goal Song.
     - The final song count may be lower due to other settings.
     """
     range_start = 15
@@ -48,7 +48,7 @@ class AutoRemoveCleared(Toggle):
 
 
 class DifficultyModeMin(Choice):
-    """Minimum difficulty that a song can be selected from"""
+    """Minimum difficulty that a song can be selected from."""
     display_name = "Manual Difficulty Min"
     option_Easy = 0
     option_Normal = 1
@@ -59,7 +59,7 @@ class DifficultyModeMin(Choice):
 
 
 class DifficultyModeMax(Choice):
-    """Maximum difficulty that a song can be selected from"""
+    """Maximum difficulty that a song can be selected from."""
     display_name = "Manual Difficulty Max"
     option_Easy = 0
     option_Normal = 1
@@ -118,7 +118,7 @@ class DifficultyRatingMax(Choice):
     option_nine = 16
     option_9x5 = 17
     option_ten = 18
-    default = 18
+    default = 14
 
 
 class ScoreGradeNeeded(Choice):
@@ -148,7 +148,7 @@ class TotalLeeksAvailable(Range):
 
 
 class LeeksRequiredPercentage(Range):
-    """The percentage of Leeks in the item pool that are needed to unlock the winning song."""
+    """The percentage of Leeks in the item pool that are needed to unlock the Goal Song."""
     range_start = 50
     range_end = 100
     default = 80
@@ -192,7 +192,7 @@ class ExcludeSongs(ItemSet):
 
 
 class ModData(FreeText):
-    """If you are using modded songs, delete the option below entirely and paste the string from the DivaJSON Tool here"""
+    """To play with mod songs, set the output of the Mega Mix JSON Generator here."""
     display_name = "MegaMixModData"
     default = ''
     visibility = Visibility.template | Visibility.spoiler
@@ -221,7 +221,8 @@ class DeathLinkAmnesty(Range):
 
 
 class TrapsEnabled(OptionSet):
-    """Control which Traps can be placed in the item pool."""
+    """Control which Traps can be placed in the item pool.
+    It is highly recommended to add these Traps to non_local_items."""
     display_name = "Traps Enabled"
     valid_keys = {trap for trap in MegaMixCollections.trap_items.keys()}
     default = valid_keys
@@ -230,7 +231,7 @@ class TrapsEnabled(OptionSet):
 class TrapPercentage(Range):
     """
     After placing required items and duplicate songs, the percentage of remaining filler slots to become traps.
-    If duplicate songs percentage is at 100, this option has no effect.
+    If Duplicate Song Percentage is at 100, this option has no effect.
     """
     display_name = "Trap Percentage"
     range_start = 0
@@ -239,6 +240,13 @@ class TrapPercentage(Range):
 
 
 megamix_option_groups = [
+    OptionGroup("Game Length", [
+        StartingSongs,
+        AdditionalSongs,
+        DuplicateSongPercentage,
+        TotalLeeksAvailable,
+        LeeksRequiredPercentage,
+    ]),
     OptionGroup("Song Choice", [
         AllowMegaMixDLCSongs,
         GoalSongs,
@@ -247,18 +255,18 @@ megamix_option_groups = [
         ExcludeSongs,
         ModData, # hidden by visibility property
     ]),
-    OptionGroup("Difficulty", [
+    OptionGroup("Song Difficulty", [
         ScoreGradeNeeded,
         DifficultyModeMin,
         DifficultyModeMax,
         DifficultyRatingMin,
         DifficultyRatingMax,
     ]),
-    OptionGroup("", [
+    OptionGroup("Game Modifiers", [
         DivaDeathLink,
         DeathLinkAmnesty,
-        TrapsEnabled,
         TrapPercentage,
+        TrapsEnabled,
     ]),
 ]
 
