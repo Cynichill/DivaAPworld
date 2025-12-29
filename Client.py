@@ -324,9 +324,10 @@ class MegaMixContext(SuperContext):
                 asyncio.create_task(self.end_goal())
                 return
 
-            logger.info("Cleared song with appropriate grade!")
+            for i in range(2):
+                self.found_checks.append(location_id + i)
 
-            asyncio.create_task(self.send_checks(location_checks))
+            asyncio.create_task(self.send_checks())
         else:
             logger.info(f"Song {song_data.get('pvName')} was not beaten with a high enough grade")
 
