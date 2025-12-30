@@ -147,15 +147,13 @@ class TestOptionExcludeItemGroups(MegaMixTestBase):
 
 
 class TestTrapsFull(MegaMixTestBase):
-    """Set trap settings to extremes and """
+    """Set trap settings to extremes."""
     options = {
         "duplicate_song_percentage": 0,
         "trap_percentage": 100,
     }
 
-    def test_traps_full(self):
-        world = self.get_world()
-        # TODO
+
 class TestOptionNoDLC(MegaMixTestBase):
     options = {
         "allow_megamix_dlc_songs": False,

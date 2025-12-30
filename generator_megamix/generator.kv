@@ -28,8 +28,8 @@ MDBoxLayout:
         spacing: "5dp"
         padding: "10dp"
 
-        MDGridLayout:
-            cols: 1
+        MDBoxLayout:
+            orientation: "vertical"
             size_hint_x: 1/3
 
             MDButton:
@@ -92,6 +92,16 @@ MDBoxLayout:
                 MDButtonText:
                     text: "Uncheck all viewable"
 
+            Widget:
+                size_hint_y: 1
+
+            MDButton:
+                on_release: app.open_help()
+                MDButtonIcon:
+                    icon: "help"
+                MDButtonText:
+                    text: "Help (GitHub)"
+
         MDGridLayout:
             rows: 2
             spacing: "10dp"
@@ -110,3 +120,42 @@ MDBoxLayout:
 
             ScrollBox:
                 id: pack_list_scroll
+
+
+<DialogGeneric@MDDialog>
+    title: ""
+    desc: ""
+    field: ""
+    icon: ""
+
+    MDDialogHeadlineText:
+        text: root.title
+
+    MDDialogContentContainer:
+        MDDialogSupportingText:
+            height: self.texture_size[1] if self.text else 0
+            text: root.desc
+
+        MDScrollView:
+            size_hint_y: None
+            MDTextField:
+                text: root.field
+                multiline: True
+                readonly: True
+
+<DialogExport@DialogGeneric>:
+    MDDialogButtonContainer:
+        Widget:
+        MDButton:
+            on_release: app.copy(root.field)
+            MDButtonIcon:
+                icon: "content-copy"
+            MDButtonText:
+                text: "Copy"
+
+        MDButton:
+            on_release: app.save(root.field)
+            MDButtonIcon:
+                icon: "content-save-outline"
+            MDButtonText:
+                text: "Save"

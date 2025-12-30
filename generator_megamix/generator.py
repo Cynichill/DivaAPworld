@@ -5,16 +5,14 @@ from pathlib import Path
 
 from kvui import ThemedApp, ScrollBox, MDTextField, MDBoxLayout, MDLabel
 from kivy.core.clipboard import Clipboard
+from kivy.factory import Factory
 from kivy.lang.builder import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.checkbox import CheckBox
 from kivymd.uix.behaviors import HoverBehavior
-from kivymd.uix.dialog import MDDialog, MDDialogHeadlineText, MDDialogContentContainer, MDDialogIcon, MDDialogSupportingText
 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
-from kivymd.uix.scrollview import MDScrollView
 
 import Utils
-import settings
 from .json_megamix import process_mods, ConflictException
 from .. import MegaMixWorld
 from ..DataHandler import restore_originals, game_paths
@@ -98,11 +96,11 @@ class DivaJSONGenerator(ThemedApp):
                     dml_config = DMLConfig.read()
                 self.show_snackbar("Imported from DML")
             except Exception as e:
-                MDDialog(
-                    MDDialogIcon(icon="alert"),
-                    MDDialogHeadlineText(text="Could not locate or read DML config"),
-                    MDDialogContentContainer(MDDialogSupportingText(text=f"{e}")),
-                ).open()
+                dialog_dml = Factory.DialogGeneric()
+                dialog_dml.icon = "alert"
+                dialog_dml.title = "Could not locate or read DML config"
+                dialog_dml.field = str(e)
+                dialog_dml.open()
 
         for label in self.labels:
             # The split may need to be /-aware in the future.
@@ -144,44 +142,53 @@ class DivaJSONGenerator(ThemedApp):
         try:
             count, mod_pv_db_json = process_mods(self.mods_folder, mod_pv_db_paths_list)
         except ConflictException as e:
-            print(str(e))
+            self.copy(str(e))
 
-            MDDialog(
-                MDDialogIcon(icon="alert"),
-                MDDialogHeadlineText(text=f"Conflicting IDs prevent generating"),
-                MDDialogContentContainer(
-                    MDDialogSupportingText(text=
-                                           "This is common for packs that target the base game or add covers.\n"
-                                           "The conflicting packs/songs may be copied manually from the box below.\n\n"
-                                           "This is NOT intended to be used for megamix_mod_data in the YAML.\n"),
-                    MDScrollView(MDTextField(text=str(e), multiline=True, readonly=True), size_hint_y=None)
-                )
-            ).open()
+            dialog_conflict = Factory.DialogGeneric()
+            dialog_conflict.title = "Conflicting IDs prevent generating"
+            dialog_conflict.desc = "This is common for packs that target the base game or add covers.\nThis is not for use in the YAML.\n"
+            dialog_conflict.field = str(e)
+            dialog_conflict.open()
+
             return
 
         json_length = round(len(mod_pv_db_json) / 1024, 2)
 
-        if Utils.is_windows:
-            Clipboard.copy(mod_pv_db_json)
-        print(mod_pv_db_json)
+        dialog_export = Factory.DialogExport()
+        dialog_export.title = "Generated mod string"
+        if self.copy(mod_pv_db_json):
+            dialog_export.desc = "The mod string was automatically copied to the clipboard.\n\n"
+        dialog_export.desc += f"{len(checked_packs)} pack(s) ({json_length} KiB)\n{count} unique song IDs\n"
+        dialog_export.field = mod_pv_db_json
 
-        MDDialog(
-            MDDialogHeadlineText(text="Generated mod string"),
-            MDDialogContentContainer(
-                MDDialogSupportingText(text=
-                                       f"If not automatically copied to your clipboard you may copy it from the box below.\n\n"
-                                       f"{len(checked_packs)} pack(s) ({json_length} KiB)\n"
-                                       f"{count} unique song IDs\n"),
-                MDScrollView(MDTextField(text=mod_pv_db_json, multiline=True, readonly=True), size_hint_y=None)
-            )
-        ).open()
+        dialog_export.open()
+
+        return
 
     def open_mods_folder(self):
         Utils.open_file(self.mods_folder)
 
     @staticmethod
+    def open_help():
+        Utils.open_file("https://github.com/Cynichill/DivaAPworld/blob/main/docs/setup_en.md#mod-songs")
+
+    @staticmethod
     def show_snackbar(message: str = "ooeeoo"):
         MDSnackbar(MDSnackbarText(text=message)).open()
+
+    @staticmethod
+    def copy(content: str) -> bool:
+        print(content)
+        if Utils.is_windows:
+            Clipboard.copy(content)
+        return Utils.is_windows
+
+    @staticmethod
+    def save(content: str, suggest: str = "*.txt"):
+        path = Utils.save_filename("Save generator output as...", [("Text files", ["*.txt"])], suggest)
+
+        with open(path, "w", encoding='utf-8') as file:
+            file.write(content + "\n")
 
     def process_restore_originals(self):
         mod_pv_dbs = [f"{self.mods_folder}/{pack}/rom/mod_pv_db.txt" for pack in [label.text for label in self.labels] + [self.self_mod_name]]
