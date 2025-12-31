@@ -133,7 +133,6 @@ class MegaMixContext(SuperContext):
         super().on_package(cmd, args) # Universal Tracker
 
         if cmd == "Connected":
-
             self.sent_unlock_message = False
             self.leeks_obtained = 0
             self.location_ids = set(args["missing_locations"] + args["checked_locations"])
@@ -193,7 +192,8 @@ class MegaMixContext(SuperContext):
 
         if cmd == "RoomUpdate":
             if "checked_locations" in args:
-                pass
+                if self.autoRemove and not self.freeplay:
+                    asyncio.create_task(self.remove_songs())
 
     def song_id_to_pack(self, item_id):
         target_song_id = int(item_id) // 10
@@ -342,8 +342,6 @@ class MegaMixContext(SuperContext):
 
     async def send_checks(self, locations: set):
         await self.check_locations(locations)
-        if self.autoRemove and not self.freeplay:
-            await self.remove_songs()
 
     async def get_uncleared(self):
         prev_items = {i for item in self.items_received for i in (item.item, item.item + 1)}
