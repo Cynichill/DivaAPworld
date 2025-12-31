@@ -133,7 +133,6 @@ class MegaMixContext(SuperContext):
         super().on_package(cmd, args) # Universal Tracker
 
         if cmd == "Connected":
-
             self.sent_unlock_message = False
             self.leeks_obtained = 0
             self.location_ids = set(args["missing_locations"] + args["checked_locations"])
@@ -193,7 +192,8 @@ class MegaMixContext(SuperContext):
 
         if cmd == "RoomUpdate":
             if "checked_locations" in args:
-                pass
+                if not self.finished_game and self.autoRemove and not self.freeplay:
+                    asyncio.create_task(self.remove_songs())
 
     def song_id_to_pack(self, item_id):
         target_song_id = int(item_id) // 10
@@ -323,7 +323,7 @@ class MegaMixContext(SuperContext):
                 asyncio.create_task(self.end_goal())
                 return
 
-            asyncio.create_task(self.send_checks(location_checks))
+            asyncio.create_task(self.check_locations(location_checks))
         else:
             logger.info(f"Song {song_data.get('pvName')} was not beaten with a high enough grade")
 
@@ -334,16 +334,10 @@ class MegaMixContext(SuperContext):
         message = [{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}]
 
         if Permission.auto & Permission.from_text(self.permissions.get("release")) == Permission.auto:
+            self.finished_game = True
             await self.restore_songs()
-        elif self.autoRemove and not self.freeplay:
-            await self.remove_songs()
 
         await self.send_msgs(message)
-
-    async def send_checks(self, locations: set):
-        await self.check_locations(locations)
-        if self.autoRemove and not self.freeplay:
-            await self.remove_songs()
 
     async def get_uncleared(self):
         prev_items = {i for item in self.items_received for i in (item.item, item.item + 1)}
