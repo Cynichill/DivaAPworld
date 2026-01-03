@@ -85,10 +85,6 @@ def song_unlock(song_list: str, song_ids: set[int]):
         logger.debug(f"Error writing to {song_list}: {e}")
 
 
-def remove_song(pv_db: str, songs: str) -> str:
-    return re.sub(rf"^(pv_(?!(144|700)\.)({songs})\.difficulty\.(?:easy|normal|hard|extreme).length=\d)$", r"#ARCH#\g<1>", pv_db, flags=re.MULTILINE)
-
-
 def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     """
     Extracts mod data from YAML files and converts it to a list of dictionaries.
