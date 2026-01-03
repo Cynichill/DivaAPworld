@@ -55,29 +55,14 @@ def load_json_file(file_name: str) -> dict:
         logger.debug(f"Error loading JSON file '{file_name}': {e}")
         return {}
 
-
-def create_copies(file_paths):
-    for file_path in file_paths:
-        # Get the directory and filename from the file path
-        directory, filename = os.path.split(file_path)
-
-        # Create the new filename by appending "COPY" before the file extension
-        name, ext = os.path.splitext(filename)
-        new_filename = f"{name}COPY{ext}"
-
-        # Create the full path for the new file
-        new_file_path = os.path.join(directory, new_filename)
-
-        # Check if the file already exists
-        if not os.path.exists(new_file_path):
-            # Copy the file to the new path
-            shutil.copyfile(file_path, new_file_path)
-            logger.debug(f"Copied {file_path} to {new_file_path}")
-        else:
-            logger.debug(f"File {new_file_path} already exists. Skipping...")
-
-
 def restore_originals(original_file_paths):
+    """Remove this function at earliest convenience. This is to allow older world users to fix their mod_pv_db for a
+    time until they can be reasonably expected to have migrated."""
+
+    import filecmp, shutil
+
+    logger.warning(f"restore_originals: {restore_originals.__doc__}")
+
     for original_file_path in original_file_paths:
         directory, filename = os.path.split(original_file_path)
         name, ext = os.path.splitext(filename)
@@ -87,80 +72,17 @@ def restore_originals(original_file_paths):
         if os.path.exists(copy_file_path):
             if not filecmp.cmp(copy_file_path, original_file_path):
                 shutil.copyfile(copy_file_path, original_file_path)
-                logger.debug(f"Restored {original_file_path} from {copy_file_path}")
-            else:
-                logger.debug(f"Skipping restore on {original_file_path} (matches copy)")
-        else:
-            logger.debug(f"The copy file {copy_file_path} does not exist.")
+            os.remove(copy_file_path)
 
 
-# Data processing
-def generate_modded_paths(processed_data, base_path):
-    # Extract unique pack names from processed_data
-    logger.debug(processed_data)
-    unique_pack_names = {pack_name for pack_name, songs in processed_data.items()}
-    logger.debug(unique_pack_names)
-    # Create modded paths based on the unique pack names
-    modded_paths = {f"{base_path}/{pack_name}/rom/mod_pv_db.txt" for pack_name in unique_pack_names}
-    return list(modded_paths)
+def song_unlock(song_list: str, song_ids: set[int]):
+    song_ids = sorted([s for s in song_ids])
 
-
-def freeplay_song_list(file_paths, skip_ids: set[int], freeplay: bool):
-    processed_ids = "|".join([str(x // 10).zfill(3) for x in skip_ids])
-    has_dlc = os.path.isfile(game_paths().get("dlc"))
-
-    for file_path in file_paths:
-        with open(file_path, 'r+', encoding='utf-8') as file:
-            file_data = file.read()
-            if freeplay:
-                file_data = modify_mod_pv(file_data, rf"(?!({processed_ids})\.)\d+")
-                file_data = remove_song(file_data, processed_ids)
-            else:
-                file_data = modify_mod_pv(file_data, processed_ids)
-                file_data = remove_song(file_data, rf"(?!({processed_ids})\.)\d+")
-            if not has_dlc:
-                padded_dlc_ids = "|".join([str(x).zfill(3) for x in dlc_ids])
-                file_data = remove_song(file_data, padded_dlc_ids)
-            file.seek(0)
-            file.write(file_data)
-            file.truncate()
-
-
-def erase_song_list(file_paths):
-    for file_path in file_paths:
-        with open(file_path, 'r+', encoding='utf-8') as file:
-            file_data = remove_song(file.read(), r"\d+")
-            file.seek(0)
-            file.write(file_data)
-            file.truncate()
-
-
-def song_unlock(file_path: str, item_id: set, locked: bool, song_pack: str):
-    """Unlock a song based on its id"""
-
-    song_ids = "|".join([str(x // 10).zfill(3) for x in item_id])
-    if song_pack is not None:
-        file_path = f"{file_path}/{song_pack}/rom/mod_pv_db.txt"
-
-    with open(file_path, 'r+', encoding='utf-8') as file:
-        pv_db = file.read()
-
-        if locked:
-            pv_db = remove_song(pv_db, song_ids)
-        else:
-            pv_db = modify_mod_pv(pv_db, song_ids)
-
-        if not os.path.isfile(game_paths().get("dlc")):
-            padded_dlc_ids = "|".join([str(x).zfill(3) for x in dlc_ids])
-            pv_db = remove_song(pv_db, padded_dlc_ids)
-
-        file.seek(0)
-        file.write(pv_db)
-        file.truncate()
-
-
-def modify_mod_pv(pv_db: str, songs: str) -> str:
-    return re.sub(rf"^#ARCH#(pv_({songs})\.difficulty\.(?:easy|normal|hard|extreme).length=\d)$", r"\g<1>", pv_db, flags=re.MULTILINE)
+    try:
+        with open(song_list, 'w', encoding='utf-8', newline='') as file:
+            file.write("\n".join(str(s) for s in song_ids))
+    except Exception as e:
+        logger.debug(f"Error writing to {song_list}: {e}")
 
 
 def remove_song(pv_db: str, songs: str) -> str:

@@ -347,7 +347,7 @@ class MegaMixWorld(World):
 
     def set_rules(self) -> None:
         self.multiworld.completion_condition[self.player] = lambda state: \
-            state.has(self.mm_collection.LEEK_NAME, self.player, self.get_leek_win_count())
+            state.has(self.mm_collection.LEEK_NAME, self.player, leek_win_count)
 
     def get_leek_count(self) -> int:
         multiplier = self.options.leek_count_percentage.value / 100.0
