@@ -357,7 +357,7 @@ class MegaMixWorld(World):
     def get_leek_win_count(self) -> int:
         re_gen_passthrough = getattr(self.multiworld, "re_gen_passthrough", {})
         if re_gen_passthrough and self.game in re_gen_passthrough:
-            return re_gen_passthrough[self.game].get("leekWinCount", 9999)
+            return re_gen_passthrough[self.game].get("leekWinCount")
 
         multiplier = self.options.leek_win_count_percentage.value / 100.0
         leek_count = self.get_leek_count()
