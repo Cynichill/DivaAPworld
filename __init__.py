@@ -119,8 +119,8 @@ class MegaMixWorld(World):
             for pack, items in slot_data.get("modData", {}).items():
                 for item in items: # for name, song_id in items
                     # Temporary back-compat for testing on older world gens
-                    name = item[0] if len(item) == 2 else "Modded Song"
-                    song_id = item[-1]
+                    name = "Modded Song" if isinstance(item, int) else item[0]
+                    song_id = item if isinstance(item, int) else item[-1]
 
                     formatted_name = format_song_name(name, song_id)
                     item_id = remap.get(str(song_id), song_id * 10)
