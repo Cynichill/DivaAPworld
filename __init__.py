@@ -115,15 +115,14 @@ class MegaMixWorld(World):
             # Inject mod data, remap as needed
             from .SymbolFixer import format_song_name
             from .Items import SongData
+            remap = slot_data.get("modRemap", {})
             for pack, items in slot_data.get("modData", {}).items():
                 for item in items: # for name, song_id in items
                     # Temporary back-compat for testing on older world gens
-                    name = item[0] if len(item) == 2 else "Modded Song"
-                    song_id = item[-1]
+                    name = "Modded Song" if isinstance(item, int) else item[0]
+                    song_id = item if isinstance(item, int) else item[-1]
 
                     formatted_name = format_song_name(name, song_id)
-
-                    remap = slot_data.get("modRemap", {})
                     item_id = remap.get(str(song_id), song_id * 10)
 
                     self.mm_collection.song_items[formatted_name] = SongData(item_id, song_id, set(), False, True, [])
@@ -355,6 +354,10 @@ class MegaMixWorld(World):
         return max(1, floor(song_count * multiplier))
 
     def get_leek_win_count(self) -> int:
+        re_gen_passthrough = getattr(self.multiworld, "re_gen_passthrough", {})
+        if re_gen_passthrough and self.game in re_gen_passthrough:
+            return re_gen_passthrough[self.game].get("leekWinCount")
+
         multiplier = self.options.leek_win_count_percentage.value / 100.0
         leek_count = self.get_leek_count()
         return max(1, floor(leek_count * multiplier))
@@ -371,7 +374,7 @@ class MegaMixWorld(World):
         return difficulty_bounds
 
     def write_spoiler_header(self, spoiler_handle: typing.TextIO):
-        spoiler_handle.write(f"Selected Goal Song:              {self.victory_song_name}")
+        spoiler_handle.write(f"Selected Goal Song:              {self.victory_song_name}\n")
 
     @staticmethod
     def get_available_difficulties(song_difficulty_min: int, song_difficulty_max: int) -> List[int]:
