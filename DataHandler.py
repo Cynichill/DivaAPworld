@@ -3,15 +3,11 @@ import json
 import yaml
 import re
 import os
-import shutil
 import sys
 import settings
 import Utils
 import logging
-import filecmp
-from typing import Any
 
-from .MegaMixSongData import dlc_ids
 from .SymbolFixer import format_song_name
 
 # Set up logger
