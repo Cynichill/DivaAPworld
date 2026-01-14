@@ -21,7 +21,6 @@ def game_paths() -> dict[str, str]:
     exe_path = settings.get_settings()["megamix_options"]["game_exe"]
     game_path = os.path.dirname(exe_path)
     mods_path = os.path.join(game_path, "mods")
-    dlc_path = os.path.join(game_path, "diva_dlc00.cpk")
 
     # Seemingly no TOML parser in frozen AP
     dml_config = os.path.join(game_path, "config.toml")
@@ -35,7 +34,6 @@ def game_paths() -> dict[str, str]:
         "exe": exe_path,
         "game": game_path,
         "mods": mods_path,
-        "dlc": dlc_path,
     }
 
 
