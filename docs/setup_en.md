@@ -8,17 +8,16 @@
 - [[GB]](https://gamebanana.com/mods/514140) [[DMA]](https://divamodarchive.com/post/279) Archipelago Mod
 
 ## First Time Setup
-This is a minimal setup to get started. Mod managers exist that may make certain steps easier, but you use them at your discretion.
+This is a minimal setup to get started. [Mod managers are used at your discretion.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
 
 1. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
    - See below for locating `DivaMegaMix.exe`
 2. Install the Archipelago Mod listed under [Requirements.](#requirements)
 3. Start the **Mega Mix Client** from the Archipelago Launcher
-4. You may be prompted to select `DivaMegaMix.exe`:
-   - If you are not prompted, skip these steps
+4. If prompted to select `DivaMegaMix.exe`:
+   - **If not prompted, skip this step**
    - Right-click the game entry in Steam, **Manage > Browse local files**
    - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
-   - You may be able to ***Ctrl+C*** the game EXE and paste its path into the original prompt's text input
 5. Play! (requires a [YAML and generation](/tutorial/Archipelago/setup_en))
 
 ### Resulting basic file structure
@@ -26,7 +25,7 @@ This is a minimal setup to get started. Mod managers exist that may make certain
 Hatsune Miku Project DIVA Mega Mix Plus\
 ├ DivaMegaMix.exe   <─ game, select if prompted by Client/JSON generator
 ├ dinput8.dll       <─ mod loader
-├ config.toml       <─ mod loader config (no need to edit)
+├ config.toml       <─ mod loader config
 └ mods\
   └ ArchipelagoMod\ <─ AP mod, currently required to be this name
     └ config.toml   <─ AP mod config
@@ -95,3 +94,11 @@ Similar to the [mod's config](#resulting-basic-file-structure), ensure `enabled 
 
 ### Songs still aren't appearing
 Run `/restore_songs` in the **Mega Mix Client**, reload, and play manually (honor system).
+
+### Game crashes on entering song list / I'm missing the Archipelago song
+
+When 0 songs are available the game will crash. The Archipelago Mod includes a song to prevent this.
+
+**Diva Mod Manager 1.3.1 and older *will* break Archipelago Mod.** Use a fixed version, another mod manager, or none at all.
+
+This can be fixed with `include = ["AP", "."]` in the [mod's config.](#resulting-basic-file-structure)
