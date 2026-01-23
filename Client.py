@@ -386,7 +386,7 @@ class MegaMixContext(SuperContext):
         song_ids = {loc for loc in self.location_ids if loc // 10 not in received}
 
         if not self.freeplay:
-            song_ids = received
+            song_ids = {s * 10 for s in received}
             if self.leeks_obtained >= self.leeks_needed:
                 song_ids.add(self.goal_id)
         elif self.leeks_obtained < self.leeks_needed:
