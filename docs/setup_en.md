@@ -99,6 +99,6 @@ Run `/restore_songs` in the **Mega Mix Client**, reload, and play manually (hono
 
 When 0 songs are available the game will crash. The Archipelago Mod includes a song to prevent this.
 
-**Diva Mod Manager *will* break Archipelago Mod.** Use a fixed version, another mod manager, or none at all.
+**Diva Mod Manager *will* break the Archipelago Mod.** Use a fixed version of DMM, another mod manager, or none at all.
 
 This can be fixed with `include = ["AP", "."]` in the [mod's config.](#resulting-basic-file-structure)
