@@ -4,21 +4,24 @@
 - [Hatsune Miku Project DIVA Mega Mix+](https://store.steampowered.com/app/1761390/Hatsune_Miku_Project_DIVA_Mega_Mix/) (Steam)
   - [Extra Song Pack](https://store.steampowered.com/app/1887030/Hatsune_Miku_Project_DIVA_Mega_Mix_Extra_Song_Pack/) (optional, recommended, cheaper bundled)
   - The game can be played in Archipelago without the Extra Song Pack DLC.
+- [The APWorld](https://github.com/Cynichill/DivaAPworld/releases/latest)
 - [DivaModLoader](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
 - [[GB]](https://gamebanana.com/mods/514140) [[DMA]](https://divamodarchive.com/post/279) Archipelago Mod
 
 ## First Time Setup
 This is a minimal setup to get started. [Mod managers are used at your discretion.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
 
-1. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
+1. Install the APWorld listed under [Requirements.](#requirements)
+   - [Archipelago Setup: Playing with custom worlds](/tutorial/Archipelago/setup_en#playing-with-custom-worlds)
+2. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
    - See below for locating `DivaMegaMix.exe`
-2. Install the Archipelago Mod listed under [Requirements.](#requirements)
-3. Start the **Mega Mix Client** from the Archipelago Launcher
-4. If prompted to select `DivaMegaMix.exe`:
+3. Install the Archipelago Mod listed under [Requirements.](#requirements)
+4. Start the **Mega Mix Client** from the Archipelago Launcher
+5. If prompted to select `DivaMegaMix.exe`:
    - **If not prompted, skip this step**
    - Right-click the game entry in Steam, **Manage > Browse local files**
    - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
-5. Play! (requires a [YAML and generation](/tutorial/Archipelago/setup_en))
+6. Play! ([Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game))
 
 ### Resulting basic file structure
 ```
