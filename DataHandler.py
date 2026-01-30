@@ -9,7 +9,6 @@ import settings
 import Utils
 import logging
 import filecmp
-from typing import Any
 
 from .MegaMixSongData import dlc_ids
 from .SymbolFixer import format_song_name
