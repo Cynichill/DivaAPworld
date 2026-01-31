@@ -104,4 +104,4 @@ When 0 songs are available the game will crash. The Archipelago Mod includes a s
 
 **Diva Mod Manager *will* break the Archipelago Mod.** Use a fixed version of DMM, another mod manager, or none at all.
 
-This can be manually fixed with `include = ["AP", "."]` in the [mod's config](#resulting-basic-file-structure) as long as DMM does not revert it.
+After switching to a mod manager without the issue, the mod can be fixed either by reinstalling it *or* manually setting `include = ["AP", "."]` in the [mod's config](#resulting-basic-file-structure).
