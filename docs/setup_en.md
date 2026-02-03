@@ -16,12 +16,13 @@ This is a minimal setup to get started. [Mod managers are used at your discretio
 2. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
    - See below for locating `DivaMegaMix.exe`
 3. Install the Archipelago Mod listed under [Requirements.](#requirements)
-4. Start the **Mega Mix Client** from the Archipelago Launcher
-5. If prompted to select `DivaMegaMix.exe`:
+   - Verify `-Archipelago Randomizer Enabled-` is on the song list. [If not, fix it.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
+5. Start the **Mega Mix Client** from the Archipelago Launcher
+6. If prompted to select `DivaMegaMix.exe`:
    - **If not prompted, skip this step**
    - Right-click the game entry in Steam, **Manage > Browse local files**
    - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
-6. Play! ([Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game))
+7. Play! ([Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game))
 
 ### Resulting basic file structure
 ```
