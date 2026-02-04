@@ -11,18 +11,18 @@
 ## First Time Setup
 This is a minimal setup to get started. [Mod managers are used at your discretion.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
 
-1. Install the APWorld listed under [Requirements.](#requirements)
-   - [Archipelago Setup: Playing with custom worlds](/tutorial/Archipelago/setup_en#playing-with-custom-worlds)
-2. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
+1. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
    - See below for locating `DivaMegaMix.exe`
-3. Install the Archipelago Mod listed under [Requirements.](#requirements)
+2. Install the Archipelago Mod listed under [Requirements.](#requirements)
    - Verify `-Archipelago Randomizer Enabled-` is on the song list. [If not, fix it.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
-5. Start the **Mega Mix Client** from the Archipelago Launcher
-6. If prompted to select `DivaMegaMix.exe`:
+3. Install the APWorld listed under [Requirements.](#requirements)
+   - [Archipelago Setup: Playing with custom worlds](/tutorial/Archipelago/setup_en#playing-with-custom-worlds)
+4. Start the **Mega Mix Client** from the Archipelago Launcher
+5. If prompted to select `DivaMegaMix.exe`:
    - **If not prompted, skip this step**
    - Right-click the game entry in Steam, **Manage > Browse local files**
    - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
-7. Play! ([Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game))
+6. Play! ([Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game))
 
 ### Resulting basic file structure
 ```
