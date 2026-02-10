@@ -48,6 +48,7 @@ jobs:
         with:
           repository: Eijebong/Archipelago-fuzzer
           ref: ${{ env.UPSTREAM_REF_FUZZER }}
+          clean: 'false'
           
       - name: World | Fuzz
         run: |
