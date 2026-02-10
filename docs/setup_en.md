@@ -13,7 +13,8 @@ This is a minimal setup to get started. [Mod managers are used at your discretio
 
 1. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
    - See below for locating `DivaMegaMix.exe`
-2. Install the Archipelago Mod listed under [Requirements.](#requirements)
+2. Extract the Archipelago Mod listed under [Requirements.](#requirements)
+   - Place the `ArchipelagoMod` folder into the `mods` folder.
    - Verify `-Archipelago Randomizer Enabled-` is on the song list. [If not, fix it.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
 3. Install the APWorld listed under [Requirements.](#requirements)
    - [Archipelago Setup: Playing with custom worlds](/tutorial/Archipelago/setup_en#playing-with-custom-worlds)
@@ -31,7 +32,7 @@ Hatsune Miku Project DIVA Mega Mix Plus\
 ├ dinput8.dll       <─ mod loader
 ├ config.toml       <─ mod loader config
 └ mods\
-  └ ArchipelagoMod\ <─ AP mod, currently required to be this name
+  └ ArchipelagoMod\ <─ AP mod folder, required to be this name
     └ config.toml   <─ AP mod config
 ```
 
