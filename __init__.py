@@ -315,7 +315,7 @@ class MegaMixWorld(World):
 
         # Traps after dupes, contrary to MD
         trap_count = items_left * self.options.trap_percentage // 100
-        enabled_traps = list(self.options.traps_enabled.value)
+        enabled_traps = sorted(self.options.traps_enabled.value)
 
         if enabled_traps and trap_count:
             for _ in range(0, trap_count):
