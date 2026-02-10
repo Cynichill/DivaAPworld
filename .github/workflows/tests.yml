@@ -48,10 +48,11 @@ jobs:
         with:
           repository: Eijebong/Archipelago-fuzzer
           ref: ${{ env.UPSTREAM_REF_FUZZER }}
-          clean: 'false'
+          path: fuzzer
           
       - name: World | Fuzz
         run: |
+          mv ./fuzzer/* .
           uv run python fuzz.py -g megamix -j 2 -r 100
           
       - name: World | Fuzz (Determinism)
