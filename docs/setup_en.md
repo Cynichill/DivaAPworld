@@ -13,7 +13,7 @@ This is a minimal setup to get started. [Mod managers are used at your discretio
 
 1. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
    - See below for locating `DivaMegaMix.exe`
-2. Extract the Archipelago Mod listed under [Requirements.](#requirements)
+2. Download and extract the Archipelago Mod listed under [Requirements.](#requirements)
    - Place the `ArchipelagoMod` folder into the `mods` folder.
    - Verify `-Archipelago Randomizer Enabled-` is on the song list. [If not, fix it.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
 3. Install the APWorld listed under [Requirements.](#requirements)
