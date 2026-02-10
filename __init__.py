@@ -305,7 +305,6 @@ class MegaMixWorld(World):
                 self.multiworld.itempool.append(item)
 
             dupe_count -= len(song_keys_in_pool)
-            continue
 
         self.random.shuffle(song_keys_in_pool)
         for i in range(0, dupe_count):
