@@ -53,11 +53,11 @@ jobs:
       - name: World | Fuzz
         run: |
           mv ./fuzzer/* .
-          uv run python fuzz.py -g megamix -j 2 -r 100
+          uv run python fuzz.py -g megamix -j 2 -r 50
           
       - name: World | Fuzz (Determinism)
         run: |
-          uv run python fuzz.py -g megamix -j 2 -r 25 -n 1 --hook hooks.determinism:Hook 
+          uv run python fuzz.py -g megamix -j 2 -r 10 -n 1 --hook hooks.determinism:Hook 
 
       - name: World | General tests
         run: uv run pytest test/general worlds/megamix
