@@ -1,4 +1,4 @@
-from Options import Toggle, Option, Range, Choice, DeathLink, ItemSet, OptionSet, PerGameCommonOptions, FreeText, \
+from Options import Toggle, Range, Choice, DeathLink, ItemSet, OptionSet, PerGameCommonOptions, FreeText, \
     Visibility, Removed, OptionGroup
 from dataclasses import dataclass
 
