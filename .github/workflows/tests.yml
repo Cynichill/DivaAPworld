@@ -13,7 +13,7 @@ on:
     - cron: "0 0 * * 0"
 
 env:
-  UPSTREAM_REF_FUZZER: bc563630a634f3f53f1975c9af7694db2efaee0d # 0.2.2
+  UPSTREAM_REF_FUZZER: '0.5.1'
 
 jobs:
   tests:
@@ -43,10 +43,21 @@ jobs:
           uv run python ModuleUpdate.py --yes --force --append "WebHostLib/requirements.txt"
           uv run python Launcher.py --update_settings
 
-      - name: World | Fuzzer
+      - name: World | Set up Fuzzer
+        uses: actions/checkout@v4
+        with:
+          repository: Eijebong/Archipelago-fuzzer
+          ref: ${{ env.UPSTREAM_REF_FUZZER }}
+          path: fuzzer
+          
+      - name: World | Fuzz
         run: |
-          curl "https://raw.githubusercontent.com/Eijebong/Archipelago-fuzzer/${{ env.UPSTREAM_REF_FUZZER }}/fuzz.py" > fuzz.py
-          uv run python fuzz.py -g megamix -j 2 -r 100
+          mv ./fuzzer/* .
+          uv run python fuzz.py -g megamix -j 2 -r 50
+          
+      - name: World | Fuzz (Determinism)
+        run: |
+          uv run python fuzz.py -g megamix -j 2 -r 10 -n 1 --hook hooks.determinism:Hook 
 
       - name: World | General tests
         run: uv run pytest test/general worlds/megamix
