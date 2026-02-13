@@ -33,7 +33,8 @@ def process_mods(mods_folder: str, mod_pv_dbs_path_list: list[str]) -> tuple[int
             raise ConflictException(set(conflict_packs), sorted(intersect_check))
 
         unique_seen_ids |= {song_id: mod_folder for song_id in song_pack_ids}
-        mod_song_collection[mod_folder] = song_pack_list
+        if song_pack_list:
+            mod_song_collection[mod_folder] = song_pack_list
 
     return len(unique_seen_ids), finalize_json(mod_song_collection)
 
@@ -45,10 +46,14 @@ def process_single_mod(mod_pv_db_path: str, mod_dir: str) -> tuple[set[int], lis
 
     with open(mod_pv_db_path, "r", encoding='utf-8') as input_file:
         mod_pv_db = input_file.read()
-    mod_pv_db = set(re.findall(rf'^(?:#ARCH#)?pv_(\d+)\.(song_name_en|difficulty)(?:\.([^.]+)\.(\d|length)\.?(level|script_file_name|attribute\.extra)?)?=(.*)$', mod_pv_db, re.MULTILINE))
+    mod_pv_db = set(re.findall(rf'^(?:#ARCH#)?pv_(\d+)\.(song_name(?:_en)?|difficulty)(?:\.([^.]+)\.(\d|length)\.?(level|script_file_name|attribute\.extra)?)?=(.*)$', mod_pv_db, re.MULTILINE))
 
     for line in sorted(mod_pv_db):
         song_id, song_prop, diff_rating, diff_index_length, diff_prop, value = line
+
+        if int(song_id) in base_game_ids:
+            continue
+
         songs.setdefault(song_id, ["", int(song_id), 0])
         diff_lockout.setdefault(song_id, [False] * 5)
         song_pack_ids.add(song_id)
@@ -56,6 +61,9 @@ def process_single_mod(mod_pv_db_path: str, mod_dir: str) -> tuple[set[int], lis
         match song_prop:
             case "song_name_en":
                 songs[song_id][0] = fix_song_name(value).replace("'", "''")
+            case "song_name":
+                if not songs[song_id][0]:
+                    songs[song_id][0] = fix_song_name(value).replace("'", "''")
             case "difficulty" if not diff_rating == "encore":
                 extra_check = song_id, song_prop, diff_rating, '1', 'attribute.extra', '1'
                 diff_rating = "exextreme" if diff_index_length == "1" and diff_rating == "extreme" else diff_rating
@@ -80,7 +88,7 @@ def process_single_mod(mod_pv_db_path: str, mod_dir: str) -> tuple[set[int], lis
                             diff_lockout[song_id][diff_index] = True
                             songs[song_id][2] = shift_difficulty(songs[song_id][2], diff_index, 31.0)
 
-    return song_pack_ids, [songs[song] for song in songs]
+    return song_pack_ids, [songs[song] for song in songs if songs[song][2] > 0]
 
 def shift_difficulty(current_diffs: int = 0, index: int = 0, level_float: float = 0.0) -> int:
     """

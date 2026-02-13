@@ -42,22 +42,38 @@ class DivaJSONGenerator(ThemedApp):
     self_mod_name = "ArchipelagoMod" # Hardcoded. Fetch from Client or something.
     labels = []
 
-    def create_pack_list(self):
-        self.labels = []
-        self.pack_list_scroll.layout.clear_widgets()
-        mods_folder = Path(self.mods_folder)
+    def find_db_folder(self, db: str) -> list:
+        found = []
 
         for root, _, files in os.walk(self.mods_folder):
-            if not 'mod_pv_db.txt' in files:
+            if not db in files:
                 continue
 
-            folder_name = str(Path(root).parent.relative_to(mods_folder))
-
+            folder_name = str(Path(root).parent.relative_to(Path(self.mods_folder)))
             if folder_name.startswith(self.self_mod_name):
                 continue
 
+            found.append((root, folder_name))
+
+        return sorted(found)
+
+    def create_pack_list(self):
+        self.labels = []
+        self.pack_list_scroll.layout.clear_widgets()
+
+        for _, folder_name in self.find_db_folder('mod_pv_db.txt'):
             self.pack_list_scroll.layout.add_widget(self.create_pack_line(folder_name))
 
+    def find_nc_db_ids(self):
+        nc_db_ids = set()
+
+        for pack, _ in self.find_db_folder('nc_db.toml'):
+            with open(os.path.join(pack, 'nc_db.toml'), 'r') as nc_db:
+                # The power of not vendoring TOML
+                nc_ids = [int(i) for i in re.findall("^id\s*=\s*(\d+)$", nc_db.read(), re.MULTILINE)]
+                nc_db_ids.update(nc_ids)
+
+        print(sorted(nc_db_ids))
 
     def create_pack_line(self, name: str):
         box = MDBoxLayoutHover()
