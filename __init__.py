@@ -371,7 +371,7 @@ class MegaMixWorld(World):
 
         return difficulty_bounds
 
-    def write_spoiler_header(self, spoiler_handle: typing.TextIO):
+    def write_spoiler_header(self, spoiler_handle: TextIO):
         spoiler_handle.write(f"Selected Goal Song:              {self.victory_song_name}\n")
 
     @staticmethod
