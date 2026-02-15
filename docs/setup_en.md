@@ -98,7 +98,7 @@ Install [ExPatch](#optional-quality-of-life-mods). Modded songs are commonly Ext
 Similar to the [mod's config](#resulting-basic-file-structure), ensure `enabled = true` in a pack's `config.toml`.
 
 ### Songs still aren't appearing
-Run `/restore_songs` in the **Mega Mix Client**, reload, and play manually (honor system).
+Run `/safe_mode` in the **Mega Mix Client** and follow its instructions.
 
 ### Game crashes on entering song list / I'm missing the Archipelago song
 
