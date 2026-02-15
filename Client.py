@@ -8,12 +8,7 @@ from pathlib import Path
 from .DataHandler import (
     game_paths,
     load_json_file,
-    erase_song_list,
     song_unlock,
-    generate_modded_paths,
-    create_copies,
-    restore_originals,
-    freeplay_song_list,
 )
 from CommonClient import (
     CommonContext,
@@ -85,10 +80,10 @@ class MegaMixContext(SuperContext):
         self.trapSuddenLocation = f"{self.path}/{self.mod_name}/sudden"
         self.trapHiddenLocation = f"{self.path}/{self.mod_name}/hidden"
         self.trapIconLocation = f"{self.path}/{self.mod_name}/icontrap"
+        self.songListLocation = f"{self.path}/{self.mod_name}/song_list.txt"
         self.modData = None
         self.modded = False
         self.freeplay = False
-        self.mod_pv_list = []
         self.sent_unlock_message = False
 
         self.items_handling = 0b001 | 0b010 | 0b100  #Receive items from other worlds, starting inv, and own items
@@ -146,9 +141,6 @@ class MegaMixContext(SuperContext):
             self.modData = self.options["modData"]
             if self.modData:
                 self.modded = True
-                self.mod_pv_list = generate_modded_paths(self.modData, self.path)
-            self.mod_pv_list.append(self.mod_pv)
-            create_copies(self.mod_pv_list)
             asyncio.create_task(self.send_msgs([{"cmd": "GetDataPackage", "games": ["Hatsune Miku Project Diva Mega Mix+"]}]))
 
             self.death_link = self.options.get("deathLink", False)
@@ -186,34 +178,23 @@ class MegaMixContext(SuperContext):
             self.item_name_to_ap_id = args["data"]["games"]["Hatsune Miku Project Diva Mega Mix+"]["item_name_to_id"]
             self.item_ap_id_to_name = {v: k for k, v in self.item_name_to_ap_id.items()}
 
-            erase_song_list(self.mod_pv_list)
             # If receiving data package, resync previous items
             asyncio.create_task(self.receive_item())
 
         if cmd == "RoomUpdate":
             if "checked_locations" in args:
-                if not self.finished_game and self.autoRemove and not self.freeplay:
-                    asyncio.create_task(self.remove_songs())
-
-    def song_id_to_pack(self, item_id):
-        target_song_id = int(item_id) // 10
-
-        if self.modded:
-            for pack, songs in self.modData.items():
-                if target_song_id in {song_id for _, song_id in songs}:
-                    return pack
-        return "ArchipelagoMod"
+                self.update_song_list()
 
     async def receive_item(self, index: int = 0):
         if index == 0:
             self.leeks_obtained = 0
 
         async with self.critical_section_lock:
-            ids_to_packs = {}
+            update = False
 
             for network_item in self.items_received[index:]:
                 if network_item.item >= 10:
-                    ids_to_packs.setdefault(self.song_id_to_pack(network_item.item), set()).add(network_item.item)
+                    update = True
                 elif network_item.item == 1:
                     self.leeks_obtained += 1
                     self.check_goal()
@@ -226,8 +207,29 @@ class MegaMixContext(SuperContext):
                 elif network_item.item == 9:
                     Path(self.trapIconLocation).touch()
 
-            for song_pack in ids_to_packs:
-                song_unlock(self.path, ids_to_packs.get(song_pack), False, song_pack)
+            if update:
+                self.update_song_list()
+
+    def update_song_list(self, remove=False):
+        if self.finished_game:
+            return
+
+        base_ids = {i.item // 10 for i in self.items_received}
+        song_list = {i for i in self.server_locations if i // 10 in base_ids}
+        if self.leeks_obtained >= self.leeks_needed:
+            song_list.add(self.goal_id)
+
+        if self.freeplay:
+            song_list = {location_id for location_id in self.location_ids if location_id not in song_list}
+            if self.leeks_obtained < self.leeks_needed:
+                song_list.add(self.goal_id)
+            song_list.add(0)
+        elif remove or self.autoRemove:
+            song_list -= self.checked_locations
+
+        song_list = {s // 10 for s in song_list}
+        # TODO: Cache song_list, if same skip.
+        song_unlock(self.songListLocation, song_list)
 
     def check_goal(self):
         if not self.leek_label:
@@ -241,9 +243,7 @@ class MegaMixContext(SuperContext):
                 self.sent_unlock_message = True
                 logger.info(f"Got enough leeks! Unlocking goal song: {self.goal_song}")
 
-            song_pack = self.song_id_to_pack(self.goal_id)
-            song_unlock(self.path, {self.goal_id}, False, song_pack)
-
+            self.update_song_list()
 
     async def watch_json_file(self, file_name: str):
         """Watch a JSON file for changes and call the callback function."""
@@ -331,13 +331,13 @@ class MegaMixContext(SuperContext):
                 await self.send_death()
 
     async def end_goal(self):
-        message = [{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}]
+        await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
 
         if Permission.auto & Permission.from_text(self.permissions.get("release")) == Permission.auto:
             self.finished_game = True
             await self.restore_songs()
-
-        await self.send_msgs(message)
+        elif self.autoRemove and not self.freeplay:
+            await self.remove_songs()
 
     async def get_uncleared(self):
         prev_items = {i for item in self.items_received for i in (item.item, item.item + 1)}
@@ -367,32 +367,12 @@ class MegaMixContext(SuperContext):
             logger.info("Auto Remove Set to Off")
 
     async def remove_songs(self):
-        missing = {songID // 10 for songID in self.missing_locations}
-        finished_songs = {songID for songID in self.checked_locations - self.missing_locations if songID // 10 not in missing}
-
-        ids_to_packs = {}
-        for item in finished_songs:
-            ids_to_packs.setdefault(self.song_id_to_pack(item), []).append(item)
-
-        for song_pack in ids_to_packs:
-            song_unlock(self.path, ids_to_packs.get(song_pack), True, song_pack)
-
+        self.update_song_list(remove=True)
         logger.info("Removed songs!")
 
     async def freeplay_toggle(self):
         self.freeplay = not self.freeplay
-
-        received = {recv.item // 10 for recv in self.items_received if recv.item >= 10}
-        song_ids = {loc for loc in self.location_ids if loc // 10 not in received}
-
-        if not self.freeplay:
-            song_ids = {s * 10 for s in received}
-            if self.leeks_obtained >= self.leeks_needed:
-                song_ids.add(self.goal_id)
-        elif self.leeks_obtained < self.leeks_needed:
-            song_ids.add(self.goal_id)
-
-        freeplay_song_list(self.mod_pv_list, song_ids, self.freeplay)
+        self.update_song_list()
 
         if self.freeplay:
             logger.info("Restored non-AP songs!")
@@ -400,8 +380,11 @@ class MegaMixContext(SuperContext):
             logger.info("Removed non-AP songs!")
 
     async def restore_songs(self):
-        mod_pv_dbs = [f"{root}/mod_pv_db.txt" for root, _, files in os.walk(self.path) if 'mod_pv_db.txt' in files]
-        restore_originals(mod_pv_dbs)
+        from .DataHandler import restore_originals, song_unlock
+        mod_pv_dbs = [f"{self.path}/{pack}/rom/mod_pv_db.txt" for pack in os.listdir(".")]
+        restore_originals(mod_pv_dbs)  # See function docstring
+
+        song_unlock(self.songListLocation, {0})
 
     async def shutdown(self):
         await self.restore_songs()
