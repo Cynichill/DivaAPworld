@@ -4,31 +4,35 @@
 - [Hatsune Miku Project DIVA Mega Mix+](https://store.steampowered.com/app/1761390/Hatsune_Miku_Project_DIVA_Mega_Mix/) (Steam)
   - [Extra Song Pack](https://store.steampowered.com/app/1887030/Hatsune_Miku_Project_DIVA_Mega_Mix_Extra_Song_Pack/) (optional, recommended, cheaper bundled)
   - The game can be played in Archipelago without the Extra Song Pack DLC.
+- [The APWorld](https://github.com/Cynichill/DivaAPworld/releases/latest)
 - [DivaModLoader](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
 - [[GB]](https://gamebanana.com/mods/514140) [[DMA]](https://divamodarchive.com/post/279) Archipelago Mod
 
 ## First Time Setup
-This is a minimal setup to get started. Mod managers exist that may make certain steps easier, but you use them at your discretion.
+This is a minimal setup to get started. [Mod managers are used at your discretion.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
 
 1. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
    - See below for locating `DivaMegaMix.exe`
-2. Install the Archipelago Mod listed under [Requirements.](#requirements)
-3. Start the **Mega Mix Client** from the Archipelago Launcher
-4. You may be prompted to select `DivaMegaMix.exe`:
-   - If you are not prompted, skip these steps
+2. Download and extract the Archipelago Mod listed under [Requirements.](#requirements)
+   - Place the `ArchipelagoMod` folder into the `mods` folder.
+   - Verify `-Archipelago Randomizer Enabled-` is on the song list. [If not, fix it.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
+3. Install the APWorld listed under [Requirements.](#requirements)
+   - [Archipelago Setup: Playing with custom worlds](/tutorial/Archipelago/setup_en#playing-with-custom-worlds)
+4. Start the **Mega Mix Client** from the Archipelago Launcher
+5. If prompted to select `DivaMegaMix.exe`:
+   - **If not prompted, skip this step**
    - Right-click the game entry in Steam, **Manage > Browse local files**
    - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
-   - You may be able to ***Ctrl+C*** the game EXE and paste its path into the original prompt's text input
-5. Play! (requires a [YAML and generation](/tutorial/Archipelago/setup_en))
+6. Play! ([Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game))
 
 ### Resulting basic file structure
 ```
 Hatsune Miku Project DIVA Mega Mix Plus\
 ├ DivaMegaMix.exe   <─ game, select if prompted by Client/JSON generator
 ├ dinput8.dll       <─ mod loader
-├ config.toml       <─ mod loader config (no need to edit)
+├ config.toml       <─ mod loader config
 └ mods\
-  └ ArchipelagoMod\ <─ AP mod, currently required to be this name
+  └ ArchipelagoMod\ <─ AP mod folder, required to be this name
     └ config.toml   <─ AP mod config
 ```
 
@@ -95,3 +99,11 @@ Similar to the [mod's config](#resulting-basic-file-structure), ensure `enabled 
 
 ### Songs still aren't appearing
 Run `/restore_songs` in the **Mega Mix Client**, reload, and play manually (honor system).
+
+### Game crashes on entering song list / I'm missing the Archipelago song
+
+When 0 songs are available the game will crash. The Archipelago Mod includes a song to prevent this.
+
+**Diva Mod Manager *will* break the Archipelago Mod.** Use a fixed version of DMM, another mod manager, or none at all.
+
+After switching to a mod manager without the issue, the mod can be fixed either by reinstalling it *or* manually setting `include = ["AP", "."]` in the [mod's config](#resulting-basic-file-structure).

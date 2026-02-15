@@ -5,7 +5,6 @@ from .MegaMixSongData import SONG_DATA, base_game_ids, dlc_ids
 from .DataHandler import extract_mod_data_to_json
 
 # Python
-from typing import Dict, List
 from collections import ChainMap
 import logging
 
@@ -18,13 +17,13 @@ class MegaMixCollections:
     LEEK_NAME: str = "Leek"
     LEEK_CODE: int = 1
 
-    song_items: Dict[str, SongData] = {}
-    song_locations: Dict[str, int] = {}
+    song_items: dict[str, SongData] = {}
+    song_locations: dict[str, int] = {}
     
-    filler_item_names: Dict[str, int] = {
+    filler_item_names: dict[str, int] = {
         "SAFE": 2,
     }
-    filler_item_weights: Dict[str, int] = {
+    filler_item_weights: dict[str, int] = {
         "SAFE": 1,
     }
 
@@ -108,7 +107,7 @@ class MegaMixCollections:
             for i in range(2):
                 self.song_locations[f"{song_name}-{i}"] = (song_data.code + i)
 
-    def get_songs_with_settings(self, dlc: bool, mod_ids: List[int], allowed_diff: List[int], diff_lower: float, diff_higher: float) -> List[str]:
+    def get_songs_with_settings(self, dlc: bool, mod_ids: list[int], allowed_diff: list[int], diff_lower: float, diff_higher: float) -> list[str]:
         """Gets a list of all songs that match the filter settings. Difficulty thresholds are inclusive."""
         filtered_list = []
 
