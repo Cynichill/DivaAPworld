@@ -2,6 +2,7 @@ import os
 import pkgutil
 import re
 from pathlib import Path
+from textwrap import dedent
 
 from kvui import ThemedApp, ScrollBox, MDTextField, MDBoxLayout, MDLabel
 from kivy.core.clipboard import Clipboard
@@ -130,7 +131,12 @@ class DivaJSONGenerator(ThemedApp):
 
             dialog_conflict = Factory.DialogGeneric()
             dialog_conflict.title = "Conflicting IDs prevent generating"
-            dialog_conflict.desc = "This is common for packs that target the base game or add covers.\nThis is not for use in the YAML.\n"
+            dialog_conflict.desc = dedent("""\
+                                        [b]This is not for use in the YAML.[/b]
+                                        
+                                        This is common for packs that target the base game or add covers.
+                                        Listed below are conflicting packs and IDs. Uncheck some or all of them.
+                                        """)
             dialog_conflict.field = str(e)
             dialog_conflict.open()
 
