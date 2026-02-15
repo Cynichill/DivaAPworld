@@ -453,7 +453,7 @@ class MegaMixContext(SuperContext):
 
             if self.server and self.server.socket:
                 await self.restore_songs()
-            logger.info(f"Safe mode enabled. Restart the game if open.\nPrevent out of logic: {self.safe_mode_strict}")
+            logger.info(f"Safe mode enabled. Restarting the game is recommended.\nPrevent out of logic: {self.safe_mode_strict}")
         else:
             if self.server and self.server.socket:
                 erase_song_list(self.mod_pv_list)
