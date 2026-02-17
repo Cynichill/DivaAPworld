@@ -52,7 +52,8 @@ Please read descriptions before installing. These may not be relevant to you or 
 **Note: Currently, using mod songs requires the seed to be [generated locally](/tutorial/Archipelago/setup_en#generating-a-multiplayer-game), not on the website. Hosting on the website afterwards is fine.**
 
 1. Open the **Mega Mix JSON Generator** from the Archipelago Launcher.
-2. Check song packs you would like to appear in your song selection pool. Unchecked packs will remain visible in game unless manually disabled.
+2. Check song packs you would like to appear in your song selection pool.
+   - Unchecked packs will remain visible in game unless manually disabled.
 3. When done checking packs click **Generate Mod String**.
 4. In your YAML on the line for `megamix_mod_data` paste and format it as such:
    - `megamix_mod_data: '{"MyFirstSongPack":[["MyFirstSong",144,224]]}'`
@@ -69,6 +70,8 @@ Individual songs can be excluded from the pool in the YAML's `exclude_songs` sec
 Make sure the **Mega Mix Client** is open and connected to a room.
 
 Play `-Archipelago Randomizer Enabled-`. If a success message does not appear in the **Client** on completion try restarting the **Client**.
+
+If `-Archipelago Randomizer Enabled-` is not on the song list, [fix it.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
 
 ### There are songs outside my specified difficulty settings
 Starting (`start_inventory`), Included (`include_songs`), and the Goal Song (`goal_song`) will *always* ignore difficulty settings.
