@@ -1,6 +1,5 @@
 import functools
 import json
-import yaml
 import re
 import os
 import shutil
@@ -12,6 +11,7 @@ import filecmp
 
 from .MegaMixSongData import dlc_ids
 from .SymbolFixer import format_song_name
+from Utils import parse_yamls
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
@@ -171,17 +171,17 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     Extracts mod data from YAML files and converts it to a list of dictionaries.
     """
 
+    game_key = "Hatsune Miku Project Diva Mega Mix+"
+    mod_data_key = "megamix_mod_data"
+
     user_path = Utils.user_path(settings.get_settings().generator.player_files_path)
     folder_path = sys.argv[sys.argv.index("--player_files_path") + 1] if "--player_files_path" in sys.argv else user_path
 
-    logger.debug(f"Checking YAMLs for megamix_mod_data at {folder_path}")
+    logger.debug(f"Checking YAMLs for {mod_data_key} at {folder_path}")
 
     if not os.path.isdir(folder_path):
         logger.debug(f"The path {folder_path} is not a valid directory. Modded songs are unavailable for this path.")
         return []
-
-    game_key = "Hatsune Miku Project Diva Mega Mix+"
-    mod_data_key = "megamix_mod_data"
 
     all_mod_data = []
 
@@ -196,7 +196,7 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
                 if mod_data_key not in file_content:
                     continue
 
-                for single_yaml in yaml.safe_load_all(file_content):
+                for single_yaml in parse_yamls(file_content):
                     mod_data_content = single_yaml.get(game_key, {}).get(mod_data_key, None)
 
                     if not mod_data_content or isinstance(mod_data_content, dict):
@@ -215,11 +215,11 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
 def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, list, dict):
     try:
         data_dict = json.loads(mod_data)
+        flat_songs = {song[1]: song[0] for pack, songs in data_dict.items() for song in songs}
     except Exception as e:
         logger.warning(f"Failed to extract player specific IDs: {e}")
         return {}, [], {}
 
-    flat_songs = {song[1]: song[0] for pack, songs in data_dict.items() for song in songs}
     conflicts = remap.keys() & flat_songs.keys()
 
     player_remapped = {}
