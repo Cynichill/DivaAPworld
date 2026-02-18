@@ -294,7 +294,7 @@ class MegaMixWorld(World):
 
         self.random.shuffle(song_keys_in_pool)
         for i in range(0, dupe_count):
-            item = self.create_item(song_keys_in_pool[i % len(song_keys_in_pool)])
+            item = self.create_item(song_keys_in_pool[i])
             item.classification = ItemClassification.useful
             self.multiworld.itempool.append(item)
 
