@@ -19,6 +19,7 @@ class AdditionalSongs(Range):
     - The final song count may be lower due to other settings.
 
     Given the large range, "random" is not recommended. If you have a 500+ check seed, this is why.
+    Assuming a bad case of 5 minutes per song (failing, death link, traps, BK, etc.), expect to clear 12 songs per hour.
     """
     range_start = 15
     range_end = 3900
