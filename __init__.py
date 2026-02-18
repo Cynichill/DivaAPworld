@@ -267,8 +267,6 @@ class MegaMixWorld(World):
         return MegaMixSongItem(name, self.player, song)
 
     def create_items(self) -> None:
-        song_keys_in_pool = self.included_songs.copy()
-
         items_left = len(self.multiworld.get_unfilled_locations(self.player))
 
         for _ in range(0, self.get_leek_count()):
@@ -284,17 +282,10 @@ class MegaMixWorld(World):
         dupe_count = items_left * self.options.duplicate_song_percentage // 100
         items_left -= dupe_count
 
-        while dupe_count > len(song_keys_in_pool):
-            for key in song_keys_in_pool:
-                item = self.create_item(key)
-                item.classification = ItemClassification.useful
-                self.multiworld.itempool.append(item)
-
-            dupe_count -= len(song_keys_in_pool)
-
+        song_keys_in_pool = self.included_songs.copy()
         self.random.shuffle(song_keys_in_pool)
         for i in range(0, dupe_count):
-            item = self.create_item(song_keys_in_pool[i])
+            item = self.create_item(song_keys_in_pool[i % len(song_keys_in_pool) - 1])
             item.classification = ItemClassification.useful
             self.multiworld.itempool.append(item)
 
