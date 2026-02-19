@@ -19,7 +19,7 @@ class AdditionalSongs(Range):
     - The final song count may be lower due to other settings.
 
     Given the large range, "random" is not recommended. If you have a 500+ check seed, this is why.
-    Assuming a bad case of 5 minutes per song (failing, death link, traps, BK, etc.), expect to clear 12 songs per hour.
+    At a pace of 4 minutes per song (fails, death links, traps, etc.), expect to clear 15 songs/30 checks an hour.
     """
     range_start = 15
     range_end = 3900
@@ -193,7 +193,7 @@ class IncludeSongs(ItemSet):
 
 class ExcludeSongs(ItemSet):
     """Songs listed here and not previously chosen as a Goal or Include will be excluded from being a part of the seed.
-    This is recommended over exclude_locations which instead allows songs to appear but with guaranteed filler checks.
+    This is recommended instead of exclude_locations which would allow songs to appear but with guaranteed filler checks.
 
     Use /item_groups in the Client for a list of available song groups."""
     display_name = "Exclude Songs"
