@@ -193,6 +193,7 @@ class IncludeSongs(ItemSet):
 
 class ExcludeSongs(ItemSet):
     """Songs listed here and not previously chosen as a Goal or Include will be excluded from being a part of the seed.
+    This is recommended over exclude_locations which instead allows songs to appear but with guaranteed filler checks.
 
     Use /item_groups in the Client for a list of available song groups."""
     display_name = "Exclude Songs"
