@@ -11,15 +11,11 @@ import filecmp
 
 from .MegaMixSongData import dlc_ids
 from .SymbolFixer import format_song_name
-from schema import Schema
+from Utils import parse_yamls
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-
-mod_json_schema = Schema({str: [[str, int, int]]})
-
 
 @functools.cache
 def game_paths() -> dict[str, str]:
@@ -170,7 +166,7 @@ def remove_song(pv_db: str, songs: str) -> str:
     return re.sub(rf"^(pv_(?!(144|700)\.)({songs})\.difficulty\.(?:easy|normal|hard|extreme).length=\d)$", r"#ARCH#\g<1>", pv_db, flags=re.MULTILINE)
 
 
-def extract_mod_data_to_json() -> list[dict[str, list[tuple[str, int, int]]]]:
+def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     """
     Extracts mod data from YAML files and converts it to a list of dictionaries.
     """
@@ -200,15 +196,13 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str, int, int]]]]:
                 if mod_data_key not in file_content:
                     continue
 
-                for single_yaml in Utils.parse_yamls(file_content):
+                for single_yaml in parse_yamls(file_content):
                     mod_data_content = single_yaml.get(game_key, {}).get(mod_data_key, None)
 
                     if not mod_data_content or isinstance(mod_data_content, dict):
                         continue
 
-                    loaded = json.loads(mod_data_content)
-                    mod_json_schema.validate(loaded)
-                    all_mod_data.append(loaded)
+                    all_mod_data.append(json.loads(mod_data_content))
         except Exception as e:
             logger.warning(f"Failed to extract mod data from {item.name}: {e}")
 
@@ -221,7 +215,6 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str, int, int]]]]:
 def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, list, dict):
     try:
         data_dict = json.loads(mod_data)
-        mod_json_schema.validate(data_dict)
         flat_songs = {song[1]: song[0] for pack, songs in data_dict.items() for song in songs}
     except Exception as e:
         logger.warning(f"Failed to extract player specific IDs: {e}")
