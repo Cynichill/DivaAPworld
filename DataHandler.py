@@ -11,10 +11,20 @@ import filecmp
 
 from .MegaMixSongData import dlc_ids
 from .SymbolFixer import format_song_name
+from schema import Schema, And
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+
+mod_json_schema = Schema({
+    And(str, len): [[
+        And(str, len),
+        And(int, lambda x: x > 0),
+        And(int, lambda x: x > 0),
+    ]]
+})
 
 @functools.cache
 def game_paths() -> dict[str, str]:
@@ -201,7 +211,9 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
                     if not mod_data_content or isinstance(mod_data_content, dict):
                         continue
 
-                    all_mod_data.append(json.loads(mod_data_content))
+                    parsed = json.loads(mod_data_content)
+                    mod_json_schema.validate(parsed)
+                    all_mod_data.append(parsed)
         except Exception as e:
             logger.warning(f"Failed to extract mod data from {item.name}: {e}")
 
@@ -213,8 +225,9 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
 
 def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, list, dict):
     try:
-        data_dict = json.loads(mod_data)
-        flat_songs = {song[1]: song[0] for pack, songs in data_dict.items() for song in songs}
+        parsed = json.loads(mod_data)
+        mod_json_schema.validate(parsed)
+        flat_songs = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
     except Exception as e:
         logger.warning(f"Failed to extract player specific IDs: {e}")
         return {}, [], {}
@@ -227,4 +240,4 @@ def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dic
         if name in remap[song_id]:
             player_remapped.update({song_id: remap[song_id][name][0]})
 
-    return data_dict, list(flat_songs.keys()), player_remapped  # Return the list of song IDs
+    return parsed, list(flat_songs.keys()), player_remapped  # Return the list of song IDs
