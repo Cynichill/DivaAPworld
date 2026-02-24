@@ -11,7 +11,6 @@ import filecmp
 
 from .MegaMixSongData import dlc_ids
 from .SymbolFixer import format_song_name
-from Utils import parse_yamls
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
@@ -196,7 +195,7 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
                 if mod_data_key not in file_content:
                     continue
 
-                for single_yaml in parse_yamls(file_content):
+                for single_yaml in Utils.parse_yamls(file_content):
                     mod_data_content = single_yaml.get(game_key, {}).get(mod_data_key, None)
 
                     if not mod_data_content or isinstance(mod_data_content, dict):

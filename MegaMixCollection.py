@@ -52,8 +52,12 @@ class MegaMixCollections:
             for data_dict in mod_data:
                 for pack, songs in data_dict.items():
                     for song in songs:
-                        if not isinstance(song, list) or not list(map(type, song)) == [str, int, int]:
-                            logger.warning("Skipping", pack, song)
+                        if (
+                            not isinstance(song, list)
+                            or not list(map(type, song)) == [str, int, int]
+                            or song[1] <= 0 or song[2] <= 0
+                        ):
+                            logger.warning(f"Skipping {pack} {song}")
                             continue
 
                         song_id = song[1]
