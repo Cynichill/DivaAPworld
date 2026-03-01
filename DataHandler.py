@@ -25,6 +25,7 @@ def game_paths() -> dict[str, str]:
     game_path = os.path.dirname(exe_path)
     mods_path = os.path.join(game_path, "mods")
     dlc_path = os.path.join(game_path, "diva_dlc00.cpk")
+    mod_name = "ArchipelagoMod"
 
     # Seemingly no TOML parser in frozen AP
     dml_config = os.path.join(game_path, "config.toml")
@@ -34,10 +35,21 @@ def game_paths() -> dict[str, str]:
             if mod_line:
                 mods_path = os.path.join(game_path, mod_line.group(1))
 
+    # Find the Archipelago mod folder by pv_144.usm
+    # walk in case the mod structure changes in the future
+    folders = {"AP", "rom", "movie"}
+    for root, dirs, files in os.walk(mods_path, topdown=False):
+        dirs[:] = [d for d in dirs if d in folders]
+        if "pv_144.usm" in files:
+            mod = os.path.relpath(root, mods_path)
+            mod_name = mod.split(os.sep)[0]
+            break
+
     return {
         "exe": exe_path,
         "game": game_path,
         "mods": mods_path,
+        "modname": mod_name,
         "dlc": dlc_path,
     }
 
