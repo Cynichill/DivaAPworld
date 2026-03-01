@@ -35,12 +35,12 @@ def game_paths() -> dict[str, str]:
             if mod_line:
                 mods_path = os.path.join(game_path, mod_line.group(1))
 
-    # Find the Archipelago mod folder by pv_144.usm
+    # Find the Archipelago mod folder by pv_144.dsc
     # walk in case the mod structure changes in the future
-    folders = {"AP", "rom", "movie"}
+    folders = {"AP", "rom", "script"}
     for root, dirs, files in os.walk(mods_path, topdown=False):
         dirs[:] = [d for d in dirs if d in folders]
-        if "pv_144.usm" in files:
+        if "pv_144.dsc" in files:
             mod = os.path.relpath(root, mods_path)
             mod_name = mod.split(os.sep)[0]
             break
