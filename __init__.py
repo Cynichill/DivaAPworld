@@ -105,7 +105,7 @@ class MegaMixWorld(World):
         self.starting_songs: list[str] = []
         self.included_songs: list[str] = []
         self.final_song_ids: set[int] = set()
-        self.location_count: int = 0
+        self.location_count: int = 0 # Remove when PR 122 is merged
 
     def generate_early(self):
         re_gen_passthrough = getattr(self.multiworld, "re_gen_passthrough", {})
