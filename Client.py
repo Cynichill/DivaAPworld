@@ -253,13 +253,11 @@ class MegaMixContext(SuperContext):
 
         while True:
             await asyncio.sleep(1)
-
             try:
                 modified = os.path.getmtime(file_path)
                 if modified > last_modified:
                     last_modified = modified
                     json_data = load_json_file(file_path)
-
                     await self.receive_location_check(json_data)
             except Exception as e:
                 logger.debug(e)
