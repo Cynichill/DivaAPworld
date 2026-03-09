@@ -248,7 +248,7 @@ class MegaMixContext(SuperContext):
 
     async def watch_json_file(self, file_path: str):
         """Watch a JSON file for changes and call the callback function."""
-        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else time.time()
+        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else 0.0
         logger.debug(f"Watching {file_path} ({last_modified})")
 
         while True:
@@ -264,7 +264,7 @@ class MegaMixContext(SuperContext):
 
 
     async def watch_death_link_out(self, file_path: str):
-        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else time.time()
+        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else 0.0
         logger.debug(f"Watching {file_path} ({last_modified})")
 
         while True:
