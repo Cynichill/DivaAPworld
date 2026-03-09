@@ -259,8 +259,12 @@ class MegaMixContext(SuperContext):
                     last_modified = modified
                     json_data = load_json_file(file_path)
                     await self.receive_location_check(json_data)
+            except FileNotFoundError as e:
+                if last_modified > 0.0:
+                    logger.debug(f"{e} ({last_modified})")
+                    last_modified = 0.0
             except Exception as e:
-                logger.debug(e)
+                logger.debug(f"{e} ({last_modified})")
 
 
     async def watch_death_link_out(self, file_path: str):
