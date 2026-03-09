@@ -114,11 +114,8 @@ class MegaMixContext(SuperContext):
         self.death_link_amnesty = 0
         self.death_link_amnesty_count = 0
 
-        self.watch_task = None
-        if not self.watch_task:
-            self.watch_task = asyncio.create_task(self.watch_json_file(self.songResultsLocation))
-
-        self.watch_death_link_task = None
+        self.watch_task: asyncio.Task[int] | None = None
+        self.watch_death_link_task: asyncio.Task[int] | None = None
 
         self.obtained_items_queue = asyncio.Queue()
         self.critical_section_lock = asyncio.Lock()
@@ -155,6 +152,10 @@ class MegaMixContext(SuperContext):
             self.death_link_amnesty = self.options.get("deathLink_Amnesty", 0)
             self.death_link_amnesty_count = 0
             asyncio.create_task(self.update_death_link(self.death_link))
+
+            # Watcher tasks
+            if not self.watch_task:
+                self.watch_task = asyncio.create_task(self.watch_json_file(self.songResultsLocation))
 
             if self.death_link and not self.watch_death_link_task:
                 self.watch_death_link_task = asyncio.create_task(self.watch_death_link_out(self.deathLinkOutLocation))
@@ -245,31 +246,28 @@ class MegaMixContext(SuperContext):
             song_unlock(self.path, {self.goal_id}, False, song_pack)
 
 
-    async def watch_json_file(self, file_name: str):
+    async def watch_json_file(self, file_path: str):
         """Watch a JSON file for changes and call the callback function."""
-        file_path = os.path.join(os.path.dirname(__file__), file_name)
-        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else 0.0
-        try:
-            while True:
-                await asyncio.sleep(1)  # Wait for a short duration
-                if os.path.isfile(file_path):
-                    modified = os.path.getmtime(file_path)
-                    if modified > last_modified:
-                        last_modified = modified
-                        try:
-                            json_data = load_json_file(file_name)
-                            await self.receive_location_check(json_data)
-                        except (FileNotFoundError, json.JSONDecodeError) as e:
-                            print(f"Error loading JSON file: {e}")
-        except asyncio.CancelledError:
-            print(f"Watch task for {file_name} was canceled.")
+        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else time.time()
+        logger.debug(f"Watching {file_path} ({last_modified})")
+
+        while True:
+            await asyncio.sleep(1)
+
+            try:
+                modified = os.path.getmtime(file_path)
+                if modified > last_modified:
+                    last_modified = modified
+                    json_data = load_json_file(file_path)
+
+                    await self.receive_location_check(json_data)
+            except Exception as e:
+                logger.debug(e)
 
 
-    async def watch_death_link_out(self, file_name: str):
-        file_path = os.path.join(os.path.dirname(__file__), file_name)
-        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else 0.0
-
-        logger.debug(f"Watching {self.deathLinkOutLocation} ({last_modified})")
+    async def watch_death_link_out(self, file_path: str):
+        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else time.time()
+        logger.debug(f"Watching {file_path} ({last_modified})")
 
         while True:
             await asyncio.sleep(0.25)
