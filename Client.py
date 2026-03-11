@@ -291,6 +291,8 @@ class MegaMixContext(SuperContext):
         if self.death_link_amnesty_count > self.death_link_amnesty:
             self.death_link_amnesty_count = 0
             await super().send_death(death_text)
+        elif self.death_link_amnesty > 0:
+            logger.info(f"Death Link Amnesty: {self.death_link_amnesty_count} / {self.death_link_amnesty}")
 
 
     def on_deathlink(self, data: dict[str, any]):
@@ -414,14 +416,15 @@ class MegaMixContext(SuperContext):
 
     async def toggle_deathlink(self, amnesty: str = ""):
         if amnesty:
-            if int(amnesty) > -1:
+            if int(amnesty) >= 0:
+                self.death_link_amnesty_count = 0
                 self.death_link_amnesty = int(amnesty)
                 logger.info(f"Death Link Amnesty is now {self.death_link_amnesty}")
             else:
                 logger.info("Death Link Amnesty must be 0 or greater.")
         else:
             self.death_link = not self.death_link
-            logger.info(f"Death Link is now {['off','on'][self.death_link]}")
+            logger.info(f"Death Link is now {['off','on'][self.death_link]} (Amnesty: {self.death_link_amnesty_count} / {self.death_link_amnesty})")
             await self.update_death_link(self.death_link)
 
         # This is for when DL is disabled in the YAML and opted into with the Client.
