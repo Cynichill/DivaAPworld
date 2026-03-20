@@ -140,13 +140,16 @@ class ScoreGradeNeeded(Choice):
 
 
 class TotalLeeksAvailable(Range):
-    """Controls how many Leeks are added to the pool based on the total number of starting and additional songs.
+    """The percentage of Leeks to add to the pool based on the total number of Starting and Additional Songs.
     A higher available Leek percentage leads to more consistent game lengths, but individual Leeks will be less important.
-    Range is a percentage.
 
-    Example: 5 Starting Songs, 40 Additional Songs, 20% Leeks Total = 9 Leeks will be available"""
+    Example: (5 Starting + 40 Additional Songs) * 20% Leeks Total = 9 Leeks will be available
+
+    Recommended values are between 10 and 40.
+    WARNING: Higher values, especially 100, are more suited for solo seeds to replicate the console progression experience.
+    """
     range_start = 10
-    range_end = 40
+    range_end = 100
     default = 20
     display_name = "Leek Percentage"
 
@@ -154,7 +157,7 @@ class TotalLeeksAvailable(Range):
 class LeeksRequiredPercentage(Range):
     """The percentage of available Leeks in the item pool that are needed to unlock the Goal Song.
 
-    Example: 5 Starting Songs, 40 Additional Songs, 20% Leeks Total, 80% Leeks Needed = 7 out of 9 Leeks needed to goal"""
+    Example: (5 Starting + 40 Additional Songs) * 20% Leeks Total * 80% Leeks Needed = 7 out of 9 Leeks needed to goal"""
     range_start = 50
     range_end = 100
     default = 80
