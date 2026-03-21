@@ -133,14 +133,7 @@ class DivaJSONGenerator(ThemedApp):
 
     def process_to_clipboard(self):
         checked_packs = [str(os.path.join(self.mods_folder, label.text)) for label in self.labels if label.associate.active]
-        mod_pv_db_paths_list = set()
-
-        for folder_path in checked_packs:
-            base = Path(folder_path) / "rom"
-            if (base / "mod_pv_db.txt").exists():
-                mod_pv_db_paths_list.add(base / "mod_pv_db.txt")
-            elif (base / "mod_nc_pv_db.txt").exists():
-                mod_pv_db_paths_list.add(base / "mod_nc_pv_db.txt")
+        mod_pv_db_paths_list = [folder_path for folder_path in checked_packs]
 
         if not mod_pv_db_paths_list:
             self.show_snackbar("No song packs selected")
