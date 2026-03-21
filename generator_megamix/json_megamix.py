@@ -44,14 +44,14 @@ def process_single_mod(mod_pv_db_path: str, mod_dir: str) -> tuple[set[int], lis
     song_pack_ids = set()
     diff_lockout = {} # Well if it isn't the consequences of my own actions.
 
-    dbs = set()
+    dbs = []
     mod_pv_db = Path(mod_pv_db_path) / "rom" / "mod_pv_db.txt"
     mod_nc_pv_db = Path(mod_pv_db_path) / "rom" / "mod_nc_pv_db.txt"
 
-    if mod_pv_db.exists():
-        dbs.add(mod_pv_db)
     if mod_nc_pv_db.exists():
-        dbs.add(mod_nc_pv_db)
+        dbs.append(mod_nc_pv_db)
+    if mod_pv_db.exists():
+        dbs.append(mod_pv_db)
 
     for pv_db_path in dbs:
         with open(pv_db_path, "r", encoding='utf-8') as input_file:
