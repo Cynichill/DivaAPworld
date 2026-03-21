@@ -42,11 +42,11 @@ class DivaJSONGenerator(ThemedApp):
     self_mod_name = "ArchipelagoMod" # Hardcoded. Fetch from Client or something.
     labels = []
 
-    def find_db_folder(self, db: str) -> list:
+    def find_db_folder(self, dbs: set[str]) -> list:
         found = []
 
         for root, _, files in os.walk(self.mods_folder):
-            if not db in files:
+            if not any(f in dbs for f in files):
                 continue
 
             folder_name = str(Path(root).parent.relative_to(Path(self.mods_folder)))
@@ -61,13 +61,13 @@ class DivaJSONGenerator(ThemedApp):
         self.labels = []
         self.pack_list_scroll.layout.clear_widgets()
 
-        for _, folder_name in self.find_db_folder('mod_pv_db.txt'):
+        for _, folder_name in self.find_db_folder({'mod_pv_db.txt', 'mod_nc_pv_db.txt'}):
             self.pack_list_scroll.layout.add_widget(self.create_pack_line(folder_name))
 
     def find_nc_db_ids(self):
         nc_db_ids = set()
 
-        for pack, _ in self.find_db_folder('nc_db.toml'):
+        for pack, _ in self.find_db_folder({'nc_db.toml'}):
             with open(os.path.join(pack, 'nc_db.toml'), 'r') as nc_db:
                 # The power of not vendoring TOML
                 nc_ids = [int(i) for i in re.findall("^id\s*=\s*(\d+)$", nc_db.read(), re.MULTILINE)]
@@ -133,7 +133,14 @@ class DivaJSONGenerator(ThemedApp):
 
     def process_to_clipboard(self):
         checked_packs = [str(os.path.join(self.mods_folder, label.text)) for label in self.labels if label.associate.active]
-        mod_pv_db_paths_list = [os.path.join(folder_path, "rom", "mod_pv_db.txt") for folder_path in checked_packs]
+        mod_pv_db_paths_list = set()
+
+        for folder_path in checked_packs:
+            base = Path(folder_path) / "rom"
+            if (base / "mod_pv_db.txt").exists():
+                mod_pv_db_paths_list.add(base / "mod_pv_db.txt")
+            elif (base / "mod_nc_pv_db.txt").exists():
+                mod_pv_db_paths_list.add(base / "mod_nc_pv_db.txt")
 
         if not mod_pv_db_paths_list:
             self.show_snackbar("No song packs selected")
