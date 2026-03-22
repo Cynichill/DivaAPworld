@@ -186,7 +186,6 @@ class MegaMixContext(SuperContext):
 
         if cmd == "RoomUpdate":
             if "checked_locations" in args:
-                self.update_song_list(True)
                 if not self.stop_db_modifications and self.autoRemove and not self.freeplay:
                     self.update_song_list(True)
 
