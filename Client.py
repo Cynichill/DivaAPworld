@@ -53,18 +53,16 @@ class DivaClientCommandProcessor(ClientCommandProcessor):
         """Toggle that restores or removes songs that aren't part of this AP run"""
         asyncio.create_task(self.ctx.freeplay_toggle())
 
-    def _cmd_restore_songs(self):
-        """Restore songs to their pre-Archipelago state, automatic on release or Client close
-        Use as a failsafe for songs not appearing and play on the honor system"""
-        logger.info("Restoring..")
-        asyncio.create_task(self.ctx.restore_songs())
-        logger.info("Base Game + Mod Packs Restored")
-
     def _cmd_deathlink(self, amnesty = ""):
         """Toggle Death Link on and off or provide a number >= 0 to change Amnesty.
         Lethality can be adjusted in the mod's config.toml"""
         asyncio.create_task(self.ctx.toggle_deathlink(amnesty))
 
+    def _cmd_safe_mode(self, out_of_logic = ""):
+        """Toggle safe mode for covers, lyrics, New Classics, etc.
+        All songs will be visible. The AP mod can be the lowest priority in this mode.
+        Prevents out of logic by default. Provide any text to allow."""
+        asyncio.create_task(self.ctx.toggle_safe_mode(out_of_logic))
 
 class MegaMixContext(SuperContext):
     """MegaMix Game Context"""
@@ -90,6 +88,8 @@ class MegaMixContext(SuperContext):
         self.freeplay = False
         self.mod_pv_list = []
         self.sent_unlock_message = False
+        self.safe_mode = False
+        self.safe_mode_strict = True
 
         self.items_handling = 0b001 | 0b010 | 0b100  #Receive items from other worlds, starting inv, and own items
         self.location_ids = None
@@ -186,7 +186,8 @@ class MegaMixContext(SuperContext):
             self.item_name_to_ap_id = args["data"]["games"]["Hatsune Miku Project Diva Mega Mix+"]["item_name_to_id"]
             self.item_ap_id_to_name = {v: k for k, v in self.item_name_to_ap_id.items()}
 
-            erase_song_list(self.mod_pv_list)
+            if not self.safe_mode:
+                erase_song_list(self.mod_pv_list)
             # If receiving data package, resync previous items
             asyncio.create_task(self.receive_item())
 
@@ -226,8 +227,9 @@ class MegaMixContext(SuperContext):
                 elif network_item.item == 9:
                     Path(self.trapIconLocation).touch()
 
-            for song_pack in ids_to_packs:
-                song_unlock(self.path, ids_to_packs.get(song_pack), False, song_pack)
+            if not self.safe_mode:
+                for song_pack in ids_to_packs:
+                    song_unlock(self.path, ids_to_packs.get(song_pack), False, song_pack)
 
     def check_goal(self):
         if not self.leek_label:
@@ -260,9 +262,9 @@ class MegaMixContext(SuperContext):
                             json_data = load_json_file(file_name)
                             await self.receive_location_check(json_data)
                         except (FileNotFoundError, json.JSONDecodeError) as e:
-                            print(f"Error loading JSON file: {e}")
+                            logger.info(f"Error loading JSON file: {e}")
         except asyncio.CancelledError:
-            print(f"Watch task for {file_name} was canceled.")
+            logger.info(f"Watch task for {file_name} was canceled.")
 
 
     async def watch_death_link_out(self, file_name: str):
@@ -317,6 +319,13 @@ class MegaMixContext(SuperContext):
             if not location_id in self.location_ids:
                 logger.info("No checks to send: Song not in song pool")
                 return
+        elif self.safe_mode and self.safe_mode_strict and self.leeks_obtained < self.leeks_needed:
+            logger.info("Cannot Goal: Leek requirement not met (safe mode)")
+            return
+
+        if self.safe_mode and self.safe_mode_strict and not location_id in {i.item for i in self.items_received}:
+            logger.info(f"No checks to send: Song {self.item_ap_id_to_name[location_id]} has not been received yet (safe mode)")
+            return
 
         if int(song_data.get('scoreGrade')) >= self.grade_needed:
             if location_id == self.goal_id:
@@ -367,6 +376,9 @@ class MegaMixContext(SuperContext):
             logger.info("Auto Remove Set to Off")
 
     async def remove_songs(self):
+        if self.safe_mode:
+            return
+
         missing = {songID // 10 for songID in self.missing_locations}
         finished_songs = {songID for songID in self.checked_locations - self.missing_locations if songID // 10 not in missing}
 
@@ -380,6 +392,10 @@ class MegaMixContext(SuperContext):
         logger.info("Removed songs!")
 
     async def freeplay_toggle(self):
+        if self.safe_mode:
+            logger.warn("Cannot toggle/apply freeplay while safe mode is enabled.")
+            return
+
         self.freeplay = not self.freeplay
 
         received = {recv.item // 10 for recv in self.items_received if recv.item >= 10}
@@ -428,6 +444,21 @@ class MegaMixContext(SuperContext):
         # TODO: The copy of this in on_package should be reworked.
         if self.death_link and not self.watch_death_link_task:
             self.watch_death_link_task = asyncio.create_task(self.watch_death_link_out(self.deathLinkOutLocation))
+
+    async def toggle_safe_mode(self, out_of_logic = ""):
+        self.safe_mode = not self.safe_mode
+
+        if self.safe_mode:
+            self.safe_mode_strict = not bool(out_of_logic)
+
+            if self.server and self.server.socket:
+                await self.restore_songs()
+            logger.info(f"Safe mode enabled. Restarting the game is recommended.\nPrevent out of logic: {self.safe_mode_strict}")
+        else:
+            if self.server and self.server.socket:
+                erase_song_list(self.mod_pv_list)
+                await self.receive_item(0)
+            logger.info("Safe mode disabled. Reload the game via hotkey if open.\nHigher priority mods may override the AP mod.")
 
 
 def launch():
