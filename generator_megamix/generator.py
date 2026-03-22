@@ -40,7 +40,7 @@ class DivaJSONGenerator(ThemedApp):
     filter_input: MDTextField = ObjectProperty(None)
 
     mods_folder = game_paths().get("mods")
-    self_mod_name = "ArchipelagoMod" # Hardcoded. Fetch from Client or something.
+    self_mod_name = game_paths().get("modname")
     labels = []
 
     def find_db_folder(self, dbs: set[str]) -> list:
@@ -51,7 +51,7 @@ class DivaJSONGenerator(ThemedApp):
                 continue
 
             folder_name = str(Path(root).parent.relative_to(Path(self.mods_folder)))
-            if folder_name.startswith(self.self_mod_name):
+            if self.self_mod_name and folder_name.startswith(self.self_mod_name):
                 continue
 
             found.append((root, folder_name))
@@ -197,7 +197,7 @@ class DivaJSONGenerator(ThemedApp):
             file.write(content + "\n")
 
     def process_restore_originals(self):
-        mod_pv_dbs = [f"{self.mods_folder}/{pack}/rom/mod_pv_db.txt" for pack in [label.text for label in self.labels] + [self.self_mod_name]]
+        mod_pv_dbs = [f"{self.mods_folder}/{pack}/rom/mod_pv_db.txt" for pack in [label.text for label in self.labels]]
         try:
             restore_originals(mod_pv_dbs)
             self.show_snackbar("Song packs restored")
