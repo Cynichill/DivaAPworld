@@ -88,6 +88,7 @@ class MegaMixContext(SuperContext):
         self.freeplay = False
         self.mod_pv_list = []
         self.sent_unlock_message = False
+        self.stop_db_modifications = False
         self.safe_mode = False
         self.safe_mode_strict = True
 
@@ -193,7 +194,7 @@ class MegaMixContext(SuperContext):
 
         if cmd == "RoomUpdate":
             if "checked_locations" in args:
-                if not self.finished_game and self.autoRemove and not self.freeplay:
+                if not self.stop_db_modifications and self.autoRemove and not self.freeplay:
                     asyncio.create_task(self.remove_songs())
 
     def song_id_to_pack(self, item_id):
@@ -343,7 +344,6 @@ class MegaMixContext(SuperContext):
         message = [{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}]
 
         if Permission.auto & Permission.from_text(self.permissions.get("release")) == Permission.auto:
-            self.finished_game = True
             await self.restore_songs()
 
         await self.send_msgs(message)
@@ -416,6 +416,7 @@ class MegaMixContext(SuperContext):
             logger.info("Removed non-AP songs!")
 
     async def restore_songs(self):
+        self.stop_db_modifications = True
         mod_pv_dbs = [f"{root}/mod_pv_db.txt" for root, _, files in os.walk(self.path) if 'mod_pv_db.txt' in files]
         restore_originals(mod_pv_dbs)
 
