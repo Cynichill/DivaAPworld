@@ -250,6 +250,21 @@ class TrapPercentage(Range):
     default = 0
 
 
+class ProgressiveHP(Range):
+    """
+    Divide the HP bar into items and start with 1/X HP. The rest go into the item pool.
+    - There may be less based on free space after adding Leeks and Songs.
+    - Non-lethal Death Link applies to max available HP
+    - For extras use start_inventory
+
+    WARNING: Currently the only logic for this is needing full HP for the Goal Song.
+    """
+    range_start = 1
+    range_end = 20
+    default = 1
+    display_name = "Progressive HP"
+
+
 megamix_option_groups = [
     OptionGroup("Game Length", [
         StartingSongs,
@@ -276,6 +291,7 @@ megamix_option_groups = [
     OptionGroup("Game Modifiers", [
         DivaDeathLink,
         DeathLinkAmnesty,
+        ProgressiveHP,
         TrapPercentage,
         TrapsEnabled,
     ]),
@@ -305,6 +321,7 @@ class MegaMixOptions(PerGameCommonOptions):
     death_link_amnesty: DeathLinkAmnesty
     traps_enabled: TrapsEnabled
     trap_percentage: TrapPercentage
+    progressive_hp: ProgressiveHP
 
     # Deprecated
     exclude_singers: Removed

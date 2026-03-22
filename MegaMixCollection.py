@@ -20,20 +20,23 @@ class MegaMixCollections:
     FILLER_NAME: str = "SAFE"
     FILLER_CODE: int = 2
 
+    PROG_HP_NAME: str = "Progressive HP"
+    PROG_HP_CODE: int = 3
+
     song_items: dict[str, SongData] = {}
     song_locations: dict[str, int] = {}
 
     # IDs 3-9 available. 10 is "Love is War [1]".
     trap_items: dict[str, int] = {
-        #"High Speed Trap": 3,
         "Hidden Trap": 4,
         "Sudden Trap": 5,
+        # "High Speed Trap": 6,
         "Icon Trap": 9,
     }
 
     def __init__(self) -> None:
         self.item_names_to_id = ChainMap({self.LEEK_NAME: self.LEEK_CODE}, {self.FILLER_NAME: self.FILLER_CODE},
-                                         self.song_items, self.trap_items)
+                                         {self.PROG_HP_NAME: self.PROG_HP_CODE}, self.song_items, self.trap_items)
         self.location_names_to_id = ChainMap(self.song_locations)
 
         self.song_items = SONG_DATA
