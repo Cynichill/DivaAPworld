@@ -2,7 +2,6 @@ from typing import Optional
 import asyncio
 import colorama
 import os
-import json
 import time
 from pathlib import Path
 from .DataHandler import (
@@ -11,7 +10,6 @@ from .DataHandler import (
     song_unlock,
 )
 from CommonClient import (
-    CommonContext,
     ClientCommandProcessor,
     get_base_parser,
     logger,
@@ -24,7 +22,7 @@ try:
     tracker_loaded = True
 except ModuleNotFoundError:
     from CommonClient import CommonContext as SuperContext
-from NetUtils import NetworkItem, ClientStatus, Permission
+from NetUtils import ClientStatus, Permission
 
 
 class DivaClientCommandProcessor(ClientCommandProcessor):
@@ -180,25 +178,14 @@ class MegaMixContext(SuperContext):
             self.item_name_to_ap_id = args["data"]["games"]["Hatsune Miku Project Diva Mega Mix+"]["item_name_to_id"]
             self.item_ap_id_to_name = {v: k for k, v in self.item_name_to_ap_id.items()}
 
-            if not self.safe_mode:
-                erase_song_list(self.mod_pv_list)
             # If receiving data package, resync previous items
             asyncio.create_task(self.receive_item())
 
         if cmd == "RoomUpdate":
             if "checked_locations" in args:
-                self.update_song_list()
+                self.update_song_list(True)
                 if not self.stop_db_modifications and self.autoRemove and not self.freeplay:
                     asyncio.create_task(self.remove_songs())
-
-    def song_id_to_pack(self, item_id):
-        target_song_id = int(item_id) // 10
-
-        if self.modded:
-            for pack, songs in self.modData.items():
-                if target_song_id in {song_id for _, song_id in songs}:
-                    return pack
-        return "ArchipelagoMod"
 
     async def receive_item(self, index: int = 0):
         if index == 0:
@@ -226,7 +213,7 @@ class MegaMixContext(SuperContext):
                 self.update_song_list()
 
     def update_song_list(self, remove=False):
-        if self.finished_game:
+        if self.safe_mode:
             return
 
         base_ids = {i.item // 10 for i in self.items_received}
@@ -245,9 +232,6 @@ class MegaMixContext(SuperContext):
         song_list = {s // 10 for s in song_list}
         # TODO: Cache song_list, if same skip.
         song_unlock(self.songListLocation, song_list)
-            if not self.safe_mode:
-                for song_pack in ids_to_packs:
-                    song_unlock(self.path, ids_to_packs.get(song_pack), False, song_pack)
 
     def check_goal(self):
         if not self.leek_label:
@@ -265,26 +249,6 @@ class MegaMixContext(SuperContext):
 
     async def watch_json_file(self, file_path: str):
         """Watch a JSON file for changes and call the callback function."""
-        file_path = os.path.join(os.path.dirname(__file__), file_name)
-        last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else 0.0
-        try:
-            while True:
-                await asyncio.sleep(1)  # Wait for a short duration
-                if os.path.isfile(file_path):
-                    modified = os.path.getmtime(file_path)
-                    if modified > last_modified:
-                        last_modified = modified
-                        try:
-                            json_data = load_json_file(file_name)
-                            await self.receive_location_check(json_data)
-                        except (FileNotFoundError, json.JSONDecodeError) as e:
-                            logger.info(f"Error loading JSON file: {e}")
-        except asyncio.CancelledError:
-            logger.info(f"Watch task for {file_name} was canceled.")
-
-
-    async def watch_death_link_out(self, file_name: str):
-        file_path = os.path.join(os.path.dirname(__file__), file_name)
         last_modified = os.path.getmtime(file_path) if os.path.isfile(file_path) else 0.0
         logger.info(f"Watching {os.path.basename(file_path)} ({last_modified})")
 
@@ -298,7 +262,7 @@ class MegaMixContext(SuperContext):
                     await self.receive_location_check(json_data)
             except FileNotFoundError as e:
                 if last_modified > 0.0:
-                    logger.debug(f"{e} ({last_modified})")
+                    logger.debug(f"{e} ({last_modified}")
                     last_modified = 0.0
             except Exception as e:
                 logger.debug(f"{e} ({last_modified})")
@@ -473,7 +437,7 @@ class MegaMixContext(SuperContext):
             logger.info(f"Safe mode enabled. Restarting the game is recommended.\nPrevent out of logic: {self.safe_mode_strict}")
         else:
             if self.server and self.server.socket:
-                erase_song_list(self.mod_pv_list)
+                self.update_song_list()
                 await self.receive_item(0)
             logger.info("Safe mode disabled. Reload the game via hotkey if open.\nHigher priority mods may override the AP mod.")
 
