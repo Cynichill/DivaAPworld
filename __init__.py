@@ -1,7 +1,7 @@
 #AP
 from worlds.AutoWorld import World, WebWorld
 from worlds.LauncherComponents import Component, components, Type, launch_subprocess
-from BaseClasses import Region, Item, ItemClassification, Entrance, Tutorial, MultiWorld
+from BaseClasses import Region, Item, ItemClassification, Tutorial
 from Options import PerGameCommonOptions, OptionError
 import settings
 
@@ -92,16 +92,17 @@ class MegaMixWorld(World):
     location_name_to_id = {name: code for name, code in mm_collection.location_names_to_id.items()}
     item_name_groups = mm_collection.get_item_name_groups()
 
-    # Working Data
-    player_mod_data = {}
-    player_mod_ids = {}
-    player_mod_remap = {}
-    victory_song_name: str = ""
-    victory_song_id: int
-    starting_songs: list[str] = []
-    included_songs: list[str]
-    final_song_ids: set[int] = set()
-    needed_token_count: int
+    def __init__(self, multiworld, player):
+        super().__init__(multiworld, player)
+        # Working Data
+        self.player_mod_data = {}
+        self.player_mod_ids = {}
+        self.player_mod_remap = {}
+        self.victory_song_name: str = ""
+        self.victory_song_id: int = 10
+        self.starting_songs: list[str] = []
+        self.included_songs: list[str] = []
+        self.final_song_ids: set[int] = set()
 
     def generate_early(self):
         re_gen_passthrough = getattr(self.multiworld, "re_gen_passthrough", {})

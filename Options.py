@@ -149,7 +149,7 @@ class TotalLeeksAvailable(Range):
     WARNING: Higher values, especially 100, are more suited for solo seeds to replicate the console progression experience.
     """
     range_start = 10
-    range_end = 100
+    range_end = 100 # As 100 is approached this greatly puts pressure on progression balancing and slows gen down.
     default = 20
     display_name = "Leek Percentage"
 

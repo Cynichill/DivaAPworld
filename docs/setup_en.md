@@ -51,7 +51,6 @@ Please read descriptions before installing. These may not be relevant to you or 
 
 1. Open the **Mega Mix JSON Generator** from the Archipelago Launcher.
 2. Check song packs you would like to appear in your song selection pool.
-   - Unchecked packs will remain visible in game unless manually disabled.
 3. When done checking packs click **Generate Mod String**.
 4. In your YAML on the line for `megamix_mod_data` paste and format it as such:
    - `megamix_mod_data: '{"MyFirstSongPack":[["MyFirstSong",144,224]]}'`
@@ -68,8 +67,6 @@ Individual songs can be excluded from the pool in the YAML's `exclude_songs` sec
 Make sure the **Mega Mix Client** is open and connected to a room.
 
 Play `-Archipelago Randomizer Enabled-`. If a success message does not appear in the **Client** on completion try restarting the **Client**.
-
-If `-Archipelago Randomizer Enabled-` is not on the song list, [fix it.](#game-crashes-on-entering-song-list--im-missing-the-archipelago-song)
 
 ### There are songs outside my specified difficulty settings
 Starting (`start_inventory`), Included (`include_songs`), and the Goal Song (`goal_song`) will *always* ignore difficulty settings.
@@ -100,11 +97,3 @@ Similar to the [mod's config](#resulting-basic-file-structure), ensure `enabled 
 
 ### Songs still aren't appearing
 Run `/safe_mode` in the **Mega Mix Client** and follow its instructions.
-
-### Game crashes on entering song list / I'm missing the Archipelago song
-
-When 0 songs are available the game will crash. The Archipelago Mod includes a song to prevent this.
-
-**Diva Mod Manager *will* break the Archipelago Mod.** Use a fixed version of DMM, another mod manager, or none at all.
-
-After switching to a mod manager without the issue, the mod can be fixed either by reinstalling it *or* manually setting `include = ["AP", "."]` in the [mod's config](#resulting-basic-file-structure).
