@@ -168,7 +168,7 @@ class MegaMixContext(SuperContext):
 
         if cmd == "DataPackage":
             if not self.location_ids:
-                # Connected package not recieved yet, wait for datapackage request after connected package
+                # Connected package not received yet, wait for datapackage request after connected package
                 return
             self.leeks_obtained = 0
 
