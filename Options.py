@@ -17,6 +17,9 @@ class AdditionalSongs(Range):
     """The total number of songs that will be placed in the randomisation pool.
     - This does not count any Starting Songs or the Goal Song.
     - The final song count may be lower due to other settings.
+
+    Given the large range, "random" is not recommended. If you have a 500+ check seed, this is why.
+    At a pace of 4 minutes per song (fails, death links, traps, etc.), expect to clear 15 songs/30 checks an hour.
     """
     range_start = 15
     range_end = 3900
@@ -26,7 +29,7 @@ class AdditionalSongs(Range):
 
 class DuplicateSongPercentage(Range):
     """
-    After placing required items, the percentage of remaining filler slots to become duplicate song items.
+    After placing required items (Leeks and songs), the percentage of remaining filler slots to become duplicate song items.
     Duplicate songs are considered Useful thus out of logic and may speed up completion time.
     """
     range_start = 0
@@ -137,18 +140,24 @@ class ScoreGradeNeeded(Choice):
 
 
 class TotalLeeksAvailable(Range):
-    """Controls how many Leeks are added to the pool based on the number of songs, including starting songs.
-    Higher numbers leads to more consistent game lengths, but will cause individual leeks to be less important.
-    Range is a percentage.
+    """The percentage of Leeks to add to the pool based on the total number of Starting and Additional Songs.
+    A higher available Leek percentage leads to more consistent game lengths, but individual Leeks will be less important.
+
+    Example: (5 Starting + 40 Additional Songs) * 20% Leeks Total = 9 Leeks will be available
+
+    Recommended values are between 10 and 40.
+    WARNING: Higher values, especially 100, are more suited for solo seeds to replicate the console progression experience.
     """
     range_start = 10
-    range_end = 40
+    range_end = 100
     default = 20
     display_name = "Leek Percentage"
 
 
 class LeeksRequiredPercentage(Range):
-    """The percentage of Leeks in the item pool that are needed to unlock the Goal Song."""
+    """The percentage of available Leeks in the item pool that are needed to unlock the Goal Song.
+
+    Example: (5 Starting + 40 Additional Songs) * 20% Leeks Total * 80% Leeks Needed = 7 out of 9 Leeks needed to goal"""
     range_start = 50
     range_end = 100
     default = 80
@@ -158,6 +167,7 @@ class LeeksRequiredPercentage(Range):
 class GoalSongs(ItemSet):
     """Guarantee one song listed here as the final Goal Song.
     - Difficulty options are ignored.
+    - If a Goal Song is also in the Starting Inventory, it will not be chosen as a Goal Song.
 
     Use /item_groups in the Client for a list of available song groups."""
     display_name = "Goal Song"
@@ -186,6 +196,7 @@ class IncludeSongs(ItemSet):
 
 class ExcludeSongs(ItemSet):
     """Songs listed here and not previously chosen as a Goal or Include will be excluded from being a part of the seed.
+    This is recommended instead of exclude_locations which would allow songs to appear but with guaranteed filler checks.
 
     Use /item_groups in the Client for a list of available song groups."""
     display_name = "Exclude Songs"
@@ -216,7 +227,7 @@ class DeathLinkAmnesty(Range):
     """
     display_name = "Death Link Amnesty"
     range_start = 0
-    range_end = 5
+    range_end = 10
     default = 0
 
 

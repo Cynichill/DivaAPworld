@@ -87,8 +87,6 @@ class MegaMixWorld(World):
 
     # Necessary Data
     mm_collection = MegaMixCollections()
-    filler_item_names = list(mm_collection.filler_item_weights.keys())
-    filler_item_weights = list(mm_collection.filler_item_weights.values())
 
     item_name_to_id = {name: code for name, code in mm_collection.item_names_to_id.items()}
     location_name_to_id = {name: code for name, code in mm_collection.location_names_to_id.items()}
@@ -104,7 +102,6 @@ class MegaMixWorld(World):
     included_songs: list[str]
     final_song_ids: set[int] = set()
     needed_token_count: int
-    location_count: int
 
     def generate_early(self):
         re_gen_passthrough = getattr(self.multiworld, "re_gen_passthrough", {})
@@ -132,7 +129,6 @@ class MegaMixWorld(World):
             if "finalSongIDs" in slot_data:
                 final = slot_data.get("finalSongIDs", [])
                 self.included_songs = [key for key, song in self.mm_collection.song_items.items() if song.songID in final]
-                self.location_count = len(self.included_songs) * 2
             return
 
         # Initial search criteria
@@ -254,17 +250,16 @@ class MegaMixWorld(World):
         victory_song = self.mm_collection.song_items.get(self.victory_song_name)
         self.victory_song_id = (victory_song.code // 10) * 10
         self.final_song_ids.add(victory_song.songID)
-        self.location_count = 2 * (len(self.starting_songs) + len(self.included_songs))
 
     def create_item(self, name: str) -> Item:
 
         if name == self.mm_collection.LEEK_NAME:
             return MegaMixFixedItem(name, ItemClassification.progression_skip_balancing, self.mm_collection.LEEK_CODE, self.player)
 
-        if name in self.mm_collection.filler_item_names:
-            return MegaMixFixedItem(name, ItemClassification.filler, self.mm_collection.filler_item_names.get(name), self.player)
+        elif name == self.mm_collection.FILLER_NAME:
+            return MegaMixFixedItem(name, ItemClassification.filler, self.mm_collection.FILLER_CODE, self.player)
 
-        if name in self.mm_collection.trap_items:
+        elif name in self.mm_collection.trap_items:
             return MegaMixFixedItem(name, ItemClassification.trap, self.mm_collection.trap_items.get(name), self.player)
 
         song = self.mm_collection.song_items.get(name)
@@ -272,62 +267,39 @@ class MegaMixWorld(World):
         return MegaMixSongItem(name, self.player, song)
 
     def create_items(self) -> None:
-        song_keys_in_pool = self.included_songs.copy()
+        items_left = len(self.multiworld.get_unfilled_locations(self.player))
 
-        # Note: Item count will be off if plando is involved.
-        item_count = self.get_leek_count()
-
-        # First add all goal song tokens
-        for _ in range(0, item_count):
+        for _ in range(0, self.get_leek_count()):
             self.multiworld.itempool.append(self.create_item(self.mm_collection.LEEK_NAME))
 
-        # Then add 1 copy of every song
-        item_count += len(self.included_songs)
-        for song in self.included_songs:
-            self.multiworld.itempool.append(self.create_item(song))
+        self.multiworld.itempool.extend(self.create_item(song) for song in self.included_songs)
 
-        # At this point, if a player is using traps, it's possible that they have filled all locations
-        items_left = self.location_count - item_count
+        items_left -= self.get_leek_count() + len(self.included_songs)
         if items_left <= 0:
             return
-          
-        # Fill given percentage of remaining slots as Useful/non-progression dupes.
+
+        # Add duplicates based on user percentage
         dupe_count = items_left * self.options.duplicate_song_percentage // 100
         items_left -= dupe_count
 
-        # This is for the extraordinary case of needing to fill a lot of items.
-        while dupe_count > len(song_keys_in_pool):
-            for key in song_keys_in_pool:
-                item = self.create_item(key)
-                item.classification = ItemClassification.useful
-                self.multiworld.itempool.append(item)
-
-            dupe_count -= len(song_keys_in_pool)
-
+        song_keys_in_pool = self.included_songs.copy()
         self.random.shuffle(song_keys_in_pool)
         for i in range(0, dupe_count):
-            item = self.create_item(song_keys_in_pool[i])
+            item = self.create_item(song_keys_in_pool[i % len(song_keys_in_pool) - 1])
             item.classification = ItemClassification.useful
             self.multiworld.itempool.append(item)
 
-        # Traps after dupes, contrary to MD
+        # Add traps based on user percentage and unfilled by dupes
         trap_count = items_left * self.options.trap_percentage // 100
         enabled_traps = sorted(self.options.traps_enabled.value)
 
-        if enabled_traps and trap_count:
+        if trap_count and enabled_traps:
+            items_left -= trap_count
             for _ in range(0, trap_count):
-                trap = self.create_item(self.random.choice(enabled_traps))
-                self.multiworld.itempool.append(trap)
+                self.multiworld.itempool.append(self.create_item(self.random.choice(enabled_traps)))
 
-            items_left -= trap_count  # subtract only if there are enabled traps
-
-        # Generic filler. Anything dupes and traps didn't cover.
-        filler_count = items_left
-        items_left -= filler_count
-
-        for _ in range(0, filler_count):
-            filler_item = self.create_item(self.random.choices(self.filler_item_names, self.filler_item_weights)[0])
-            self.multiworld.itempool.append(filler_item)
+        for _ in range(0, items_left):
+            self.multiworld.itempool.append(self.create_item(self.mm_collection.FILLER_NAME))
 
     def create_regions(self) -> None:
         menu_region = Region("Menu", self.player, self.multiworld)
@@ -347,11 +319,13 @@ class MegaMixWorld(World):
             state.has(self.mm_collection.LEEK_NAME, self.player, self.get_leek_win_count())
 
     def get_leek_count(self) -> int:
+        """Number of Leeks to be placed in the item pool based on user option and final song count."""
         multiplier = self.options.leek_count_percentage.value / 100.0
         song_count = len(self.starting_songs) + len(self.included_songs)
         return max(1, floor(song_count * multiplier))
 
     def get_leek_win_count(self) -> int:
+        """Number of Leeks out of all in the item pool needed to goal."""
         re_gen_passthrough = getattr(self.multiworld, "re_gen_passthrough", {})
         if re_gen_passthrough and self.game in re_gen_passthrough:
             return re_gen_passthrough[self.game].get("leekWinCount")
