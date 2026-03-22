@@ -220,7 +220,8 @@ class MegaMixContext(SuperContext):
 
                 if self.total_prog_hp > 0:
                     with open(self.progHPLocation, 'w') as file:
-                        file.write(f"{self.prog_hp}\n{self.total_prog_hp}")
+                        progHP = min(self.prog_hp, self.total_prog_hp)
+                        file.write(f"{progHP}\n{self.total_prog_hp}")
 
     def update_song_list(self, remove=False):
         if self.safe_mode:
