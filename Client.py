@@ -136,7 +136,7 @@ class MegaMixContext(SuperContext):
             self.autoRemove = self.options["autoRemove"]
             self.leeks_needed = self.options["leekWinCount"]
             self.grade_needed = int(self.options["scoreGradeNeeded"])
-            self.total_prog_hp = int(self.options["progHP"]) + 1  # starting HP 1/x
+            self.total_prog_hp = int(self.options.get("progHP", 0)) + 1  # starting HP 1/x
             self.modData = self.options["modData"]
             if self.modData:
                 self.modded = True
