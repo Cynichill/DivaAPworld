@@ -75,7 +75,7 @@ class MegaMixContext(SuperContext):
 
         self.game = "Hatsune Miku Project Diva Mega Mix+"
         self.path = game_paths().get("mods")
-        self.mod_name = "ArchipelagoMod"
+        self.mod_name = game_paths().get("modname")
         self.mod_pv = f"{self.path}/{self.mod_name}/rom/mod_pv_db.txt"
         self.songResultsLocation = f"{self.path}/{self.mod_name}/results.json"
         self.deathLinkInLocation = f"{self.path}/{self.mod_name}/death_link_in"

@@ -32,7 +32,7 @@ Hatsune Miku Project DIVA Mega Mix Plus\
 ├ dinput8.dll       <─ mod loader
 ├ config.toml       <─ mod loader config
 └ mods\
-  └ ArchipelagoMod\ <─ AP mod folder, required to be this name
+  └ ArchipelagoMod\ <─ AP mod folder
     └ config.toml   <─ AP mod config
 ```
 
