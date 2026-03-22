@@ -1,6 +1,5 @@
 import functools
 import json
-import yaml
 import re
 import os
 import shutil
@@ -12,10 +11,20 @@ import filecmp
 
 from .MegaMixSongData import dlc_ids
 from .SymbolFixer import format_song_name
+from schema import Schema, And
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+
+mod_json_schema = Schema({
+    And(str, len): [[
+        And(str, len),
+        And(int, lambda x: x > 0),
+        And(int, lambda x: x > 0),
+    ]]
+})
 
 @functools.cache
 def game_paths() -> dict[str, str]:
@@ -25,6 +34,7 @@ def game_paths() -> dict[str, str]:
     game_path = os.path.dirname(exe_path)
     mods_path = os.path.join(game_path, "mods")
     dlc_path = os.path.join(game_path, "diva_dlc00.cpk")
+    mod_name = "ArchipelagoMod"
 
     # Seemingly no TOML parser in frozen AP
     dml_config = os.path.join(game_path, "config.toml")
@@ -34,10 +44,21 @@ def game_paths() -> dict[str, str]:
             if mod_line:
                 mods_path = os.path.join(game_path, mod_line.group(1))
 
+    # Find the Archipelago mod folder by pv_144.dsc
+    # walk in case the mod structure changes in the future
+    folders = {"AP", "rom", "script"}
+    for root, dirs, files in os.walk(mods_path, topdown=False):
+        dirs[:] = [d for d in dirs if d in folders]
+        if "pv_144.dsc" in files:
+            mod = os.path.relpath(root, mods_path)
+            mod_name = mod.split(os.sep)[0]
+            break
+
     return {
         "exe": exe_path,
         "game": game_path,
         "mods": mods_path,
+        "modname": mod_name,
         "dlc": dlc_path,
     }
 
@@ -171,17 +192,17 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     Extracts mod data from YAML files and converts it to a list of dictionaries.
     """
 
+    game_key = "Hatsune Miku Project Diva Mega Mix+"
+    mod_data_key = "megamix_mod_data"
+
     user_path = Utils.user_path(settings.get_settings().generator.player_files_path)
     folder_path = sys.argv[sys.argv.index("--player_files_path") + 1] if "--player_files_path" in sys.argv else user_path
 
-    logger.debug(f"Checking YAMLs for megamix_mod_data at {folder_path}")
+    logger.debug(f"Checking YAMLs for {mod_data_key} at {folder_path}")
 
     if not os.path.isdir(folder_path):
         logger.debug(f"The path {folder_path} is not a valid directory. Modded songs are unavailable for this path.")
         return []
-
-    game_key = "Hatsune Miku Project Diva Mega Mix+"
-    mod_data_key = "megamix_mod_data"
 
     all_mod_data = []
 
@@ -196,13 +217,15 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
                 if mod_data_key not in file_content:
                     continue
 
-                for single_yaml in yaml.safe_load_all(file_content):
+                for single_yaml in Utils.parse_yamls(file_content):
                     mod_data_content = single_yaml.get(game_key, {}).get(mod_data_key, None)
 
                     if not mod_data_content or isinstance(mod_data_content, dict):
                         continue
 
-                    all_mod_data.append(json.loads(mod_data_content))
+                    parsed = json.loads(mod_data_content)
+                    mod_json_schema.validate(parsed)
+                    all_mod_data.append(parsed)
         except Exception as e:
             logger.warning(f"Failed to extract mod data from {item.name}: {e}")
 
@@ -214,12 +237,13 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
 
 def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, list, dict):
     try:
-        data_dict = json.loads(mod_data)
+        parsed = json.loads(mod_data)
+        mod_json_schema.validate(parsed)
+        flat_songs = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
     except Exception as e:
         logger.warning(f"Failed to extract player specific IDs: {e}")
         return {}, [], {}
 
-    flat_songs = {song[1]: song[0] for pack, songs in data_dict.items() for song in songs}
     conflicts = remap.keys() & flat_songs.keys()
 
     player_remapped = {}
@@ -228,4 +252,4 @@ def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dic
         if name in remap[song_id]:
             player_remapped.update({song_id: remap[song_id][name][0]})
 
-    return data_dict, list(flat_songs.keys()), player_remapped  # Return the list of song IDs
+    return parsed, list(flat_songs.keys()), player_remapped  # Return the list of song IDs
