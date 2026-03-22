@@ -103,6 +103,7 @@ class MegaMixWorld(World):
         self.starting_songs: list[str] = []
         self.included_songs: list[str] = []
         self.final_song_ids: set[int] = set()
+        self.prog_hp_added: int = 0
 
     def generate_early(self):
         re_gen_passthrough = getattr(self.multiworld, "re_gen_passthrough", {})
@@ -263,6 +264,9 @@ class MegaMixWorld(World):
         elif name in self.mm_collection.trap_items:
             return MegaMixFixedItem(name, ItemClassification.trap, self.mm_collection.trap_items.get(name), self.player)
 
+        elif name == "Progressive HP":
+            return MegaMixFixedItem(name, ItemClassification.progression | ItemClassification.useful, 3, self.player)
+
         song = self.mm_collection.song_items.get(name)
         self.final_song_ids.add(song.songID)
         return MegaMixSongItem(name, self.player, song)
@@ -278,6 +282,12 @@ class MegaMixWorld(World):
         items_left -= self.get_leek_count() + len(self.included_songs)
         if items_left <= 0:
             return
+
+        # N-1 prog HP
+        for _ in range(1, min(items_left, self.options.progressive_hp.value)):
+            self.prog_hp_added += 1
+            self.multiworld.itempool.append(self.create_item("Progressive HP"))
+            items_left -= 1
 
         # Add duplicates based on user percentage
         dupe_count = items_left * self.options.duplicate_song_percentage // 100
@@ -317,7 +327,8 @@ class MegaMixWorld(World):
 
     def set_rules(self) -> None:
         self.multiworld.completion_condition[self.player] = lambda state: \
-            state.has(self.mm_collection.LEEK_NAME, self.player, self.get_leek_win_count())
+            state.has(self.mm_collection.LEEK_NAME, self.player, self.get_leek_win_count()) \
+            and state.has("Progressive HP", self.player, self.prog_hp_added)
 
     def get_leek_count(self) -> int:
         """Number of Leeks to be placed in the item pool based on user option and final song count."""
@@ -348,6 +359,7 @@ class MegaMixWorld(World):
 
     def write_spoiler_header(self, spoiler_handle: TextIO):
         spoiler_handle.write(f"Selected Goal Song:              {self.victory_song_name}\n")
+        spoiler_handle.write(f"Final Progressive HP:            {self.prog_hp_added}\n")
 
     @staticmethod
     def get_available_difficulties(song_difficulty_min: int, song_difficulty_max: int) -> list[int]:
@@ -373,4 +385,5 @@ class MegaMixWorld(World):
             "modData": {pack: [[song[0], song[1]] for song in songs if song[1] in self.final_song_ids]
                         for pack, songs in self.player_mod_data.items()},
             "modRemap": self.player_mod_remap,
+            "progHP": self.prog_hp_added,
         }

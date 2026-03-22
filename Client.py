@@ -76,6 +76,7 @@ class MegaMixContext(SuperContext):
         self.trapHiddenLocation = f"{self.path}/{self.mod_name}/hidden"
         self.trapIconLocation = f"{self.path}/{self.mod_name}/icontrap"
         self.songListLocation = f"{self.path}/{self.mod_name}/song_list.txt"
+        self.progHPLocation = f"{self.path}/{self.mod_name}/hp"
         self.modData = None
         self.modded = False
         self.freeplay = False
@@ -101,6 +102,8 @@ class MegaMixContext(SuperContext):
         self.autoRemove = False
         self.leeks_needed = 0
         self.leeks_obtained = 0
+        self.prog_hp = 1
+        self.total_prog_hp = 1
         self.leek_label = None
         self.grade_needed = None
         self.death_link = False
@@ -133,6 +136,7 @@ class MegaMixContext(SuperContext):
             self.autoRemove = self.options["autoRemove"]
             self.leeks_needed = self.options["leekWinCount"]
             self.grade_needed = int(self.options["scoreGradeNeeded"])
+            self.total_prog_hp = int(self.options["progHP"]) + 1  # starting HP 1/x
             self.modData = self.options["modData"]
             if self.modData:
                 self.modded = True
@@ -182,13 +186,13 @@ class MegaMixContext(SuperContext):
 
         if cmd == "RoomUpdate":
             if "checked_locations" in args:
-                self.update_song_list(True)
                 if not self.stop_db_modifications and self.autoRemove and not self.freeplay:
-                    asyncio.create_task(self.remove_songs())
+                    self.update_song_list(True)
 
     async def receive_item(self, index: int = 0):
         if index == 0:
             self.leeks_obtained = 0
+            self.prog_hp = 1
 
         async with self.critical_section_lock:
             update = False
@@ -201,6 +205,9 @@ class MegaMixContext(SuperContext):
                     self.check_goal()
                 elif network_item.item == 2:
                     pass # Filler
+                elif network_item.item == 3: # Progressive HP
+                    update = True
+                    self.prog_hp += 1
                 elif network_item.item == 4:
                     Path(self.trapHiddenLocation).touch()
                 elif network_item.item == 5:
@@ -210,6 +217,10 @@ class MegaMixContext(SuperContext):
 
             if update:
                 self.update_song_list()
+
+                if self.total_prog_hp > 0:
+                    with open(self.progHPLocation, 'w') as file:
+                        file.write(f"{self.prog_hp}\n{self.total_prog_hp}")
 
     def update_song_list(self, remove=False):
         if self.safe_mode:
@@ -395,11 +406,20 @@ class MegaMixContext(SuperContext):
         from .DataHandler import restore_originals, song_unlock
         self.stop_db_modifications = True
         mod_pv_dbs = [f"{root}/mod_pv_db.txt" for root, _, files in os.walk(self.path) if 'mod_pv_db.txt' in files]
-        restore_originals(mod_pv_dbs)
+        restore_originals(mod_pv_dbs) # TODO: see docstring
         song_unlock(self.songListLocation, {0})
+
+    async def cleanup(self):
+        clean = [self.trapIconLocation, self.trapHiddenLocation, self.trapSuddenLocation,
+                 self.songListLocation, self.deathLinkInLocation, self.progHPLocation]
+
+        for file in clean:
+            if Path(file).exists():
+                Path(file).unlink()
 
     async def shutdown(self):
         await self.restore_songs()
+        await self.cleanup()
         await super().shutdown()
 
     def make_gui(self):
