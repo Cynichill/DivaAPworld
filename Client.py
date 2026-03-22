@@ -52,8 +52,7 @@ class DivaClientCommandProcessor(ClientCommandProcessor):
         asyncio.create_task(self.ctx.toggle_deathlink(amnesty))
 
     def _cmd_safe_mode(self, out_of_logic = ""):
-        """Toggle safe mode for covers, lyrics, New Classics, etc.
-        All songs will be visible. The AP mod can be the lowest priority in this mode.
+        """Toggle safe mode so all songs are visible and reloading is never required.
         Prevents out of logic by default. Provide any text to allow."""
         asyncio.create_task(self.ctx.toggle_safe_mode(out_of_logic))
 
