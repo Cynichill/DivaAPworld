@@ -40,7 +40,7 @@ class DivaJSONGenerator(ThemedApp):
     filter_input: MDTextField = ObjectProperty(None)
 
     mods_folder = game_paths().get("mods")
-    self_mod_name = game_paths().get("modname") # Hardcoded. Fetch from Client or something.
+    self_mod_name = game_paths().get("modname")
     labels = []
 
     def find_db_folder(self, dbs: set[str]) -> list:
