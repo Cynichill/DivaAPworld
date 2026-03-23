@@ -1,5 +1,5 @@
 from Options import Toggle, Range, Choice, DeathLink, ItemSet, OptionSet, PerGameCommonOptions, FreeText, \
-    Visibility, Removed, OptionGroup
+    Visibility, Removed, OptionGroup, StartInventoryPool
 from dataclasses import dataclass
 
 from .MegaMixCollection import MegaMixCollections
@@ -255,7 +255,7 @@ class ProgressiveHP(Range):
     Divide the HP bar into items and start with 1/X HP. The rest go into the item pool.
     - There may be less based on free space after adding Leeks and Songs.
     - Non-lethal Death Link applies to max available HP
-    - For extras use start_inventory
+    - For finer control use "Progressive HP" in start_inventory or start_inventory_from_pool
 
     WARNING: Currently the only logic for this is needing full HP for the Goal Song.
     """
@@ -322,6 +322,7 @@ class MegaMixOptions(PerGameCommonOptions):
     traps_enabled: TrapsEnabled
     trap_percentage: TrapPercentage
     progressive_hp: ProgressiveHP
+    start_inventory_from_pool: StartInventoryPool
 
     # Deprecated
     exclude_singers: Removed

@@ -273,6 +273,9 @@ class MegaMixWorld(World):
         self.final_song_ids.add(song.songID)
         return MegaMixSongItem(name, self.player, song)
 
+    def get_filler_item_name(self):
+        return self.mm_collection.FILLER_NAME
+
     def create_items(self) -> None:
         items_left = len(self.multiworld.get_unfilled_locations(self.player))
 
