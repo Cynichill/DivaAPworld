@@ -110,6 +110,8 @@ class MegaMixWorld(World):
         if re_gen_passthrough and self.game in re_gen_passthrough:
             slot_data: dict[str, any] = re_gen_passthrough[self.game]
 
+            self.options.progressive_hp.value = int(slot_data.get("progHP", 0)) + 1
+
             # Inject mod data, remap as needed
             from .SymbolFixer import format_song_name
             from .Items import SongData
