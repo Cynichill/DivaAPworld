@@ -274,6 +274,10 @@ class MegaMixWorld(World):
         return MegaMixSongItem(name, self.player, song)
 
     def get_filler_item_name(self):
+        traps_enabled = sorted(self.options.traps_enabled.value)
+        if traps_enabled and self.options.trap_percentage > 0:
+            return self.random.choice(traps_enabled)
+
         return self.mm_collection.FILLER_NAME
 
     def create_items(self) -> None:
