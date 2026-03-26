@@ -76,7 +76,7 @@ class MegaMixContext(SuperContext):
         self.trapHiddenLocation = f"{self.path}/{self.mod_name}/hidden"
         self.trapIconLocation = f"{self.path}/{self.mod_name}/icontrap"
         self.songListLocation = f"{self.path}/{self.mod_name}/song_list.txt"
-        self.progHPLocation = f"{self.path}/{self.mod_name}/hp"
+        self.progHPLocation = f"{self.path}/{self.mod_name}/hp.txt"
         self.modData = None
         self.modded = False
         self.freeplay = False
@@ -412,7 +412,7 @@ class MegaMixContext(SuperContext):
 
     async def cleanup(self):
         clean = [self.trapIconLocation, self.trapHiddenLocation, self.trapSuddenLocation,
-                 self.songListLocation, self.deathLinkInLocation, self.progHPLocation]
+                 self.songListLocation, self.deathLinkInLocation, self.progHPLocation, f"{self.path}/{self.mod_name}/hp"]
 
         for file in clean:
             if Path(file).exists():
