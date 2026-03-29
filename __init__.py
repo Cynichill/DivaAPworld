@@ -281,6 +281,9 @@ class MegaMixWorld(World):
         return self.mm_collection.FILLER_NAME
 
     def create_items(self) -> None:
+        # There is a rare restrictive start FillError (27/100K) for 100% progression (Leek/Prog HP) seeds
+        # Fuzzer meta.yaml: minimal access, 3 starting, 15 additional (for fuzz speed only), 100 Leek%
+
         items_left = len(self.multiworld.get_unfilled_locations(self.player))
 
         for _ in range(0, self.get_leek_count()):
