@@ -293,9 +293,9 @@ class MegaMixWorld(World):
             return
 
         # N-1 prog HP
-        for _ in range(1, min(items_left, self.options.progressive_hp.value)):
-            self.prog_hp_added += 1
+        for _ in range(0, min(items_left, self.options.progressive_hp.value - 1)):
             self.multiworld.itempool.append(self.create_item("Progressive HP"))
+            self.prog_hp_added += 1
             items_left -= 1
 
         # Add duplicates based on user percentage
