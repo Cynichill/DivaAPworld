@@ -296,7 +296,7 @@ class MegaMixWorld(World):
         for _ in range(0, min(items_left, self.options.progressive_hp.value - 1)):
             self.multiworld.itempool.append(self.create_item("Progressive HP"))
             self.prog_hp_added += 1
-            items_left -= 1
+        items_left -= self.prog_hp_added
 
         # Add duplicates based on user percentage
         dupe_count = items_left * self.options.duplicate_song_percentage // 100
