@@ -150,6 +150,8 @@ class MegaMixCollections:
             "LukaSongs": {name for name, data in base_songs.items() if "Megurine Luka" in data.singers},
             "KAITOSongs": {name for name, data in base_songs.items() if "KAITO" in data.singers},
             "MEIKOSongs": {name for name, data in base_songs.items() if "MEIKO" in data.singers},
+
+            "Traps": self.trap_items.keys()
         }
 
         # Experimental since all players share this group. Filtered in handle_plando.
