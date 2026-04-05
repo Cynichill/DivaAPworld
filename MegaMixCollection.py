@@ -68,13 +68,13 @@ class MegaMixCollections:
                         item_id = (song_id * 10)
 
                         if song_name in self.song_items:
-                            logger.warning(f"{song_name} previously mapped to base ID, skipping")
+                            logger.debug(f"{song_name} previously mapped to base ID, skipping")
                             continue
 
                         # Remap up to 4 ID conflicts using the 8 free slots (2-9) between item/loc IDs.
                         if song_id in seen_mod_song_ids:
                             if song_id in self.mod_remaps and song_name in self.mod_remaps[song_id]:
-                                logger.warning(f"{song_name} already remapped to {self.mod_remaps[song_id][song_name]}")
+                                logger.debug(f"{song_name} already remapped to {self.mod_remaps[song_id][song_name]}")
                                 continue
 
                             resolve = {i for i in range(item_id + 2, item_id + 10)}

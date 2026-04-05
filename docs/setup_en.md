@@ -18,11 +18,7 @@ This is a minimal setup to get started. Mod managers are used at your discretion
 3. Install the APWorld listed under [Requirements.](#requirements)
    - [Archipelago Setup: Playing with custom worlds](/tutorial/Archipelago/setup_en#playing-with-custom-worlds)
 4. Start the **Mega Mix Client** from the Archipelago Launcher
-5. If prompted to select `DivaMegaMix.exe`:
-   - **If not prompted, skip this step**
-   - Right-click the game entry in Steam, **Manage > Browse local files**
-   - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
-6. Play! ([Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game))
+5. Play! ([Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game))
 
 ### Resulting basic file structure
 ```
@@ -49,9 +45,13 @@ Please read descriptions before installing. These may not be relevant to you or 
 **Note: Currently, using mod songs requires the seed to be [generated locally](/tutorial/Archipelago/setup_en#generating-a-multiplayer-game), not on the website. Hosting on the website afterwards is fine.**
 
 1. Open the **Mega Mix JSON Generator** from the Archipelago Launcher.
-2. Check song packs you would like to appear in your song selection pool.
-3. When done checking packs click **Generate Mod String**.
-4. In your YAML on the line for `megamix_mod_data` paste and format it as such:
+2. If prompted to select `DivaMegaMix.exe`:
+   - **If not prompted, skip this step**
+   - Right-click the game entry in Steam, **Manage > Browse local files**
+   - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
+3. Check song packs you would like to appear in your song selection pool.
+4. When done checking packs click **Generate Mod String**.
+5. In your YAML on the line for `megamix_mod_data` paste and format it as such:
    - `megamix_mod_data: '{"MyFirstSongPack":[["MyFirstSong",144,224]]}'`
 
 Linux users that experience clipboard issues *may* need to run the Archipelago Launcher and JSON Generator through a command line to get the output there.
@@ -93,6 +93,3 @@ Switch to the **All** filter in the song list and check each difficulty. Not eve
 Install [ExPatch](#optional-quality-of-life-mods). Modded songs are commonly Extreme/Extra Extreme only.
 
 Similar to the [mod's config](#resulting-basic-file-structure), ensure `enabled = true` in a pack's `config.toml`.
-
-### Songs still aren't appearing
-Run `/safe_mode` in the **Mega Mix Client** and follow its instructions.

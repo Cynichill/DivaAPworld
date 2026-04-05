@@ -58,18 +58,6 @@ def game_paths() -> dict[str, str]:
     }
 
 
-# File Handling
-def load_json_file(file_name: str) -> dict:
-    """Import a JSON file, either from a zipped package or directly from the filesystem."""
-
-    try:
-        # Attempt to load the file directly from the filesystem
-        with open(file_name, 'r', encoding='utf-8') as file:
-            return json.load(file)
-    except Exception as e:
-        logger.debug(f"Error loading JSON file '{file_name}': {e}")
-        return {}
-
 def restore_originals(original_file_paths):
     """Remove this function at earliest convenience. This is to allow older world users to fix their mod_pv_db for a
     time until they can be reasonably expected to have migrated."""
@@ -88,16 +76,6 @@ def restore_originals(original_file_paths):
             if not filecmp.cmp(copy_file_path, original_file_path):
                 shutil.copyfile(copy_file_path, original_file_path)
             os.remove(copy_file_path)
-
-
-def song_unlock(song_list: str, song_ids: set[int]):
-    song_ids = sorted([s for s in song_ids])
-
-    try:
-        with open(song_list, 'w', encoding='utf-8', newline='') as file:
-            file.write("\n".join(str(s) for s in song_ids))
-    except Exception as e:
-        logger.debug(f"Error writing to {song_list}: {e}")
 
 
 def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:

@@ -17,18 +17,6 @@ from typing import ClassVar, TextIO
 from math import floor
 
 
-def launch_client():
-    from .Client import launch
-    launch_subprocess(launch, name="MegaMixClient")
-
-
-components.append(Component(
-    "Mega Mix Client",
-    func=launch_client,
-    component_type=Type.CLIENT
-))
-
-
 def launch_json_generator():
     from .generator_megamix.generator import launch
     launch_subprocess(launch, name="MegaMixJSONGenerator")
