@@ -281,6 +281,9 @@ class MegaMixWorld(World):
         return self.mm_collection.FILLER_NAME
 
     def create_items(self) -> None:
+        # There is a rare restrictive start FillError (27/100K) for 100% progression (Leek/Prog HP) seeds
+        # Fuzzer meta.yaml: minimal access, 3 starting, 15 additional (for fuzz speed only), 100 Leek%
+
         items_left = len(self.multiworld.get_unfilled_locations(self.player))
 
         for _ in range(0, self.get_leek_count()):
@@ -293,10 +296,10 @@ class MegaMixWorld(World):
             return
 
         # N-1 prog HP
-        for _ in range(1, min(items_left, self.options.progressive_hp.value)):
-            self.prog_hp_added += 1
+        for _ in range(0, min(items_left, self.options.progressive_hp.value - 1)):
             self.multiworld.itempool.append(self.create_item("Progressive HP"))
-            items_left -= 1
+            self.prog_hp_added += 1
+        items_left -= self.prog_hp_added
 
         # Add duplicates based on user percentage
         dupe_count = items_left * self.options.duplicate_song_percentage // 100
