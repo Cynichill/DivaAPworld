@@ -196,23 +196,6 @@ class ModData(FreeText):
     visibility = Visibility.template | Visibility.spoiler
 
 
-class DivaDeathLink(DeathLink):
-    """When you die on your own or fail to reach Grade Needed (not both), everyone who enabled Death Link dies.
-
-    Received Death Links subtract a percentage of total HP. Adjustable in the game mod's config file.
-    WARNING: Non-lethal Death Link makes it harder to get Life Bonuses and may affect score by up to 2%.
-    """
-    display_name = "Death Link"
-
-
-class DeathLinkAmnesty(Range):
-    """Amount of additional own deaths needed before sending one Death Link. 0 would be every death, 1 every other, etc."""
-    display_name = "Death Link Amnesty"
-    range_start = 0
-    range_end = 10
-    default = 0
-
-
 class TrapsEnabled(OptionSet):
     """Control which Traps can be placed in the item pool.
     It is highly recommended to add these Traps to non_local_items."""
@@ -271,8 +254,6 @@ megamix_option_groups = [
         DifficultyRatingMax,
     ]),
     OptionGroup("Game Modifiers", [
-        DivaDeathLink,
-        DeathLinkAmnesty,
         ProgressiveHP,
         TrapPercentage,
         TrapsEnabled,
@@ -299,8 +280,6 @@ class MegaMixOptions(PerGameCommonOptions):
     include_songs: IncludeSongs
     exclude_songs: ExcludeSongs
     megamix_mod_data: ModData
-    death_link: DivaDeathLink
-    death_link_amnesty: DeathLinkAmnesty
     traps_enabled: TrapsEnabled
     trap_percentage: TrapPercentage
     progressive_hp: ProgressiveHP
@@ -309,3 +288,5 @@ class MegaMixOptions(PerGameCommonOptions):
     # Deprecated
     exclude_singers: Removed
     auto_remove_songs: Removed
+    death_link: Removed
+    death_link_amnesty: Removed

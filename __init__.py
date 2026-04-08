@@ -374,14 +374,11 @@ class MegaMixWorld(World):
 
     def fill_slot_data(self):
         return {
-            "victoryLocation": self.victory_song_name,
             "victoryID": self.victory_song_id,
             "finalSongIDs": self.final_song_ids,
             "leekWinCount": self.get_leek_win_count(),
             "scoreGradeNeeded": self.options.grade_needed.value,
-            "autoRemove": bool(self.options.auto_remove_songs),
-            "deathLink": self.options.death_link.value,
-            "deathLink_Amnesty": self.options.death_link_amnesty.value,
+            "death_link": True, # APCpp requires this key name to set the tag
             "modData": {pack: [[song[0], song[1]] for song in songs if song[1] in self.final_song_ids]
                         for pack, songs in self.player_mod_data.items()},
             "modRemap": self.player_mod_remap,
