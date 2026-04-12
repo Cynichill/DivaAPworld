@@ -50,11 +50,15 @@ class DivaJSONGenerator(ThemedApp):
             if not any(f in dbs for f in files):
                 continue
 
-            folder_name = str(Path(root).parent.relative_to(Path(self.mods_folder)))
-            if self.self_mod_name and folder_name.startswith(self.self_mod_name):
-                continue
+            try:
+                folder_name = str(Path(root).parent.relative_to(Path(self.mods_folder)))
+                if self.self_mod_name and folder_name.startswith(self.self_mod_name):
+                    continue
 
-            found.append((root, folder_name))
+                found.append((root, folder_name))
+            except ValueError as e:
+                # Usually a db file at the root of the mods folder. Would not be loaded anyway.
+                print(e)
 
         return sorted(found)
 
