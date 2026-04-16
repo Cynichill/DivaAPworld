@@ -27,7 +27,7 @@ These steps are optional. Archipelago and the APWorld are not required to be ins
 ### Resulting mod file structure
 ```
 Hatsune Miku Project DIVA Mega Mix Plus\
-├ DivaMegaMix.exe   <─ game, select if prompted by Client/JSON generator
+├ DivaMegaMix.exe   <─ game, select if prompted by JSON generator
 ├ dinput8.dll       <─ mod loader
 ├ config.toml       <─ mod loader config
 └ mods\
