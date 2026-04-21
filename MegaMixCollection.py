@@ -110,7 +110,7 @@ class MegaMixCollections:
             for i in range(2):
                 self.song_locations[f"{song_name}-{i}"] = (song_data.code + i)
 
-    def get_songs_with_settings(self, dlc: bool, mod_ids: list[int], allowed_diff: list[int], diff_lower: float, diff_higher: float) -> list[str]:
+    def get_songs_with_settings(self, dlc: bool, mod_ids: set[int], allowed_diff: list[int], diff_lower: float, diff_higher: float) -> list[str]:
         """Gets a list of all songs that match the filter settings. Difficulty thresholds are inclusive."""
         filtered_list = []
 

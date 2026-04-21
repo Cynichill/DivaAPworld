@@ -84,7 +84,7 @@ class MegaMixWorld(World):
         super().__init__(multiworld, player)
         # Working Data
         self.player_mod_data = {}
-        self.player_mod_ids = {}
+        self.player_mod_ids: set[int] = set()
         self.player_mod_remap = {}
         self.victory_song_name: str = ""
         self.victory_song_id: int = 10

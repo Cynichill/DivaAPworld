@@ -126,21 +126,21 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     return all_mod_data
 
 
-def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, list, dict):
+def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, set, dict):
     try:
         parsed = json.loads(mod_data)
         mod_json_schema.validate(parsed)
-        flat_songs = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
+        player_specific = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
     except Exception as e:
         logger.warning(f"Failed to extract player specific IDs: {e}")
         return {}, [], {}
 
-    conflicts = remap.keys() & flat_songs.keys()
+    conflicts = remap.keys() & player_specific.keys()
 
     player_remapped = {}
     for song_id in conflicts:
-        name = format_song_name(flat_songs[song_id], song_id)
+        name = format_song_name(player_specific[song_id], song_id)
         if name in remap[song_id]:
             player_remapped.update({song_id: remap[song_id][name][0]})
 
-    return parsed, list(flat_songs.keys()), player_remapped  # Return the list of song IDs
+    return parsed, set(player_specific), player_remapped
