@@ -79,7 +79,7 @@ def process_single_mod(mod_pv_db_path: str, mod_dir: str) -> tuple[set[int], lis
                     diff_rating = "exextreme" if diff_index_length == "1" and diff_rating == "extreme" else diff_rating
 
                     # Sanity check for invalid extreme data (starts at 1 index/out of 0-2 range of length prop): check the extra attribute.
-                    if diff_rating is "exextreme" and extra_check not in mod_pv_db:
+                    if diff_rating == "exextreme" and extra_check not in mod_pv_db:
                         print(f"{song_id} appears ExEx but lacks attribute, downgrade to Ex")
                         diff_rating = "extreme"
 
