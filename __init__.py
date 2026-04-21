@@ -255,7 +255,7 @@ class MegaMixWorld(World):
             return MegaMixFixedItem(name, ItemClassification.trap, self.mm_collection.trap_items.get(name), self.player)
 
         elif name == "Progressive HP":
-            return MegaMixFixedItem(name, ItemClassification.progression | ItemClassification.useful, 3, self.player)
+            return MegaMixFixedItem(name, ItemClassification.progression | ItemClassification.useful, self.mm_collection.PROG_HP_CODE, self.player)
 
         song = self.mm_collection.song_items.get(name)
         self.final_song_ids.add(song.songID)
