@@ -40,7 +40,6 @@ class DivaJSONGenerator(ThemedApp):
     filter_input: MDTextField = ObjectProperty(None)
 
     mods_folder = game_paths().get("mods")
-    self_mod_name = game_paths().get("modname")
     labels = []
 
     def find_db_folder(self, dbs: set[str]) -> list:
@@ -51,8 +50,6 @@ class DivaJSONGenerator(ThemedApp):
                 continue
 
             folder_name = str(Path(root).parent.relative_to(Path(self.mods_folder)))
-            if self.self_mod_name and folder_name.startswith(self.self_mod_name):
-                continue
 
             found.append((root, folder_name))
 
