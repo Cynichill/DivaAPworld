@@ -126,10 +126,6 @@ class MegaMixCollections:
             if songData.modded and song_id not in mod_ids:
                 continue
 
-            # Do not give base game version if modded cover available for this player
-            if not songData.modded and song_id in mod_ids:
-                continue
-
             for diff in allowed_diff:
                 if songData.difficulties[diff] > 0.0: # Has that difficulty
                     if diff_lower <= songData.difficulties[diff] <= diff_higher:
