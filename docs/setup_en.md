@@ -75,15 +75,12 @@ To increase the success of seed generation the difficulty settings are conservat
 ### My settings are too long or difficult
 **Note: You can play any available difficulty for the same checks.**
 
-Enable AP Developer Mode by right-clicking it under the Advanced tab, then right-click the check count for the song in the Tracker tab.
+Enable **AP Developer Mode** by right-clicking it on the Advanced tab, switch to the Tracker tab, then right-click the song name.
 
 ### Newly received songs are not appearing in game
 While on the song list press ***F7*** or the defined `reload` key in the [mod's config](#resulting-mod-file-structure) to reload the game.
 
-Switch to the **All** filter in the song list and check each difficulty. Not every song is available on every difficulty.
-
-### Modded songs are not appearing in game
-
-Install [ExPatch](#optional-quality-of-life-mods). Modded songs are commonly Extreme/Extra Extreme only.
-
-Similar to the [mod's config](#resulting-mod-file-structure), ensure `enabled = true` in a pack's `config.toml`.
+- Switch to the **All** filter in the song list.
+- Check each difficulty. Not every song is available on every difficulty.
+  - Install [ExPatch](#optional-quality-of-life-mods). Modded songs are commonly Extreme/Extra Extreme only.
+- If using New Classics, check the **All** filter for each gameplay style.
