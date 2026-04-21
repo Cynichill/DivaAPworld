@@ -133,7 +133,7 @@ def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dic
         player_specific = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
     except Exception as e:
         logger.warning(f"Failed to extract player specific IDs: {e}")
-        return {}, [], {}
+        return {}, set(), {}
 
     conflicts = remap.keys() & player_specific.keys()
 
