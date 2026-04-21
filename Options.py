@@ -190,7 +190,8 @@ class ExcludeSongs(ItemSet):
 
 
 class ModData(FreeText):
-    """To play with mod songs, set the output of the Mega Mix JSON Generator here."""
+    """To play with mod songs, set the output of the Mega Mix JSON Generator here.
+    If the line ends with ": 50" or similar, remove it."""
     display_name = "MegaMixModData"
     default = ''
     visibility = Visibility.template | Visibility.spoiler

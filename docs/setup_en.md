@@ -57,6 +57,7 @@ Please read descriptions before installing. These may not be relevant to you or 
 4. When done checking packs click **Generate Mod String**.
 5. In your YAML on the line for `megamix_mod_data` paste and format it as such:
    - `megamix_mod_data: '{"MyFirstSongPack":[["MyFirstSong",144,224]]}'`
+   - If the line ends with `: 50` or similar, remove it.
 
 Linux users that experience clipboard issues *may* need to run the Archipelago Launcher and JSON Generator through a command line to get the output there.
 
