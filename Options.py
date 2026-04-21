@@ -288,5 +288,3 @@ class MegaMixOptions(PerGameCommonOptions):
     # Deprecated
     exclude_singers: Removed
     auto_remove_songs: Removed
-    #death_link: Removed # Commented out to allow generic non-world usage of the key without the Generator raising an error
-    death_link_amnesty: Removed
