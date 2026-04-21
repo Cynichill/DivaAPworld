@@ -58,26 +58,6 @@ def game_paths() -> dict[str, str]:
     }
 
 
-def restore_originals(original_file_paths):
-    """Remove this function at earliest convenience. This is to allow older world users to fix their mod_pv_db for a
-    time until they can be reasonably expected to have migrated."""
-
-    import filecmp, shutil
-
-    logger.warning(f"restore_originals: {restore_originals.__doc__}")
-
-    for original_file_path in original_file_paths:
-        directory, filename = os.path.split(original_file_path)
-        name, ext = os.path.splitext(filename)
-        copy_filename = f"{name}COPY{ext}"
-        copy_file_path = os.path.join(directory, copy_filename)
-
-        if os.path.exists(copy_file_path):
-            if not filecmp.cmp(copy_file_path, original_file_path):
-                shutil.copyfile(copy_file_path, original_file_path)
-            os.remove(copy_file_path)
-
-
 def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     """
     Extracts mod data from YAML files and converts it to a list of dictionaries.

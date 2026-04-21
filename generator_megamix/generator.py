@@ -16,7 +16,7 @@ from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
 import Utils
 from .json_megamix import process_mods, ConflictException
 from .. import MegaMixWorld
-from ..DataHandler import restore_originals, game_paths
+from ..DataHandler import game_paths
 
 
 class AssociatedMDLabel(MDLabel):
@@ -195,14 +195,6 @@ class DivaJSONGenerator(ThemedApp):
 
         with open(path, "w", encoding='utf-8') as file:
             file.write(content + "\n")
-
-    def process_restore_originals(self):
-        mod_pv_dbs = [f"{self.mods_folder}/{pack}/rom/mod_pv_db.txt" for pack in [label.text for label in self.labels]]
-        try:
-            restore_originals(mod_pv_dbs)
-            self.show_snackbar("Song packs restored")
-        except Exception as e:
-            self.show_snackbar(str(e))
 
     def build(self):
         self.title = "Hatsune Miku Project Diva Mega Mix+ JSON Generator"
