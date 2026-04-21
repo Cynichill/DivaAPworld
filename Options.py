@@ -1,5 +1,5 @@
-from Options import Toggle, Range, Choice, DeathLink, ItemSet, OptionSet, PerGameCommonOptions, FreeText, \
-    Visibility, Removed, OptionGroup, StartInventoryPool
+from Options import Toggle, Range, Choice, ItemSet, OptionSet, PerGameCommonOptions, FreeText, Visibility, \
+    OptionGroup, StartInventoryPool
 from dataclasses import dataclass
 
 from .MegaMixCollection import MegaMixCollections
@@ -284,7 +284,3 @@ class MegaMixOptions(PerGameCommonOptions):
     trap_percentage: TrapPercentage
     progressive_hp: ProgressiveHP
     start_inventory_from_pool: StartInventoryPool
-
-    # Deprecated
-    exclude_singers: Removed
-    auto_remove_songs: Removed
