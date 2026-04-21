@@ -265,7 +265,6 @@ megamix_option_groups = [
 @dataclass
 class MegaMixOptions(PerGameCommonOptions):
     allow_megamix_dlc_songs: AllowMegaMixDLCSongs
-
     duplicate_song_percentage: DuplicateSongPercentage
     starting_song_count: StartingSongs
     additional_song_count: AdditionalSongs
