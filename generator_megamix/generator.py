@@ -20,7 +20,7 @@ from ..DataHandler import game_paths
 
 
 class AssociatedMDLabel(MDLabel):
-    def __init__(self, text, cb):
+    def __init__(self, text: str, cb: CheckBox):
         MDLabel.__init__(self)
         self.text = text
         self.checkbox = cb
