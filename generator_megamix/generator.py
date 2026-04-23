@@ -151,11 +151,12 @@ class DivaJSONGenerator(ThemedApp):
             self.copy(str(e))
 
             dialog_conflict = Factory.DialogGeneric()
-            dialog_conflict.title = "Conflicting IDs prevent generating"
+            dialog_conflict.title = "Conflicting IDs prevent generating mod string"
             dialog_conflict.desc = dedent("""\
                                         [b]This is not for use in the YAML.[/b]
-                                        
-                                        This is common for packs that target the base game or add covers.
+
+                                        The mod string requires that a song ID is only provided by a single pack.
+                                        Conflicts are common for packs that target the base game or add lyrics/covers.
                                         Listed below are conflicting packs and IDs. Uncheck some or all of them.
                                         """)
             dialog_conflict.field = str(e)
