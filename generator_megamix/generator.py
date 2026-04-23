@@ -25,6 +25,7 @@ class AssociatedMDLabel(MDLabel):
         self.text = text
         self.associate = associate
         self.valign = 'center'
+        self.filtered_out = False
 
     def on_touch_down(self, touch):
         MDLabel.on_touch_down(self, touch)
@@ -40,7 +41,7 @@ class DivaJSONGenerator(ThemedApp):
     filter_input: MDTextField = ObjectProperty(None)
 
     mods_folder = game_paths().get("mods")
-    labels = []
+    labels: list[AssociatedMDLabel] = []
 
     def find_db_folder(self, dbs: set[str]) -> list:
         found = []
@@ -104,8 +105,10 @@ class DivaJSONGenerator(ThemedApp):
                 dialog_dml.open()
 
         for label in self.labels:
-            # The split may need to be /-aware in the future.
-            if import_dml and label.text.split("\\")[0] not in dml_config:
+            if label.filtered_out:
+                continue
+
+            if import_dml and label.text.split(os.sep)[0] not in dml_config:
                 continue
             elif search:
                 if "/" == search[0] == search[-1]:
@@ -124,12 +127,14 @@ class DivaJSONGenerator(ThemedApp):
         self.pack_list_scroll.scroll_y = 1
 
         for label in self.labels:
+            label.filtered_out = True
             if search:
                 if "/" == search[0] == search[-1]:
                     if not re.search(search[1:-1], label.text):
                         continue
                 elif search.lower() not in label.text.lower():
                     continue
+            label.filtered_out = False
             self.pack_list_scroll.layout.add_widget(label.parent)
 
     def process_to_clipboard(self):
