@@ -20,17 +20,17 @@ from ..DataHandler import game_paths
 
 
 class AssociatedMDLabel(MDLabel):
-    def __init__(self, text, associate):
+    def __init__(self, text, cb):
         MDLabel.__init__(self)
         self.text = text
-        self.associate = associate
+        self.checkbox = cb
         self.valign = 'center'
         self.filtered_out = False
 
     def on_touch_down(self, touch):
         MDLabel.on_touch_down(self, touch)
         if self.collide_point(touch.pos[0], touch.pos[1]):
-            self.associate.active = not self.associate.active
+            self.checkbox.active = not self.checkbox.active
 
 class MDBoxLayoutHover(MDBoxLayout, HoverBehavior):
     pass
@@ -116,7 +116,7 @@ class DivaJSONGenerator(ThemedApp):
                         continue
                 elif search.lower() not in label.text.lower():
                     continue
-            label.associate.active = active
+            label.checkbox.active = active
 
     def toggle_checkbox_from_input(self, active: bool = False):
         if self.filter_input.text:
@@ -138,7 +138,7 @@ class DivaJSONGenerator(ThemedApp):
             self.pack_list_scroll.layout.add_widget(label.parent)
 
     def process_to_clipboard(self):
-        checked_packs = [str(os.path.join(self.mods_folder, label.text)) for label in self.labels if label.associate.active]
+        checked_packs = [str(os.path.join(self.mods_folder, label.text)) for label in self.labels if label.checkbox.active]
         mod_pv_db_paths_list = [folder_path for folder_path in checked_packs]
 
         if not mod_pv_db_paths_list:
