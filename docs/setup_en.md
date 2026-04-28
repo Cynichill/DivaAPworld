@@ -32,7 +32,9 @@ Hatsune Miku Project DIVA Mega Mix Plus\
 ├ config.toml       <─ mod loader config
 └ mods\
   └ ArchipelagoMod\ <─ AP mod folder
-    └ config.toml   <─ AP mod config (and other files)
+    ├ ArchipelagoMod.dll
+    ├ config.toml
+    └ ...
 ```
 
 ## Optional Quality of Life Mods 
@@ -78,7 +80,7 @@ To increase the success of seed generation the difficulty settings are conservat
 Enable **AP Developer Mode** by right-clicking it on the Advanced tab, switch to the Tracker tab, then right-click the song name.
 
 ### Newly received songs are not appearing in game
-While on the song list press ***F7*** or the defined `reload` key in the [mod's config](#resulting-mod-file-structure) to reload the game.
+While on the song list press ***F7***/your defined reload key or use `Advanced > Reloading > Reload Game`.
 
 - Switch to the **All** filter in the song list.
 - Check each difficulty. Not every song is available on every difficulty.
