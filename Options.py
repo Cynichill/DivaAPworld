@@ -1,5 +1,5 @@
-from Options import Toggle, Range, Choice, DeathLink, ItemSet, OptionSet, PerGameCommonOptions, FreeText, \
-    Visibility, Removed, OptionGroup, StartInventoryPool
+from Options import Toggle, Range, Choice, ItemSet, OptionSet, PerGameCommonOptions, FreeText, Visibility, \
+    OptionGroup, StartInventoryPool
 from dataclasses import dataclass
 
 from .MegaMixCollection import MegaMixCollections
@@ -41,13 +41,6 @@ class DuplicateSongPercentage(Range):
 class AllowMegaMixDLCSongs(Toggle):
     """Whether Extra Song Pack DLC Songs can be chosen as randomised songs."""
     display_name = "Allow Extra Song Pack DLC Songs"
-
-
-class AutoRemoveCleared(Toggle):
-    """If true, automatically removes cleared songs from the song list on refresh.
-
-    This can be done later manually with "/remove_cleared" or toggled with "/auto_remove" in the Client."""
-    display_name = "Auto Remove Songs"
 
 
 class DifficultyModeMin(Choice):
@@ -167,9 +160,7 @@ class LeeksRequiredPercentage(Range):
 class GoalSongs(ItemSet):
     """Guarantee one song listed here as the final Goal Song.
     - Difficulty options are ignored.
-    - If a Goal Song is also in the Starting Inventory, it will not be chosen as a Goal Song.
-
-    Use /item_groups in the Client for a list of available song groups."""
+    - If a Goal Song is also in the Starting Inventory, it will not be chosen as a Goal Song."""
     display_name = "Goal Song"
 
 
@@ -188,47 +179,22 @@ class IncludeSongsPercentage(Range):
 class IncludeSongs(ItemSet):
     """Songs listed here will be guaranteed to be included as part of the seed.
     - Difficulty options are ignored for these songs.
-    - If you want these songs immediately, use start_inventory instead.
-
-    Use /item_groups in the Client for a list of available song groups."""
+    - If you want these songs immediately, use start_inventory instead."""
     display_name = "Include Songs"
 
 
 class ExcludeSongs(ItemSet):
     """Songs listed here and not previously chosen as a Goal or Include will be excluded from being a part of the seed.
-    This is recommended instead of exclude_locations which would allow songs to appear but with guaranteed filler checks.
-
-    Use /item_groups in the Client for a list of available song groups."""
+    This is recommended instead of exclude_locations which would allow songs to appear but with guaranteed filler checks."""
     display_name = "Exclude Songs"
 
 
 class ModData(FreeText):
-    """To play with mod songs, set the output of the Mega Mix JSON Generator here."""
+    """To play with mod songs, set the output of the Mega Mix JSON Generator here.
+    If the line ends with ": 50" or similar, remove it."""
     display_name = "MegaMixModData"
     default = ''
     visibility = Visibility.template | Visibility.spoiler
-
-
-class DivaDeathLink(DeathLink):
-    """When you die on your own or fail to reach Grade Needed (not both), everyone who enabled Death Link dies.
-
-    Received Death Links subtract a percentage of total HP. Adjustable in the game mod's config file.
-    WARNING: Non-lethal Death Link makes it harder to get Life Bonuses and may affect score by up to 2%.
-
-    This can be toggled later in the Client with "/deathlink".
-    """
-    display_name = "Death Link"
-
-
-class DeathLinkAmnesty(Range):
-    """Amount of additional own deaths needed before sending one Death Link. 0 would be every death, 1 every other, etc.
-
-    This can be adjusted later in the Client with "/deathlink #" and no upper limit.
-    """
-    display_name = "Death Link Amnesty"
-    range_start = 0
-    range_end = 10
-    default = 0
 
 
 class TrapsEnabled(OptionSet):
@@ -289,8 +255,6 @@ megamix_option_groups = [
         DifficultyRatingMax,
     ]),
     OptionGroup("Game Modifiers", [
-        DivaDeathLink,
-        DeathLinkAmnesty,
         ProgressiveHP,
         TrapPercentage,
         TrapsEnabled,
@@ -301,7 +265,6 @@ megamix_option_groups = [
 @dataclass
 class MegaMixOptions(PerGameCommonOptions):
     allow_megamix_dlc_songs: AllowMegaMixDLCSongs
-    auto_remove_songs: AutoRemoveCleared
     duplicate_song_percentage: DuplicateSongPercentage
     starting_song_count: StartingSongs
     additional_song_count: AdditionalSongs
@@ -317,12 +280,7 @@ class MegaMixOptions(PerGameCommonOptions):
     include_songs: IncludeSongs
     exclude_songs: ExcludeSongs
     megamix_mod_data: ModData
-    death_link: DivaDeathLink
-    death_link_amnesty: DeathLinkAmnesty
     traps_enabled: TrapsEnabled
     trap_percentage: TrapPercentage
     progressive_hp: ProgressiveHP
     start_inventory_from_pool: StartInventoryPool
-
-    # Deprecated
-    exclude_singers: Removed

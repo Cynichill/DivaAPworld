@@ -68,13 +68,13 @@ class MegaMixCollections:
                         item_id = (song_id * 10)
 
                         if song_name in self.song_items:
-                            logger.warning(f"{song_name} previously mapped to base ID, skipping")
+                            logger.debug(f"{song_name} previously mapped to base ID, skipping")
                             continue
 
                         # Remap up to 4 ID conflicts using the 8 free slots (2-9) between item/loc IDs.
                         if song_id in seen_mod_song_ids:
                             if song_id in self.mod_remaps and song_name in self.mod_remaps[song_id]:
-                                logger.warning(f"{song_name} already remapped to {self.mod_remaps[song_id][song_name]}")
+                                logger.debug(f"{song_name} already remapped to {self.mod_remaps[song_id][song_name]}")
                                 continue
 
                             resolve = {i for i in range(item_id + 2, item_id + 10)}
@@ -110,7 +110,7 @@ class MegaMixCollections:
             for i in range(2):
                 self.song_locations[f"{song_name}-{i}"] = (song_data.code + i)
 
-    def get_songs_with_settings(self, dlc: bool, mod_ids: list[int], allowed_diff: list[int], diff_lower: float, diff_higher: float) -> list[str]:
+    def get_songs_with_settings(self, dlc: bool, mod_ids: set[int], allowed_diff: list[int], diff_lower: float, diff_higher: float) -> list[str]:
         """Gets a list of all songs that match the filter settings. Difficulty thresholds are inclusive."""
         filtered_list = []
 
@@ -124,10 +124,6 @@ class MegaMixCollections:
 
             # Skip modded song if not intended for this player
             if songData.modded and song_id not in mod_ids:
-                continue
-
-            # Do not give base game version if modded cover available for this player
-            if not songData.modded and song_id in mod_ids:
                 continue
 
             for diff in allowed_diff:

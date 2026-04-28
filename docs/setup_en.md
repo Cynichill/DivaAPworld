@@ -9,30 +9,32 @@
 - [[GB]](https://gamebanana.com/mods/514140) [[DMA]](https://divamodarchive.com/post/279) Archipelago Mod
 
 ## First Time Setup
+### Game
 This is a minimal setup to get started. Mod managers are used at your discretion.
 
 1. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
-   - See below for locating `DivaMegaMix.exe`
 2. Download and extract the Archipelago Mod listed under [Requirements.](#requirements)
-   - Place the `ArchipelagoMod` folder into the `mods` folder.
-3. Install the APWorld listed under [Requirements.](#requirements)
-   - [Archipelago Setup: Playing with custom worlds](/tutorial/Archipelago/setup_en#playing-with-custom-worlds)
-4. Start the **Mega Mix Client** from the Archipelago Launcher
-5. If prompted to select `DivaMegaMix.exe`:
-   - **If not prompted, skip this step**
-   - Right-click the game entry in Steam, **Manage > Browse local files**
-   - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
-6. Play! ([Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game))
+3. Place the extracted `ArchipelagoMod` folder into the `mods` folder.
+4. Start the game and connect to a room.
 
-### Resulting basic file structure
+### Archipelago
+These steps are optional. Archipelago and the APWorld are not required to be installed if you have an existing YAML to use and somewhere else to generate it, or a room to connect to.
+
+1. Install the APWorld listed under [Requirements.](#requirements)
+   - [Archipelago Setup: Playing with custom worlds](/tutorial/Archipelago/setup_en#playing-with-custom-worlds)
+2. [Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game)
+
+### Resulting mod file structure
 ```
 Hatsune Miku Project DIVA Mega Mix Plus\
-├ DivaMegaMix.exe   <─ game, select if prompted by Client/JSON generator
+├ DivaMegaMix.exe   <─ game, select if prompted by JSON generator
 ├ dinput8.dll       <─ mod loader
 ├ config.toml       <─ mod loader config
 └ mods\
   └ ArchipelagoMod\ <─ AP mod folder
-    └ config.toml   <─ AP mod config
+    ├ ArchipelagoMod.dll
+    ├ config.toml
+    └ ...
 ```
 
 ## Optional Quality of Life Mods 
@@ -49,10 +51,15 @@ Please read descriptions before installing. These may not be relevant to you or 
 **Note: Currently, using mod songs requires the seed to be [generated locally](/tutorial/Archipelago/setup_en#generating-a-multiplayer-game), not on the website. Hosting on the website afterwards is fine.**
 
 1. Open the **Mega Mix JSON Generator** from the Archipelago Launcher.
-2. Check song packs you would like to appear in your song selection pool.
-3. When done checking packs click **Generate Mod String**.
-4. In your YAML on the line for `megamix_mod_data` paste and format it as such:
+2. If prompted to select `DivaMegaMix.exe`:
+   - **If not prompted, skip this step**
+   - Right-click the game entry in Steam, **Manage > Browse local files**
+   - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
+3. Check song packs you would like to appear in your song selection pool.
+4. When done checking packs click **Generate Mod String**.
+5. In your YAML on the line for `megamix_mod_data` paste and format it as such:
    - `megamix_mod_data: '{"MyFirstSongPack":[["MyFirstSong",144,224]]}'`
+   - If the line ends with `: 50` or similar, remove it.
 
 Linux users that experience clipboard issues *may* need to run the Archipelago Launcher and JSON Generator through a command line to get the output there.
 
@@ -62,37 +69,20 @@ Individual songs can be excluded from the pool in the YAML's `exclude_songs` sec
 
 ## Troubleshooting
 
-### Checks are not sending
-Make sure the **Mega Mix Client** is open and connected to a room.
-
-Play `-Archipelago Randomizer Enabled-`. If a success message does not appear in the **Client** on completion try restarting the **Client**.
-
 ### There are songs outside my specified difficulty settings
 Starting (`start_inventory`), Included (`include_songs`), and the Goal Song (`goal_song`) will *always* ignore difficulty settings.
 
-To increase the success of seed generation the difficulty settings are conservatively expanded *until* a minimally viable song pool is found. If you do not like the results of the difficulty expansion consider less restrictive settings.
+To increase the success of seed generation the difficulty settings are conservatively expanded until a minimally viable song pool is found. If you do not like the results of the difficulty expansion consider less restrictive settings.
 
 ### My settings are too long or difficult
 **Note: You can play any available difficulty for the same checks.**
 
-In the [AP mod folder](#resulting-basic-file-structure) open `results.json` with a text editor. If it does not exist play a song first.
-
-Given `Song I Want To Beat [5678]`:
-- Change the number after `pvId` to `5678` 
-- Change the number after `scoreGrade` to `5` (Perfect).
-
-Save the file while the **Mega Mix Client** is open and connected.
+Enable **AP Developer Mode** by right-clicking it on the Advanced tab, switch to the Tracker tab, then right-click the song name.
 
 ### Newly received songs are not appearing in game
-While on the song list press ***F7*** or the defined `reload` key in the [mod's config](#resulting-basic-file-structure) to reload the game.
+While on the song list press ***F7***/your defined reload key or use `Advanced > Reloading > Reload Game`.
 
-Switch to the **All** filter in the song list and check each difficulty. Not every song is available on every difficulty.
-
-### Modded songs are not appearing in game
-
-Install [ExPatch](#optional-quality-of-life-mods). Modded songs are commonly Extreme/Extra Extreme only.
-
-Similar to the [mod's config](#resulting-basic-file-structure), ensure `enabled = true` in a pack's `config.toml`.
-
-### Songs still aren't appearing
-Run `/safe_mode` in the **Mega Mix Client** and follow its instructions.
+- Switch to the **All** filter in the song list.
+- Check each difficulty. Not every song is available on every difficulty.
+  - Install [ExPatch](#optional-quality-of-life-mods). Modded songs are commonly Extreme/Extra Extreme only.
+- If using New Classics, check the **All** filter for each gameplay style.

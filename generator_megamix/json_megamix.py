@@ -79,7 +79,7 @@ def process_single_mod(mod_pv_db_path: str, mod_dir: str) -> tuple[set[int], lis
                     diff_rating = "exextreme" if diff_index_length == "1" and diff_rating == "extreme" else diff_rating
 
                     # Sanity check for invalid extreme data (starts at 1 index/out of 0-2 range of length prop): check the extra attribute.
-                    if diff_rating is "exextreme" and extra_check not in mod_pv_db:
+                    if diff_rating == "exextreme" and extra_check not in mod_pv_db:
                         print(f"{song_id} appears ExEx but lacks attribute, downgrade to Ex")
                         diff_rating = "extreme"
 
@@ -101,7 +101,8 @@ def process_single_mod(mod_pv_db_path: str, mod_dir: str) -> tuple[set[int], lis
                                 diff_lockout[song_id][diff_index] = True
                                 songs[song_id][2] = shift_difficulty(songs[song_id][2], diff_index, 31.0)
 
-    return song_pack_ids, [songs[song] for song in songs if songs[song][2] > 0]
+    return {song_id for song_id in song_pack_ids if songs[song_id][2] > 0}, \
+            [songs[song] for song in songs if songs[song][2] > 0]
 
 def shift_difficulty(current_diffs: int = 0, index: int = 0, level_float: float = 0.0) -> int:
     """
