@@ -8,6 +8,8 @@ on:
 
 env:
   UPSTREAM_REF_FUZZER: '0.6.2'
+  # ArchipelagoMW/Archipelago/commit/15561e1 breaks the fuzzer. for now, follow a tag
+  UPSTREAM_REF_ARCHIPELAGO: '0.6.7'
 
 jobs:
   tests:
@@ -16,6 +18,7 @@ jobs:
       - uses: actions/checkout@v6.0.2
         with:
           repository: ArchipelagoMW/Archipelago
+          ref: ${{ env.UPSTREAM_REF_ARCHIPELAGO }}
       - uses: actions/checkout@v6.0.2
         with:
           path: worlds/megamix
