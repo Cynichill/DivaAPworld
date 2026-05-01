@@ -3,31 +3,25 @@ on:
   push:
   pull_request:
   workflow_dispatch:
-    inputs:
-      fuzzer_run:
-        description: 'Create a new APWorld release'
-        type: boolean
-        required: true
-        default: false
   schedule:
     - cron: "0 0 * * 0"
 
 env:
-  UPSTREAM_REF_FUZZER: '0.5.1'
+  UPSTREAM_REF_FUZZER: '0.6.2'
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
         with:
           repository: ArchipelagoMW/Archipelago
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
         with:
           path: worlds/megamix
 
       - name: World | Set up Fuzzer
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.2
         with:
           repository: Eijebong/Archipelago-fuzzer
           ref: ${{ env.UPSTREAM_REF_FUZZER }}
