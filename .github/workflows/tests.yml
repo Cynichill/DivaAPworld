@@ -48,6 +48,13 @@ jobs:
         run: |
           mv ./fuzzer/* .
           uv run python fuzz.py -g megamix -j 2 -r 50
+
+      - name: World | Fuzz (Artifacts)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: fuzz_output
+          path: fuzz_output/
           
       - name: World | Fuzz (Determinism)
         run: |
