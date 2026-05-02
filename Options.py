@@ -160,7 +160,9 @@ class LeeksRequiredPercentage(Range):
 class GoalSongs(ItemSet):
     """Guarantee one song listed here as the final Goal Song.
     - Difficulty options are ignored.
-    - If a Goal Song is also in the Starting Inventory, it will not be chosen as a Goal Song."""
+    - If a Goal Song is also in the Starting Inventory, it will not be chosen as a Goal Song.
+
+    Use "Export Datapackage" from the Archipelago Launcher and see the game's section for available song groups."""
     display_name = "Goal Song"
 
 
@@ -179,13 +181,17 @@ class IncludeSongsPercentage(Range):
 class IncludeSongs(ItemSet):
     """Songs listed here will be guaranteed to be included as part of the seed.
     - Difficulty options are ignored for these songs.
-    - If you want these songs immediately, use start_inventory instead."""
+    - If you want these songs immediately, use start_inventory instead.
+
+    Use "Export Datapackage" from the Archipelago Launcher and see the game's section for available song groups."""
     display_name = "Include Songs"
 
 
 class ExcludeSongs(ItemSet):
     """Songs listed here and not previously chosen as a Goal or Include will be excluded from being a part of the seed.
-    This is recommended instead of exclude_locations which would allow songs to appear but with guaranteed filler checks."""
+    This is recommended instead of exclude_locations which would allow songs to appear but with guaranteed filler checks.
+
+    Use "Export Datapackage" from the Archipelago Launcher and see the game's section for available song groups."""
     display_name = "Exclude Songs"
 
 
@@ -199,7 +205,7 @@ class ModData(FreeText):
 
 class TrapsEnabled(OptionSet):
     """Control which Traps can be placed in the item pool.
-    It is highly recommended to add these Traps to non_local_items."""
+    It is highly recommended to add the "Traps" group to non_local_items."""
     display_name = "Traps Enabled"
     valid_keys = {trap for trap in MegaMixCollections.trap_items.keys()}
     default = valid_keys
