@@ -5,37 +5,13 @@
   - [Extra Song Pack](https://store.steampowered.com/app/1887030/Hatsune_Miku_Project_DIVA_Mega_Mix_Extra_Song_Pack/) (optional, recommended, cheaper bundled)
   - The game can be played in Archipelago without the Extra Song Pack DLC.
 - [The APWorld](https://github.com/Cynichill/DivaAPworld/releases/latest)
-- [DivaModLoader](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
 - [[GB]](https://gamebanana.com/mods/514140) [[DMA]](https://divamodarchive.com/post/279) Archipelago Mod
 
 ## First Time Setup
-### Game
-This is a minimal setup to get started. Mod managers are used at your discretion.
+1. Download and set up [DivaModManager by Enomoto](https://gamebanana.com/tools/19485)
+2. Install **Archipelago Mod** from either the GameBanana or DMA Mods tab then enable it.
 
-1. If not already installed, [follow DivaModLoader's installation steps.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
-2. Download and extract the Archipelago Mod listed under [Requirements.](#requirements)
-3. Place the extracted `ArchipelagoMod` folder into the `mods` folder.
-4. Start the game and connect to a room.
-
-### Archipelago
-These steps are optional. Archipelago and the APWorld are not required to be installed if you have an existing YAML to use and somewhere else to generate it, or a room to connect to.
-
-1. Install the APWorld listed under [Requirements.](#requirements)
-   - [Archipelago Setup: Playing with custom worlds](/tutorial/Archipelago/setup_en#playing-with-custom-worlds)
-2. [Archipelago Setup: Generating a game](/tutorial/Archipelago/setup_en#generating-a-game)
-
-### Resulting mod file structure
-```
-Hatsune Miku Project DIVA Mega Mix Plus\
-├ DivaMegaMix.exe   <─ game, select if prompted by JSON generator
-├ dinput8.dll       <─ mod loader
-├ config.toml       <─ mod loader config
-└ mods\
-  └ ArchipelagoMod\ <─ AP mod folder
-    ├ ArchipelagoMod.dll
-    ├ config.toml
-    └ ...
-```
+[A minimal mod setup](#minimal-mod-setup) is also usable.
 
 ## Optional Quality of Life Mods 
 Please read descriptions before installing. These may not be relevant to you or may require additional files.
@@ -55,7 +31,7 @@ Please read descriptions before installing. These may not be relevant to you or 
    - **If not prompted, skip this step**
    - Right-click the game entry in Steam, **Manage > Browse local files**
    - `DivaMegaMix.exe` (extension may be hidden) is what you will need to navigate to and select
-3. Check song packs you would like to appear in your song selection pool.
+3. Check song packs you want in your song selection pool.
 4. When done checking packs click **Generate Mod String**.
 5. In your YAML on the line for `megamix_mod_data` paste and format it as such:
    - `megamix_mod_data: '{"MyFirstSongPack":[["MyFirstSong",144,224]]}'`
@@ -65,7 +41,7 @@ Linux users that experience clipboard issues *may* need to run the Archipelago L
 
 It is recommended to regenerate the mod string when adding or updating packs.
 
-Individual songs can be excluded from the pool in the YAML's `exclude_songs` section.
+Individual songs can be excluded from the song selection pool in the YAML's `exclude_songs` section.
 
 ## Troubleshooting
 
@@ -86,3 +62,23 @@ While on the song list press ***F7***/your defined reload key or use `Advanced >
 - Check each difficulty. Not every song is available on every difficulty.
   - Install [ExPatch](#optional-quality-of-life-mods). Modded songs are commonly Extreme/Extra Extreme only.
 - If using New Classics, check the **All** filter for each gameplay style.
+
+### Minimal mod setup
+If you cannot or do not want to use a mod manager.
+
+1. [Install DivaModLoader.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
+2. Download and extract the Archipelago Mod listed under [Requirements.](#requirements)
+3. Place the extracted `ArchipelagoMod` folder into the `mods` folder.
+
+#### Resulting mod file structure
+```
+Hatsune Miku Project DIVA Mega Mix Plus\
+├ DivaMegaMix.exe   <─ game, select if prompted by JSON generator
+├ dinput8.dll       <─ mod loader
+├ config.toml       <─ mod loader config
+└ mods\
+  └ ArchipelagoMod\ <─ AP mod folder
+    ├ ArchipelagoMod.dll
+    ├ config.toml
+    └ ...
+```
