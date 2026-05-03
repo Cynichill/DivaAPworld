@@ -37,7 +37,7 @@ class MegaMixSettings(settings.Group):
         """
         description = "Hatsune Miku Project DIVA Mega Mix+ game executable"
         is_exe = True
-        md5s = ["813e1befae1776d4fafdf907e509b28b"] # 1.03
+        md5s = ["813e1befae1776d4fafdf907e509b28b"] # 1.03/1.04
 
     game_exe: GameExe = GameExe("C:/Program Files (x86)/Steam/steamapps/common/Hatsune Miku Project DIVA Mega Mix Plus/DivaMegaMix.exe")
 
