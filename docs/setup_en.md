@@ -11,7 +11,7 @@
 1. Download and set up [DivaModManager by Enomoto](https://gamebanana.com/tools/19485)
 2. Install **Archipelago Mod** from either the GameBanana or DMA Mods tab then enable it.
 
-[A minimal mod setup](#minimal-mod-setup) is also usable.
+Or use [a minimal mod setup.](#minimal-mod-setup).
 
 ## Optional Quality of Life Mods 
 Please read descriptions before installing. These may not be relevant to you or may require additional files.
