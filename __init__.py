@@ -17,18 +17,6 @@ from typing import ClassVar, TextIO
 from math import floor
 
 
-def launch_client():
-    from .Client import launch
-    launch_subprocess(launch, name="MegaMixClient")
-
-
-components.append(Component(
-    "Mega Mix Client",
-    func=launch_client,
-    component_type=Type.CLIENT
-))
-
-
 def launch_json_generator():
     from .generator_megamix.generator import launch
     launch_subprocess(launch, name="MegaMixJSONGenerator")
@@ -49,7 +37,7 @@ class MegaMixSettings(settings.Group):
         """
         description = "Hatsune Miku Project DIVA Mega Mix+ game executable"
         is_exe = True
-        md5s = ["813e1befae1776d4fafdf907e509b28b"] # 1.03
+        md5s = ["813e1befae1776d4fafdf907e509b28b"] # 1.03/1.04
 
     game_exe: GameExe = GameExe("C:/Program Files (x86)/Steam/steamapps/common/Hatsune Miku Project DIVA Mega Mix Plus/DivaMegaMix.exe")
 
@@ -96,7 +84,7 @@ class MegaMixWorld(World):
         super().__init__(multiworld, player)
         # Working Data
         self.player_mod_data = {}
-        self.player_mod_ids = {}
+        self.player_mod_ids: set[int] = set()
         self.player_mod_remap = {}
         self.victory_song_name: str = ""
         self.victory_song_id: int = 10
@@ -267,13 +255,23 @@ class MegaMixWorld(World):
             return MegaMixFixedItem(name, ItemClassification.trap, self.mm_collection.trap_items.get(name), self.player)
 
         elif name == "Progressive HP":
-            return MegaMixFixedItem(name, ItemClassification.progression | ItemClassification.useful, 3, self.player)
+            return MegaMixFixedItem(name, ItemClassification.progression | ItemClassification.useful, self.mm_collection.PROG_HP_CODE, self.player)
 
         song = self.mm_collection.song_items.get(name)
         self.final_song_ids.add(song.songID)
         return MegaMixSongItem(name, self.player, song)
 
+    def get_filler_item_name(self):
+        traps_enabled = sorted(self.options.traps_enabled.value)
+        if traps_enabled and self.options.trap_percentage > 0:
+            return self.random.choice(traps_enabled)
+
+        return self.mm_collection.FILLER_NAME
+
     def create_items(self) -> None:
+        # There is a rare restrictive start FillError (27/100K) for 100% progression (Leek/Prog HP) seeds
+        # Fuzzer meta.yaml: minimal access, 3 starting, 15 additional (for fuzz speed only), 100 Leek%
+
         items_left = len(self.multiworld.get_unfilled_locations(self.player))
 
         for _ in range(0, self.get_leek_count()):
@@ -286,10 +284,10 @@ class MegaMixWorld(World):
             return
 
         # N-1 prog HP
-        for _ in range(1, min(items_left, self.options.progressive_hp.value)):
-            self.prog_hp_added += 1
+        for _ in range(0, min(items_left, self.options.progressive_hp.value - 1)):
             self.multiworld.itempool.append(self.create_item("Progressive HP"))
-            items_left -= 1
+            self.prog_hp_added += 1
+        items_left -= self.prog_hp_added
 
         # Add duplicates based on user percentage
         dupe_count = items_left * self.options.duplicate_song_percentage // 100
@@ -376,14 +374,11 @@ class MegaMixWorld(World):
 
     def fill_slot_data(self):
         return {
-            "victoryLocation": self.victory_song_name,
             "victoryID": self.victory_song_id,
             "finalSongIDs": self.final_song_ids,
             "leekWinCount": self.get_leek_win_count(),
             "scoreGradeNeeded": self.options.grade_needed.value,
-            "autoRemove": bool(self.options.auto_remove_songs),
-            "deathLink": self.options.death_link.value,
-            "deathLink_Amnesty": self.options.death_link_amnesty.value,
+            "death_link": True, # APCpp requires this key name to set the tag
             "modData": {pack: [[song[0], song[1]] for song in songs if song[1] in self.final_song_ids]
                         for pack, songs in self.player_mod_data.items()},
             "modRemap": self.player_mod_remap,

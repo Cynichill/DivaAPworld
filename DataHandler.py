@@ -30,7 +30,6 @@ def game_paths() -> dict[str, str]:
     exe_path = settings.get_settings()["megamix_options"]["game_exe"]
     game_path = os.path.dirname(exe_path)
     mods_path = os.path.join(game_path, "mods")
-    mod_name = "ArchipelagoMod"
 
     # Seemingly no TOML parser in frozen AP
     dml_config = os.path.join(game_path, "config.toml")
@@ -40,64 +39,11 @@ def game_paths() -> dict[str, str]:
             if mod_line:
                 mods_path = os.path.join(game_path, mod_line.group(1))
 
-    # Find the Archipelago mod folder by pv_144.dsc
-    # walk in case the mod structure changes in the future
-    folders = {"AP", "rom", "script"}
-    for root, dirs, files in os.walk(mods_path, topdown=False):
-        dirs[:] = [d for d in dirs if d in folders]
-        if "pv_144.dsc" in files:
-            mod = os.path.relpath(root, mods_path)
-            mod_name = mod.split(os.sep)[0]
-            break
-
     return {
         "exe": exe_path,
         "game": game_path,
         "mods": mods_path,
-        "modname": mod_name,
     }
-
-
-# File Handling
-def load_json_file(file_name: str) -> dict:
-    """Import a JSON file, either from a zipped package or directly from the filesystem."""
-
-    try:
-        # Attempt to load the file directly from the filesystem
-        with open(file_name, 'r', encoding='utf-8') as file:
-            return json.load(file)
-    except Exception as e:
-        logger.debug(f"Error loading JSON file '{file_name}': {e}")
-        return {}
-
-def restore_originals(original_file_paths):
-    """Remove this function at earliest convenience. This is to allow older world users to fix their mod_pv_db for a
-    time until they can be reasonably expected to have migrated."""
-
-    import filecmp, shutil
-
-    logger.warning(f"restore_originals: {restore_originals.__doc__}")
-
-    for original_file_path in original_file_paths:
-        directory, filename = os.path.split(original_file_path)
-        name, ext = os.path.splitext(filename)
-        copy_filename = f"{name}COPY{ext}"
-        copy_file_path = os.path.join(directory, copy_filename)
-
-        if os.path.exists(copy_file_path):
-            if not filecmp.cmp(copy_file_path, original_file_path):
-                shutil.copyfile(copy_file_path, original_file_path)
-            os.remove(copy_file_path)
-
-
-def song_unlock(song_list: str, song_ids: set[int]):
-    song_ids = sorted([s for s in song_ids])
-
-    try:
-        with open(song_list, 'w', encoding='utf-8', newline='') as file:
-            file.write("\n".join(str(s) for s in song_ids))
-    except Exception as e:
-        logger.debug(f"Error writing to {song_list}: {e}")
 
 
 def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
@@ -148,21 +94,21 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     return all_mod_data
 
 
-def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, list, dict):
+def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, set, dict):
     try:
         parsed = json.loads(mod_data)
         mod_json_schema.validate(parsed)
-        flat_songs = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
+        player_specific = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
     except Exception as e:
         logger.warning(f"Failed to extract player specific IDs: {e}")
-        return {}, [], {}
+        return {}, set(), {}
 
-    conflicts = remap.keys() & flat_songs.keys()
+    conflicts = remap.keys() & player_specific.keys()
 
     player_remapped = {}
     for song_id in conflicts:
-        name = format_song_name(flat_songs[song_id], song_id)
+        name = format_song_name(player_specific[song_id], song_id)
         if name in remap[song_id]:
             player_remapped.update({song_id: remap[song_id][name][0]})
 
-    return parsed, list(flat_songs.keys()), player_remapped  # Return the list of song IDs
+    return parsed, set(player_specific), player_remapped
