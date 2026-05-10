@@ -7,6 +7,7 @@ import settings
 import Utils
 import logging
 
+from Options import OptionError
 from .SymbolFixer import format_song_name
 from schema import Schema, And
 
@@ -86,6 +87,8 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
                     mod_json_schema.validate(parsed)
                     all_mod_data.append(parsed)
         except Exception as e:
+            # Delay raising invalid schema otherwise the whole world can brick (JSON Generator)
+            # get_player_specific_ids is during generate_early as opposed to on world init
             logger.warning(f"Failed to extract mod data from {item.name}: {e}")
 
     total = sum(len(pack) for packList in all_mod_data for pack in packList.values())
@@ -100,8 +103,7 @@ def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dic
         mod_json_schema.validate(parsed)
         player_specific = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
     except Exception as e:
-        logger.warning(f"Failed to extract player specific IDs: {e}")
-        return {}, set(), {}
+        raise OptionError(f"Failed to extract player specific IDs: {e}")
 
     conflicts = remap.keys() & player_specific.keys()
 
