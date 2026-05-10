@@ -64,15 +64,18 @@ def process_single_mod(mod_pv_db_path: str, mod_dir: str) -> tuple[set[int], lis
             if int(song_id) in base_game_ids:
                 continue
 
-            songs.setdefault(song_id, ["", int(song_id), 0])
+            songs.setdefault(song_id, [f"Song {song_id}", int(song_id), 0])
             diff_lockout.setdefault(song_id, [False] * 5)
             song_pack_ids.add(song_id)
 
             match song_prop:
                 case "song_name_en":
-                    songs[song_id][0] = fix_song_name(value).replace("'", "''")
+                    value = value.strip()
+                    if value:
+                        songs[song_id][0] = fix_song_name(value).replace("'", "''")
                 case "song_name":
-                    if not songs[song_id][0]:
+                    value = value.strip()
+                    if value and not songs[song_id][0]:
                         songs[song_id][0] = fix_song_name(value).replace("'", "''")
                 case "difficulty" if not diff_rating == "encore":
                     extra_check = song_id, song_prop, diff_rating, '1', 'attribute.extra', '1'
