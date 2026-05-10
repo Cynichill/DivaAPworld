@@ -98,6 +98,9 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
 
 
 def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, set, dict):
+    if not mod_data:
+        return {}, set(), {}
+
     try:
         parsed = json.loads(mod_data)
         mod_json_schema.validate(parsed)
