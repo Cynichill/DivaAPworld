@@ -9,7 +9,7 @@ import logging
 
 from Options import OptionError
 from .SymbolFixer import format_song_name
-from schema import Schema, And
+from schema import Schema, And, SchemaError
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
@@ -105,8 +105,10 @@ def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dic
         parsed = json.loads(mod_data)
         mod_json_schema.validate(parsed)
         player_specific = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
-    except Exception as e:
-        raise OptionError(f"Failed to extract player specific IDs: {e}")
+    except SchemaError as e:
+        raise OptionError(f"Failed to extract player specific IDs (schema)\n{e}")
+    except Exception as e: # JSONDecodeError, UnicodeDecodeError
+        raise OptionError(f"Failed to extract player specific IDs\n{e}")
 
     conflicts = remap.keys() & player_specific.keys()
 
