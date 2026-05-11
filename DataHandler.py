@@ -97,7 +97,7 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     return all_mod_data
 
 
-def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, set, dict):
+def get_player_specific_ids(mod_data: str, remap: dict[int, dict[str, list]]) -> (dict, set, dict):
     if not mod_data:
         return {}, set(), {}
 
