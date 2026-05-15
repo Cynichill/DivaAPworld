@@ -2,7 +2,7 @@ from .Items import SongData
 
 
 SONG_DATA: dict[str, SongData] = {
-    # Marking 144 as modded conflicts with player-specific mod IDs (caught by test_options), and forcing it is excessive.
+    # Marking 144 as modded conflicts with player-specific mod IDs (caught by test/test_options), and forcing it is excessive.
     # Because 144 is provided by the AP mod and required to prevent crashes, categorize it as not a modded song.
     "-Archipelago Randomizer Enabled- [144]": SongData(1440, 144, {'Hatsune Miku'}, False, False, [8.0, 8.0, 8.0, 8.0, 8.0]),
     "Ievan Polkka (Tutorial) [700]": SongData(7000, 700, {'Hatsune Miku'}, False, False, [2.0, 2.0, 2.0, 2.0, 2.0]),
