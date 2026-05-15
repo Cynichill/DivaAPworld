@@ -2,8 +2,10 @@ from .Items import SongData
 
 
 SONG_DATA: dict[str, SongData] = {
-    "-Archipelago Randomizer Enabled- [144]": SongData(1440, 144, {'Hatsune Miku'}, False, True, [8.0] * 5),
-    "Ievan Polkka (Tutorial) [700]": SongData(7000, 700, {'Hatsune Miku'}, False, False, [2.0] * 5),
+    # Marking 144 as modded conflicts with player-specific mod IDs (caught by test_options), and forcing it is excessive.
+    # Because 144 is provided by the AP mod and required to prevent crashes, categorize it as not a modded song.
+    "-Archipelago Randomizer Enabled- [144]": SongData(1440, 144, {'Hatsune Miku'}, False, False, [8.0, 8.0, 8.0, 8.0, 8.0]),
+    "Ievan Polkka (Tutorial) [700]": SongData(7000, 700, {'Hatsune Miku'}, False, False, [2.0, 2.0, 2.0, 2.0, 2.0]),
 
     "Love is War [1]": SongData(10, 1, {'Hatsune Miku'}, False, False, [2.0, 4.0, 6.0, 8.0, 8.5]),
     "The World is Mine [2]": SongData(20, 2, {'Hatsune Miku'}, False, False, [4.0, 5.5, 6.0, 7.5, 8.0]),
@@ -258,8 +260,9 @@ SONG_DATA: dict[str, SongData] = {
     "Hand in Hand [832]": SongData(8320, 832, {'Hatsune Miku'}, False, False, [1.0, 3.0, 5.0, 7.5, 0.0]),
 }
 
-base_game_ids = { # Excluded: 700, 701
-    144, # AP ID
+base_game_ids = { # Excluded: 701
+    144, 700,
+
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 37, 38,
     39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 79,
     81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 101, 102, 103, 104, 201, 202, 203, 204, 205,
