@@ -193,6 +193,7 @@ class ExcludeSongs(ItemSet):
 
     Use "Export Datapackage" from the Archipelago Launcher and see the game's section for available song item groups."""
     display_name = "Exclude Songs"
+    #default = {"-Archipelago Randomizer Enabled- [144]", "Ievan Polkka (Tutorial) [700]"}
 
 
 class ModData(FreeText):

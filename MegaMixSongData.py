@@ -2,6 +2,9 @@ from .Items import SongData
 
 
 SONG_DATA: dict[str, SongData] = {
+    "-Archipelago Randomizer Enabled- [144]": SongData(1440, 144, {'Hatsune Miku'}, False, True, [8.0] * 5),
+    "Ievan Polkka (Tutorial) [700]": SongData(7000, 700, {'Hatsune Miku'}, False, False, [2.0] * 5),
+
     "Love is War [1]": SongData(10, 1, {'Hatsune Miku'}, False, False, [2.0, 4.0, 6.0, 8.0, 8.5]),
     "The World is Mine [2]": SongData(20, 2, {'Hatsune Miku'}, False, False, [4.0, 5.5, 6.0, 7.5, 8.0]),
     "That One Second in Slow Motion [3]": SongData(30, 3, {'Hatsune Miku'}, True, False, [4.0, 5.0, 6.5, 7.0, 7.5]),
