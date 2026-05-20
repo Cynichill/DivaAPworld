@@ -34,7 +34,7 @@ class DuplicateSongPercentage(Range):
     """
     range_start = 0
     range_end = 100
-    default = 100
+    default = 50
     display_name = "Duplicate Song Percentage"
 
 
@@ -220,7 +220,7 @@ class TrapPercentage(Range):
     display_name = "Trap Percentage"
     range_start = 0
     range_end = 100
-    default = 0
+    default = 50
 
 
 class ProgressiveHP(Range):
