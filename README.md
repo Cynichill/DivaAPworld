@@ -1,9 +1,9 @@
-- **[What is this?](docs/en_Hatsune Miku Project Diva Mega Mix+.md)**
+- **[What is this?](docs/en_Hatsune%20Miku%20Project%20Diva%20Mega%20Mix%2B.md)**
 - **[Setup](docs/setup_en.md)**
 
 This apworld is needed for seed and template generation and includes the JSON Generator for using mod songs.
 
-The *game* requires the companion [mod](https://github.com/Cynichill/Diva-Archipelago-Mod).
+The *game* requires the companion [mod](https://github.com/Cynichill/Diva-Archipelago-Mod) but players should source it from Setup linked above.
 
 ---
 
