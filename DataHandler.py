@@ -17,10 +17,10 @@ logger = logging.getLogger(__name__)
 
 
 mod_json_schema = Schema({
-    And(str, len): [[
-        And(str, len),
-        And(int, lambda x: x > 0),
-        And(int, lambda x: x > 0),
+    And(str, len): [[ # Non-empty pack name
+        And(str, len), # Non-empty song name
+        And(int, lambda x: x > 0), # Song ID
+        And(int, lambda x: x > 0), # Diffs bitfield
     ]]
 })
 
