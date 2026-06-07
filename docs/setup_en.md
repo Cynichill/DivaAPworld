@@ -60,8 +60,7 @@ While on the song list press ***F7***/your defined reload key or use `Advanced >
 
 - Switch to the **All** filter in the song list.
 - Check each difficulty. Not every song is available on every difficulty.
-  - Install [ExPatch](#optional-quality-of-life-mods). Without ExPatch a song's Extreme won't appear until its Hard is cleared.
-  - Mod songs are commonly Extreme only and lack a Hard to clear, **requiring** ExPatch.
+  - Install [ExPatch](#optional-quality-of-life-mods). Modded songs are commonly Extreme/Extra Extreme only.
 - If using New Classics, check the **All** filter for each gameplay style.
 
 ### Minimal mod setup
