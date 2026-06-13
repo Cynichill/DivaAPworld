@@ -321,9 +321,10 @@ class MegaMixWorld(World):
 
         # Adds 2 item locations per song to the menu region.
         for name in all_selected_locations:
+            rule = Has(name)
             for j in range(2):
                 loc = MegaMixLocation(self.player, f"{name}-{j}", self.mm_collection.song_locations[f"{name}-{j}"], menu_region)
-                self.set_rule(loc, Has(name))
+                self.set_rule(loc, rule)
                 menu_region.locations.append(loc)
 
     def set_rules(self) -> None:
