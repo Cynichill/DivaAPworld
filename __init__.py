@@ -4,6 +4,7 @@ from worlds.LauncherComponents import Component, components, Type, launch_subpro
 from BaseClasses import Region, Item, ItemClassification, Tutorial
 from Options import PerGameCommonOptions, OptionError
 import settings
+from rule_builder.rules import Has
 
 #Local
 from .Options import MegaMixOptions, megamix_option_groups
@@ -322,13 +323,14 @@ class MegaMixWorld(World):
         for name in all_selected_locations:
             for j in range(2):
                 loc = MegaMixLocation(self.player, f"{name}-{j}", self.mm_collection.song_locations[f"{name}-{j}"], menu_region)
-                loc.access_rule = lambda state, item=name: state.has(item, self.player)
+                self.set_rule(loc, Has(name))
                 menu_region.locations.append(loc)
 
     def set_rules(self) -> None:
-        self.multiworld.completion_condition[self.player] = lambda state: \
-            state.has(self.mm_collection.LEEK_NAME, self.player, self.get_leek_win_count()) \
-            and state.has("Progressive HP", self.player, self.prog_hp_added)
+        self.set_completion_rule(
+            Has(self.mm_collection.LEEK_NAME, self.get_leek_win_count())
+            & Has("Progressive HP", self.prog_hp_added)
+        )
 
     def get_leek_count(self) -> int:
         """Number of Leeks to be placed in the item pool based on user option and final song count."""
