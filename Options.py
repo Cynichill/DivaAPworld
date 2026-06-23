@@ -54,14 +54,9 @@ class DifficultyModeMin(Choice):
     default = 0
 
 
-class DifficultyModeMax(Choice):
+class DifficultyModeMax(DifficultyModeMin):
     """Maximum difficulty that a song can be selected from."""
     display_name = "Manual Difficulty Max"
-    option_Easy = 0
-    option_Normal = 1
-    option_Hard = 2
-    option_Extreme = 3
-    option_ExExtreme = 4
     default = 4
 
 
@@ -91,29 +86,10 @@ class DifficultyRatingMin(Choice):
     default = 0
 
 
-class DifficultyRatingMax(Choice):
+class DifficultyRatingMax(DifficultyRatingMin):
     """Ensures that at least one of the song's available difficulties have this star rating or lower
     x5 = .5, Used since _5 causes issues"""
     display_name = "Manual Rating Max"
-    option_one = 0
-    option_1x5 = 1
-    option_two = 2
-    option_2x5 = 3
-    option_three = 4
-    option_3x5 = 5
-    option_four = 6
-    option_4x5 = 7
-    option_five = 8
-    option_5x5 = 9
-    option_six = 10
-    option_6x5 = 11
-    option_seven = 12
-    option_7x5 = 13
-    option_eight = 14
-    option_8x5 = 15
-    option_nine = 16
-    option_9x5 = 17
-    option_ten = 18
     default = 14
 
 
