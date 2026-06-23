@@ -346,7 +346,7 @@ class MegaMixWorld(World):
         return max(1, floor(leek_count * multiplier))
 
     def get_difficulty_range(self) -> list[float]:
-        diff_ratings = [1 + i * 0.5 for i in range(len(Options.DifficultyRatingMin.options))]
+        diff_ratings = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10]
         minimum_difficulty = diff_ratings[self.options.song_difficulty_rating_min.value]
         maximum_difficulty = diff_ratings[self.options.song_difficulty_rating_max.value]
 
