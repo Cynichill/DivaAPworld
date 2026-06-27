@@ -1,7 +1,7 @@
 # Local
 from .Items import SongData
 from .SymbolFixer import format_song_name
-from .MegaMixSongData import SONG_DATA, base_game_ids, dlc_ids
+from .MegaMixSongData import SONG_DATA, base_game_ids, dlc_ids, grasssanity
 from .DataHandler import extract_mod_data_to_json
 
 # Python
@@ -146,6 +146,8 @@ class MegaMixCollections:
             "LukaSongs": {name for name, data in base_songs.items() if "Megurine Luka" in data.singers},
             "KAITOSongs": {name for name, data in base_songs.items() if "KAITO" in data.singers},
             "MEIKOSongs": {name for name, data in base_songs.items() if "MEIKO" in data.singers},
+
+            "Grasssanity": {name for name,data in base_songs.items() if data.songID in grasssanity},
 
             "Traps": self.trap_items.keys()
         }
