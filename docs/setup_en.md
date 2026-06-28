@@ -53,7 +53,7 @@ To increase the success of seed generation the difficulty settings are conservat
 ### My settings are too long or difficult
 **Note: You can play any available difficulty for the same checks.**
 
-Enable **AP Developer Mode** by right-clicking it on the Advanced tab, switch to the Tracker tab, then right-click the song name.
+Enable **AP Developer Mode** from the Advanced tab, switch to the Tracker tab, then right-click the song name.
 
 ### Newly received songs are not appearing in game
 While on the song list press ***F7***/your defined reload key or use `Advanced > Reloading > Reload Game`.
