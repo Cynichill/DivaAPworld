@@ -69,7 +69,9 @@ If you cannot or do not want to use a mod manager.
 
 1. [Install DivaModLoader.](https://github.com/blueskythlikesclouds/DivaModLoader?tab=readme-ov-file#installation)
 2. Download and extract the Archipelago Mod listed under [Requirements.](#requirements)
-3. Place the extracted `ArchipelagoMod` folder into the `mods` folder.
+3. Place the extracted `ArchipelagoMod` folder into the `mods` folder. 
+ 
+If `Hatsune Miku Project DIVA Mega Mix Plus\config.toml` has a `priority` line, usually filled by a mod manager, add `ArchipelagoMod` to it.
 
 #### Resulting mod file structure
 ```
