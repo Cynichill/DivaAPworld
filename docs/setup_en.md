@@ -54,11 +54,20 @@ Please read descriptions before installing. These may not be relevant to you or 
 
 Linux users that experience clipboard issues *may* need to run the Archipelago Launcher and JSON Generator through a command line to get the output there.
 
-It is recommended to regenerate the mod string when adding or updating packs.
-
-Individual songs can be excluded from the song selection pool in the YAML's `exclude_songs` section.
-
 ## Troubleshooting
+
+### Determining song names for the YAML
+
+To find the names to use for YAML options such as `include_songs`:
+
+1. Create a valid YAML [including mod data if you have it](#mod-songs)
+2. Place the YAML in Archipelago's `Players` folder
+3. If running, completely restart Archipelago
+4. Open **Export Datapackage** from the Archipelago Launcher
+   - If asked, open with a text editor like Notepad 
+5. Locate the game's section then the desired songs
+
+For example, *Love is War* would be `Love is War [1]`.
 
 ### There are songs outside my specified difficulty settings
 Starting (`start_inventory`), Included (`include_songs`), and the Goal Song (`goal_song`) will *always* ignore difficulty settings.
@@ -68,10 +77,12 @@ To increase the success of seed generation the difficulty settings are conservat
 ### My settings are too long or difficult
 **Note: You can play any available difficulty for the same checks.**
 
-Enable **AP Developer Mode** from the Advanced tab, switch to the Tracker tab, then right-click the song name.
+1. Enable **Developer Mode** from the Advanced tab
+2. Switch to the Tracker tab
+3. Right-click the song name
 
 ### Newly received songs are not appearing in game
-While on the song list press ***F7***/your defined reload key or use `Advanced > Reloading > Reload Game`.
+While on the song list press ***F7***/your defined reload key or use `Client > Reload`.
 
 - Switch to the **All** filter in the song list.
 - Check each difficulty. Not every song is available on every difficulty.
