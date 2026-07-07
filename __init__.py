@@ -4,6 +4,7 @@ from worlds.LauncherComponents import Component, components, Type, launch_subpro
 from BaseClasses import Region, Item, ItemClassification, Tutorial
 from Options import PerGameCommonOptions, OptionError
 import settings
+from rule_builder.rules import Has
 
 #Local
 from .Options import MegaMixOptions, megamix_option_groups
@@ -100,18 +101,14 @@ class MegaMixWorld(World):
         if re_gen_passthrough and self.game in re_gen_passthrough:
             slot_data: dict[str, any] = re_gen_passthrough[self.game]
 
-            self.options.progressive_hp.value = int(slot_data.get("progHP", 0)) + 1
+            self.options.progressive_hp.value = 1 + int(slot_data.get("progHP", 0))
 
             # Inject mod data, remap as needed
             from .SymbolFixer import format_song_name
             from .Items import SongData
             remap = slot_data.get("modRemap", {})
             for pack, items in slot_data.get("modData", {}).items():
-                for item in items: # for name, song_id in items
-                    # Temporary back-compat for testing on older world gens
-                    name = "Modded Song" if isinstance(item, int) else item[0]
-                    song_id = item if isinstance(item, int) else item[-1]
-
+                for name, song_id in items:
                     formatted_name = format_song_name(name, song_id)
                     item_id = remap.get(str(song_id), song_id * 10)
 
@@ -322,15 +319,17 @@ class MegaMixWorld(World):
 
         # Adds 2 item locations per song to the menu region.
         for name in all_selected_locations:
+            rule = Has(name)
             for j in range(2):
                 loc = MegaMixLocation(self.player, f"{name}-{j}", self.mm_collection.song_locations[f"{name}-{j}"], menu_region)
-                loc.access_rule = lambda state, item=name: state.has(item, self.player)
+                self.set_rule(loc, rule)
                 menu_region.locations.append(loc)
 
     def set_rules(self) -> None:
-        self.multiworld.completion_condition[self.player] = lambda state: \
-            state.has(self.mm_collection.LEEK_NAME, self.player, self.get_leek_win_count()) \
-            and state.has("Progressive HP", self.player, self.prog_hp_added)
+        self.set_completion_rule(
+            Has(self.mm_collection.LEEK_NAME, self.get_leek_win_count())
+            & Has("Progressive HP", self.prog_hp_added)
+        )
 
     def get_leek_count(self) -> int:
         """Number of Leeks to be placed in the item pool based on user option and final song count."""
@@ -349,15 +348,11 @@ class MegaMixWorld(World):
         return max(1, floor(leek_count * multiplier))
 
     def get_difficulty_range(self) -> list[float]:
+        diff_ratings = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10]
+        minimum_difficulty = diff_ratings[self.options.song_difficulty_rating_min.value]
+        maximum_difficulty = diff_ratings[self.options.song_difficulty_rating_max.value]
 
-        # Generate the number_to_option_value dictionary using the formula
-        number_to_option_value = {i: 1 + i * 0.5 if i % 2 != 0 else int(1 + i * 0.5) for i in range(19)}
-
-        minimum_difficulty = number_to_option_value.get(self.options.song_difficulty_rating_min.value, None)
-        maximum_difficulty = number_to_option_value.get(self.options.song_difficulty_rating_max.value, None)
-        difficulty_bounds = [min(minimum_difficulty, maximum_difficulty), max(minimum_difficulty, maximum_difficulty)]
-
-        return difficulty_bounds
+        return [min(minimum_difficulty, maximum_difficulty), max(minimum_difficulty, maximum_difficulty)]
 
     def write_spoiler_header(self, spoiler_handle: TextIO):
         spoiler_handle.write(f"Selected Goal Song:              {self.victory_song_name}\n")
