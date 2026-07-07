@@ -34,7 +34,7 @@ class DuplicateSongPercentage(Range):
     """
     range_start = 0
     range_end = 100
-    default = 100
+    default = 50
     display_name = "Duplicate Song Percentage"
 
 
@@ -193,6 +193,7 @@ class ExcludeSongs(ItemSet):
 
     Use "Export Datapackage" from the Archipelago Launcher and see the game's section for song item names and groups."""
     display_name = "Exclude Songs"
+    #default = {"-Archipelago Randomizer Enabled- [144]", "Ievan Polkka (Tutorial) [700]"}
 
 
 class ModData(FreeText):
@@ -219,7 +220,7 @@ class TrapPercentage(Range):
     display_name = "Trap Percentage"
     range_start = 0
     range_end = 100
-    default = 0
+    default = 50
 
 
 class ProgressiveHP(Range):
