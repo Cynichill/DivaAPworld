@@ -1,6 +1,6 @@
 #AP
 from worlds.AutoWorld import World, WebWorld
-from worlds.LauncherComponents import Component, components, Type, launch_subprocess
+from worlds.LauncherComponents import Component, components, Type, launch_subprocess, icon_paths
 from BaseClasses import Region, Item, ItemClassification, Tutorial
 from Options import PerGameCommonOptions, OptionError
 import settings
@@ -21,11 +21,13 @@ def launch_json_generator():
     from .generator_megamix.generator import launch
     launch_subprocess(launch, name="MegaMixJSONGenerator")
 
+icon_paths["generator_megamix"] = f"ap:{__name__}/generator_megamix/icon.webp"
 
 components.append(Component(
     "Mega Mix JSON Generator",
     func=launch_json_generator,
-    component_type=Type.ADJUSTER
+    component_type=Type.ADJUSTER,
+    icon="generator_megamix"
 ))
 
 class MegaMixSettings(settings.Group):

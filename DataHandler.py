@@ -7,8 +7,9 @@ import settings
 import Utils
 import logging
 
+from Options import OptionError
 from .SymbolFixer import format_song_name
-from schema import Schema, And
+from schema import Schema, And, SchemaError
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
@@ -16,10 +17,10 @@ logger = logging.getLogger(__name__)
 
 
 mod_json_schema = Schema({
-    And(str, len): [[
-        And(str, len),
-        And(int, lambda x: x > 0),
-        And(int, lambda x: x > 0),
+    And(str, len): [[ # Non-empty pack name
+        And(str, len), # Non-empty song name
+        And(int, lambda x: x > 0), # Song ID
+        And(int, lambda x: x > 0), # Diffs bitfield
     ]]
 })
 
@@ -86,6 +87,8 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
                     mod_json_schema.validate(parsed)
                     all_mod_data.append(parsed)
         except Exception as e:
+            # Delay raising invalid schema otherwise the whole world can brick (JSON Generator)
+            # get_player_specific_ids is during generate_early as opposed to on world init
             logger.warning(f"Failed to extract mod data from {item.name}: {e}")
 
     total = sum(len(pack) for packList in all_mod_data for pack in packList.values())
@@ -94,14 +97,18 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     return all_mod_data
 
 
-def get_player_specific_ids(mod_data, remap: dict[int, dict[str, list]]) -> (dict, set, dict):
+def get_player_specific_ids(mod_data: str, remap: dict[int, dict[str, list]]) -> (dict, set, dict):
+    if not mod_data:
+        return {}, set(), {}
+
     try:
         parsed = json.loads(mod_data)
         mod_json_schema.validate(parsed)
         player_specific = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
-    except Exception as e:
-        logger.warning(f"Failed to extract player specific IDs: {e}")
-        return {}, set(), {}
+    except SchemaError as e:
+        raise OptionError(f"Failed to extract player specific IDs (schema)\n{e}")
+    except Exception as e: # JSONDecodeError, UnicodeDecodeError
+        raise OptionError(f"Failed to extract player specific IDs\n{e}")
 
     conflicts = remap.keys() & player_specific.keys()
 
