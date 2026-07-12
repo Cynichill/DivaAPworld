@@ -1,5 +1,5 @@
 import functools
-import json
+import orjson
 import re
 import os
 import sys
@@ -83,7 +83,7 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
                     if not mod_data_content or isinstance(mod_data_content, dict):
                         continue
 
-                    parsed = json.loads(mod_data_content)
+                    parsed = orjson.loads(mod_data_content)
                     mod_json_schema.validate(parsed)
                     all_mod_data.append(parsed)
         except Exception as e:
@@ -102,7 +102,7 @@ def get_player_specific_ids(mod_data: str, remap: dict[int, dict[str, list]]) ->
         return {}, set(), {}
 
     try:
-        parsed = json.loads(mod_data)
+        parsed = orjson.loads(mod_data)
         mod_json_schema.validate(parsed)
         player_specific = {song[1]: song[0] for pack, songs in parsed.items() for song in songs}
     except SchemaError as e:
