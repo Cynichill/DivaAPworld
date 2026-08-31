@@ -147,12 +147,12 @@ class LeeksRequiredPercentage(Range):
 class GoalPercentage(Range):
     """If Goal Mode is Percentage, the percentage of checks done to unlock the Goal Song.
     - Highly influenced by rooms that use collect or send_location.
-    - It is recommended to have little to no Duplicate Songs.
+    - The Duplicate Songs option will be capped to 15%.
     """
     display_name = "Goal Percentage"
-    range_start = 35
+    range_start = 50
     range_end = 100
-    default = 39
+    default = 60
 
 
 class GoalSongs(ItemSet):
