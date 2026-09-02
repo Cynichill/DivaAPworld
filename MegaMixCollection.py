@@ -138,6 +138,7 @@ class MegaMixCollections:
 
         return filtered_list
 
+    known_groups = ["BaseSongs", "DLCSongs", "MikuSongs", "RinSongs", "LenSongs", "LukaSongs", "KAITOSongs", "MEIKOSongs", "Grasssanity", "Modded"]
     def get_item_name_groups(self) -> dict[str, set]:
         base_songs = {name: data for name, data in self.song_items.items() if not data.modded}
         groups = {
