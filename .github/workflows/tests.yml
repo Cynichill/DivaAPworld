@@ -7,75 +7,83 @@ on:
     - cron: "0 0 * * 0"
 
 env:
-  UPSTREAM_REF_FUZZER: '0.6.2'
-  # ArchipelagoMW/Archipelago/commit/15561e1 breaks the fuzzer. for now, follow a tag
-  UPSTREAM_REF_ARCHIPELAGO: '0.6.7'
+  UPSTREAM_REF_FUZZER: '0.7.0'
+  UPSTREAM_REF_ARCHIPELAGO: 2c64ef42af2389280d06ad2058e5b4c73d44f981 # 0.6.8 + dev, 2026-11-21T03:47:40.000Z
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - name: Archipelago | Checkout
+        uses: actions/checkout@v7.0.1
         with:
           repository: ArchipelagoMW/Archipelago
           ref: ${{ env.UPSTREAM_REF_ARCHIPELAGO }}
-      - uses: actions/checkout@v6.0.2
-        with:
-          path: worlds/megamix
-
-      - name: World | Set up Fuzzer
-        uses: actions/checkout@v6.0.2
-        with:
-          repository: Eijebong/Archipelago-fuzzer
-          ref: ${{ env.UPSTREAM_REF_FUZZER }}
-          path: fuzzer
+          sparse-checkout: |
+            /*
+            !/worlds/*/
+            /worlds/generic/
+            /worlds/apquest/
+          sparse-checkout-cone-mode: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
           version: "latest"
-          python-version: 3.12
+          python-version: 3.13
           enable-cache: true
 
       - name: Archipelago | Setup
         run: |
-          find ./worlds -mindepth 1 -maxdepth 1 -type d -regextype posix-extended ! -regex '.*/(megamix|generic|alttp|apquest)' -exec rm -rf {} \;
+          sudo apt install libcairo2-dev
           uv venv
           uv pip install pip pytest pytest-subtests pytest-xdist
-          find -name requirements.txt | xargs -n1 uv pip install -r
-          #uv run cythonize -a -i _speedups.pyx # 3.11-
-          uv run python ModuleUpdate.py --yes --force --append "WebHostLib/requirements.txt"
+          #find -name requirements.txt | xargs -n1 uv pip install -r
+          # --append "WebHostLib/requirements.txt"
+          uv run python ModuleUpdate.py --yes --force 
+          uv run cythonize -a -i _speedups.pyx
           uv run python Launcher.py --update_settings
-          
-      - name: World | Fuzz
+
+      # This needs to be after host.yaml is created (normally or empty) to avoid a deadlock.
+      - name: World | Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          path: worlds/megamix
+
+      - name: Fuzzer | Setup
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: Eijebong/Archipelago-fuzzer
+          ref: ${{ env.UPSTREAM_REF_FUZZER }}
+          path: fuzzer
+      
+      - name: Fuzzer | Run
         run: |
           mv ./fuzzer/* .
           uv run python fuzz.py -g megamix -j 2 -r 50
 
-      - name: World | Fuzz (Artifacts)
+      - name: Fuzzer | Artifacts
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: fuzz_output
           path: fuzz_output/
           
-      - name: World | Fuzz (Determinism)
-        run: |
-          uv run python fuzz.py -g megamix -j 2 -r 10 -n 1 --hook hooks.determinism:Hook 
+      - name: Fuzzer | Determinism
+        run: uv run python fuzz.py -g megamix -j 2 -r 10 -n 1 --hook hooks.determinism:Hook 
 
-      - name: World | General tests
+      - name: World | Tests
         run: uv run pytest test/general worlds/megamix
 
       - name: Archipelago | Generate template
         run: |
-            uv run python Launcher.py "Generate Template Options"
-            cp "./Players/Templates/Hatsune Miku Project Diva Mega Mix+.yaml" .
-            AP_VER=$(jq -r '.minimum_ap_version' worlds/megamix/archipelago.json)
-            sed -Ei "s/(\s+version: )[0-9\.]+/\1$AP_VER/" "Hatsune Miku Project Diva Mega Mix+.yaml"
+          uv run python Launcher.py "Generate Template Options"
+          cp "./Players/Templates/Hatsune Miku Project Diva Mega Mix+.yaml" .
+          AP_VER=$(jq -r '.minimum_ap_version' worlds/megamix/archipelago.json)
+          sed -Ei "s/(\s+version: )[0-9\.]+/\1$AP_VER/" "Hatsune Miku Project Diva Mega Mix+.yaml"
             
       - name: Archipelago | Update archipelago.json
-        run: |
-            PYTHONPATH=. uv run python worlds/megamix/.github/workflows/manifest.py
+        run: PYTHONPATH=. uv run python worlds/megamix/.github/workflows/manifest.py
 
       - name: World | Zip
         run: |

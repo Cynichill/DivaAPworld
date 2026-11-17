@@ -55,7 +55,9 @@ def extract_mod_data_to_json() -> list[dict[str, list[tuple[str,int,int]]]]:
     game_key = "Hatsune Miku Project Diva Mega Mix+"
     mod_data_key = "megamix_mod_data"
 
-    user_path = Utils.user_path(settings.get_settings().generator.player_files_path)
+    # There is a lock timing issue calling get_settings() from the world this early if host.yaml does not already exist.
+    logger.debug("If execution locks up and you see this message, the world is unintentionally preventing the creation of host.yaml. Temporarily remove this world or create an empty host.yaml.")
+    user_path = Utils.user_path(settings.get_settings()["generator"]["player_files_path"])
     folder_path = sys.argv[sys.argv.index("--player_files_path") + 1] if "--player_files_path" in sys.argv else user_path
 
     logger.debug(f"Checking YAMLs for {mod_data_key} at {folder_path}")
