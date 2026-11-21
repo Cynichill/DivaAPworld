@@ -15,8 +15,6 @@ The `git clone` and relative path commands should be skipped and/or modified to 
 ```bash
 # Optionally replace with your fork
 git clone https://github.com/ArchipelagoMW/Archipelago
-# Replace with your fork
-git clone https://github.com/Cynichill/DivaAPworld
 
 # Only retain required worlds files for PyCharm and Launcher performance
 # Other worlds will not be available for code reference
@@ -24,6 +22,9 @@ git clone https://github.com/Cynichill/DivaAPworld
 cd Archipelago
 git sparse-checkout set --no-cone "/*" "!/worlds/*/" "/worlds/apquest/" "/worlds/generic/"
 cd ..
+
+# Replace with your fork
+git clone https://github.com/Cynichill/DivaAPworld
 
 # Windows: Symlink apworld folder
 mklink /J Archipelago\worlds\megamix DivaAPworld
